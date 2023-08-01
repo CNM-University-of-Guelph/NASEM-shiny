@@ -1,11 +1,13 @@
 # NASEM 2021 Dairy Model - Shiny App
-This is the source code for a shiny app (using Shiny for Python) that imports the `nasem_dairy` package from [](https://github.com/CNM-University-of-Guelph/NASEM-Model-Python)
+This is the source code for a shiny app (using Shiny for Python) that imports the `nasem_dairy` package from https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
 
 # Deployment
 This app is deployed to shinyapps.io by running:
 ```
 rsconnect deploy shiny .
 ```
+
+Currently deployed at: https://dave-innes-uog.shinyapps.io/nasem_shiny/
 
 The `rsconnect` package requires configuring: https://shiny.posit.co/py/docs/deploy-cloud.html
 
