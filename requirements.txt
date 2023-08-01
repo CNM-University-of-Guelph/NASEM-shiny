@@ -1,3 +1,0 @@
-shinyswatch
-pandas
-jinja2
