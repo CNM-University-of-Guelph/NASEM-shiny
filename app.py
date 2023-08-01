@@ -7,7 +7,7 @@ from asyncio import sleep
 # from NASEM_functions import *
 # from ration_balancer import *
 
-# pip install git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python@DI
+# pip install git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
 import nasem_dairy as nd
 
 # get list of feeds available from the feed library in db

@@ -1,4 +1,4 @@
 shinyswatch
 pandas
 jinja2
-nasem_dairy @ git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python@DI
+nasem_dairy @ git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
