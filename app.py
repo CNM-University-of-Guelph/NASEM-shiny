@@ -13,6 +13,7 @@ import nasem_dairy as nd
 # get list of feeds available from the feed library in db
 # used for user selection in shiny
 unique_fd_list = nd.fl_get_feeds_from_db('diet_database.db')
+var_desc = pd.read_csv("./variable_descriptions.csv").query("Description != 'Duplicate'")
 
 
 # Display results, temporary
@@ -32,7 +33,7 @@ def display_diet_values(df):
     return table
 
 
-# Function to add ui.div with new ingredenient and percentage
+# Function to add ui.div with new ingredient and percentage
 def insert_new_ingredient(current_iter, feed_choices, feed_selected = None, perc_selected = 0):
     newItemDiv = ui.div(
             {"id" : "userfeed_" + current_iter}, # div ID
@@ -186,14 +187,14 @@ def server(input, output, session):
 
         # animal:
         # change page that is being viewed:
-        ui.update_navs("navbar_id", selected="Animal Inputs")
+        # ui.update_navs("navbar_id", selected="Animal Inputs")
 
         anim_list = ["An_Parity_rl", "Trg_MilkProd", "An_BW", "An_BCS", "An_LactDay", "Trg_MilkFatp", "Trg_MilkTPp", "Trg_MilkLacp", "DMI", "An_BW_mature", "Trg_FrmGain", "An_GestDay", "An_GestLength", "Trg_RsrvGain", "Fet_BWbrth", "An_AgeDay", "An_305RHA_MlkTP"]
         anim_defaults = [2, 35, 700, 3, 150, 3.8, 3.10, 4.85, 24.5, 700, 0.19, 46, 280, 0, 44.1, 1620, 280]
         
         for an_item, an_val in zip(anim_list, anim_defaults):
             ui.update_numeric(id = an_item, value = an_val)
-
+       
         # remove button
         ui.remove_ui(selector="div:has(> #add_demo_diet)")
 
@@ -220,7 +221,8 @@ def server(input, output, session):
 
     @reactive.Calc
     def get_diet_info():
-    #     # Get items from input by name
+    #   # Get items from input by name
+    # each 'feed' and '%' value is stored in these reactives (named 'item_1', etc) which means we can iterate through them and store their values in a list when we need them
         items = [getattr(input, x) for x in user_feeds()]
         perc = [getattr(input, x) for x in user_percentages()]
         
@@ -261,6 +263,7 @@ def server(input, output, session):
 
     ###########################################
     # Animal inputs
+    # this takes each individual input from UI and stores it in a dictionary that can be used by model.
     @reactive.Calc
     def animal_input():
         return {
@@ -299,6 +302,9 @@ def server(input, output, session):
     
     #######################################################
     # Run Model
+    # each of the inputs has been formatted from UI inputs to the required type needed by teh model.
+    # e.g. currently diet_info is a df whereas animal_input is a dict.
+    # Might make sense to use all dicts???
 
     @reactive.Calc
     @reactive.event(input.btn_run_model)
@@ -308,7 +314,15 @@ def server(input, output, session):
     @output
     @render.table
     def model_data():
-        return pd.DataFrame(NASEM_out()["model_results"], index=['Value']).T.reset_index()
+        model_df = pd.DataFrame.from_dict(
+            NASEM_out()['model_results_full'], orient='index', columns=['Value']
+            ).reset_index(
+                names="Model Variable"
+                ).assign(
+                    Value = lambda df: df['Value'].round(3)
+                    ).merge(var_desc, how = 'left')
+
+        return model_df
 
     @output
     @render.table
