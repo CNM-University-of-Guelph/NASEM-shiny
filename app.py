@@ -1,36 +1,32 @@
-from shiny import App, reactive, render, ui
+from shiny import App, reactive, render, ui, req
+import shiny.experimental as x
+from shinywidgets import output_widget, render_widget, reactive_read
+
 import pandas as pd
-from asyncio import sleep
+# from asyncio import sleep
 # import shinyswatch
 #import pdb #like browser()
 
-# from NASEM_functions import *
-# from ration_balancer import *
+# from itables.shiny import DT
+# import itables.options as opt
+# opt.maxBytes=0
+# opt.maxRows=300
+
+# Grid Table, has edits and row/column/cell selection - see: https://github.com/bloomberg/ipydatagrid/blob/main/examples/Selections.ipynb
+from ipydatagrid import DataGrid
+
 
 # pip install git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
 import nasem_dairy as nd
+
+from utils import display_diet_values, get_feed_library_df
+
 
 # get list of feeds available from the feed library in db
 # used for user selection in shiny
 unique_fd_list = nd.fl_get_feeds_from_db('diet_database.db')
 var_desc = pd.read_csv("./variable_descriptions.csv").query("Description != 'Duplicate'")
 
-
-# Display results, temporary
-def display_diet_values(df):
-    components = ['Fd_CP', 'Fd_RUP_base', 'Fd_NDF', 'Fd_ADF', 'Fd_St', 'Fd_CFat', 'Fd_Ash']
-    rows = []
-
-    for component in components:
-        percent_diet = round(df.loc['Diet', component + '_%_diet']) #.values[0], 2)
-        kg_diet = round(df.loc['Diet', component + '_kg/d'])    #.values[0], 2)
-        rows.append([component, percent_diet, kg_diet])
-
-    headers = ['Component', '% DM', 'kg/d']
-
-    table = pd.DataFrame(rows, columns = headers)
-
-    return table
 
 
 # Function to add ui.div with new ingredient and percentage
@@ -60,15 +56,65 @@ def insert_new_ingredient(current_iter, feed_choices, feed_selected = None, perc
 
 app_ui = ui.page_navbar(
     # shinyswatch.theme.flatly(),
+
+    ui.nav("Feed Library",
+        x.ui.card(
+            x.ui.layout_column_wrap('200px',
+                ui.p('View column groups:'),
+                ui.input_switch('cols_show_all', 'Show all columns')
+                ),
+            ui.panel_conditional( "!input.cols_show_all",
+                x.ui.layout_column_wrap(1/5,                  
+                    ui.input_switch('cols_common', 'Commonly used',  value=True),                    
+                    ui.input_switch("cols_amino_acids", "Amino Acids"),
+                    ui.input_switch('cols_fatty_acids', 'Fatty Acids'),
+                    ui.input_switch('cols_vitamins', 'Vitamins'),
+                    ui.input_switch('cols_minerals', 'Minerals')
+                    )
+                )
+            ),
+            
+        
+        x.ui.card(
+            x.ui.layout_sidebar(
+                x.ui.sidebar(
+                    ui.p("Feeds selected by user:"),
+                    ui.output_data_frame('user_selected_feed_names'),
+                    ui.br(),
+                    ui.input_action_button('reset_user_selected_feed_names', "Clear list")
+                ),
+                ui.p("Click on a row in the table below to store the Feed Name in the side panel. This is a temporary list that will be shown you create your diet in the next step."),
+                output_widget('grid_feed_library'),
+            ),
+            full_screen=True
+        ),
+                x.ui.card(
+            ui.p("Advanced:"),
+            ui.input_checkbox("hide_calf_feeds", "Hide calf related feeds:", True),
+            full_screen=False
+        ),
+        ),
         ui.nav("Feed Inputs",
            ui.panel_title("Feed inputs"),
-           ui.output_ui("item_input"),
-           ui.row(
-               ui.column(4, ui.input_action_button("add_button", "Add another feed")),
-               ui.column(4, ui.input_action_button("add_demo_diet", "Add demo diet"))
+           x.ui.card(
+            x.ui.layout_sidebar(
+                x.ui.sidebar(
+                    ui.p("Feeds selected by user:"),
+                    ui.output_data_frame('user_selected_feed_names_2'),
+                    ui.br(),
+                    ui.input_action_button('reset_user_selected_feed_names_2', "Clear list")
+                ),
+                ui.output_ui("item_input"),
+                ui.row(
+                        ui.column(4, ui.input_action_button("add_button", "Add another feed")),
+                        ui.column(4, ui.input_action_button("add_demo_diet", "Add demo diet"))
            ),
            ui.br(),
            ui.output_table("user_selections"),
+            )
+            ),
+
+           
            ),
         ui.nav("Animal Inputs",
                # There are 3 NDF Digestability estimates, 0=Lg based, 1=DNDF48 for forages, 2=DNDF48 for all
@@ -103,7 +149,11 @@ app_ui = ui.page_navbar(
                ui.br(),
                ui.input_action_button("btn_run_model", "Run NASEM model"),
                ui.h4("Model Outputs"),
+               ui.h5('Diet:'),
                ui.output_table('diet_data_model'),
+               ui.h5('Key model predictions:'),
+               ui.output_table('key_model_data'),
+               ui.h5('All model predicitons'),
                ui.output_table('model_data'),
                ui.br(),
                ui.br(),
@@ -116,15 +166,202 @@ app_ui = ui.page_navbar(
                ui.output_table('feed_data'),
                ui.output_table('diet_info')
                
-               ),   
+               ), 
     title= "NASEM for python",
     id='navbar_id',
-    inverse = True
+    inverse = True,
+    # fillable=False,
+    # *****************************************************************************************************
+    # Current glitch prevents the filters working on feed library widget when using a x.ui. page_fillable() 
+    # if fillable=False, but a sidebar is defined, it also reverts to True, so glitches.
+    # Implementing copies of same sidebar on each page for now.
+    # sidebar=
+    #     x.ui.sidebar(
+    #                 ui.p("Feeds selected by user from Feed Library:"),
+    #                 ui.output_data_frame('user_selected_feed_names'),
+    #                 ui.br(),
+    #                 ui.input_action_button('reset_user_selected_feed_names', "Clear list")
+    #             )
 
 
 )
 
+
+# ----------------------------------------------------------------------------------------------------------------
+# Server
+
 def server(input, output, session):
+    #######################################################
+    # Feed Library
+    #######################################################
+
+    def rename_df_cols_Fd_to_feed(df: pd.DataFrame) -> pd.DataFrame:
+        '''
+        Rename columns of the feed df to replace Fd_ with 'Feed_' 
+        Takes a df and returns a df.
+        '''
+        return df.rename(columns= {col: f'Feed {col[3:]}' if col.startswith('Fd_') else col for col in df.columns} )
+
+    
+    df_full =  rename_df_cols_Fd_to_feed(get_feed_library_df('diet_database.db'))
+
+    ########################
+    # Filter columns based on user input
+
+    # df_feed_lib_userfriendly.loc[:,'Feed DM':'Feed WSC']
+    
+    @reactive.Calc
+    def df_feed_lib_userfriendly():
+        '''
+        Create's a smaller version of data for viewing only, based on user input related to :
+        - Columns grouped by: 'Commonly used',  "Amino Acids", 'Fatty Acids', 'Vitamins', 'Minerals'
+            - Commonly used refers to ID columns + DM, DE_Base, ADF, NDF, CP, RUP, NPN_CP, Ash, Ca, P, Mg
+        - Remove all feeds related to calves e.g. milk or calf starter
+        '''
+
+        # calves:        
+        if input.hide_calf_feeds() == True:
+            df_calf_filter = (
+                df_full
+                .query("`Feed Category` != 'Calf Liquid Feed'")
+                .query("`Feed Name`" + ".str.contains('Calf', case=False, na=False) == False")
+        ) 
+        else:
+            df_calf_filter = df_full
+
+        # split dataframe into their groups
+        df_ID = df_calf_filter.loc[:,['Feed Name','Feed Category', 'Feed Type']]
+
+        if input.cols_common() == True:
+            df_common = df_calf_filter.loc[:,['Feed DM', 'Feed DE_Base', 'Feed ADF', 'Feed NDF', 'Feed DNDF48_NDF', 'Feed CP', 'Feed RUP_base', 'Feed NPN_CP', 'Feed Ash', 'Feed Ca', 'Feed P', 'Feed Mg', 'Feed K']]
+        else:
+            df_common = pd.DataFrame()
+
+        
+        if input.cols_amino_acids() == True:
+            df_AA = df_calf_filter.loc[:,'Feed Arg_CP':'Feed Val_CP']
+        else:
+            df_AA = pd.DataFrame()
+        
+        if input.cols_fatty_acids() == True:
+            df_FA = df_calf_filter.loc[:,'Feed CFat':'Feed OtherFA_FA'].drop('Feed Ash', axis =1)
+        else:
+            df_FA = pd.DataFrame()
+        
+        if input.cols_vitamins() == True:
+            df_vit = df_calf_filter.loc[:,'Feed B_Carotene':'Feed VitE']
+        else:
+            df_vit = pd.DataFrame()
+
+        if input.cols_minerals() == True:
+            if input.cols_common() == True:
+                df_minerals = df_calf_filter.loc[:,'Feed Ca':'Feed Zn'].drop(['Feed Ca', 'Feed P', 'Feed Mg', 'Feed K'], axis=1)
+            else:
+                df_minerals = df_calf_filter.loc[:,'Feed Ca':'Feed Zn']
+        else:
+            df_minerals = pd.DataFrame()
+
+
+        if input.cols_show_all() == True:
+            df_out = df_calf_filter
+        else:
+            df_out = df_ID.join([df_common, df_AA, df_FA, df_vit, df_minerals])
+
+        
+        return df_out
+
+    
+
+
+
+    ########################
+    # Create DataGrid and render it
+    # help for DataGrid attributes: https://github.com/bloomberg/ipydatagrid/blob/main/ipydatagrid/datagrid.py#L214
+    @reactive.Calc
+    def datagrid_feed_lib():
+        return DataGrid(df_feed_lib_userfriendly(), 
+                            auto_fit_columns = True,
+                            selection_mode="row",
+                            editable = False)
+    
+    @output
+    @render_widget
+    def grid_feed_library():
+        return datagrid_feed_lib()
+
+    ########################
+    # Get the user selections from DataGrid
+    # These should be stored to a reactive list so that they aren't lost if table filters change
+
+    # initiliase reactive value that contains a list
+    feed_library_index_stored = reactive.Value([])
+
+    @reactive.Calc
+    def prepare_user_selected_feed_names():
+        '''
+        Handles the specific selections from a datagrid to return a dataframe that is rendered 
+        in the sidepanel to show users which feeds they've selected. 
+        This is useful when building diets.
+        '''
+        # This is shiny version of writing this: datagrid_feed_lib.selections
+        # or selected_cells, etc.
+        row_selections = reactive_read(datagrid_feed_lib(), "selections")
+        row_index = [list(range(row_number['r1'], row_number['r2']+1)) for row_number in row_selections]
+        flattened_index = [i for row in row_index for i in row]
+        print(flattened_index)
+       
+        return(flattened_index)
+        # return(fd_lib_stored_copy)
+        # return(feed_library_index_stored)
+    
+    
+    @reactive.Effect
+    def _():
+        # take a dependency on the user selection, which updates every time a cell is clicked
+        prepare_user_selected_feed_names()
+        
+        # then, execute this code but preventing other code taking a dependency on it - prevents infinite loop
+        with reactive.isolate():
+            fd_lib_stored_copy = feed_library_index_stored().copy()
+            fd_lib_stored_copy.extend(prepare_user_selected_feed_names())
+            # remove duplicates (by converting to set) and then set the reactiveValue as this new list
+
+            feed_library_index_stored.set(list(set(fd_lib_stored_copy)))
+
+    @reactive.Effect
+    @reactive.event(input.reset_user_selected_feed_names, input.reset_user_selected_feed_names_2)
+    def _():
+        feed_library_index_stored.set([])
+
+
+    @output
+    @render.data_frame
+    def user_selected_feed_names():
+        
+        user_selected_feeds = (df_feed_lib_userfriendly()
+                               .reset_index(drop = True) # reset's index to match a 'row number' from selection with index (after filtering)
+                               .loc[feed_library_index_stored(),'Feed Name'])
+        return pd.DataFrame(user_selected_feeds)
+    
+    # ***********
+    # Copy of above due to glitch
+    @output
+    @render.data_frame
+    def user_selected_feed_names_2():
+        user_selected_feeds = (df_feed_lib_userfriendly()
+                               .reset_index(drop = True) # reset's index to match a 'row number' from selection with index (after filtering)
+                               .loc[feed_library_index_stored(),'Feed Name'])
+        return pd.DataFrame(user_selected_feeds)
+
+
+
+
+
+
+    #######################################################
+    # Feed Inputs
+    #######################################################
+
     # Initialize reactive values to store user selections
     user_feeds = reactive.Value(['item_1'])
     user_percentages = reactive.Value(['perc_1'])
@@ -162,16 +399,14 @@ def server(input, output, session):
     def _():
         iterate_new_ingredient()
         
-
-
-  
-    
+    ########################
+    # Add Demo diet
     @reactive.Effect
     @reactive.event(input.add_demo_diet)
     def _():
-        ui.update_selectize(id = 'item_1', selected = "Canola meal")
-        ui.update_numeric(id = 'perc_1', value = 10)
-
+        ui.update_selectize(id = 'item_1',choices = unique_fd_list, selected = "Canola meal")
+        ui.update_numeric(id = 'perc_1', value = 11)
+        
         demo_feeds = ['Alfalfa meal', 'Corn silage, typical', 'Barley grain, dry, ground', 'Pasture, grass']
         demo_percs = [16.3, 40, 16.3, 15]
 
@@ -198,9 +433,7 @@ def server(input, output, session):
         # remove button
         ui.remove_ui(selector="div:has(> #add_demo_diet)")
 
-    
-
-
+  
     @output
     @render.ui
     def item_input():
@@ -261,8 +494,9 @@ def server(input, output, session):
         return get_diet_info()
 
 
-    ###########################################
+    #######################################################
     # Animal inputs
+    #######################################################
     # this takes each individual input from UI and stores it in a dictionary that can be used by model.
     @reactive.Calc
     def animal_input():
@@ -302,6 +536,7 @@ def server(input, output, session):
     
     #######################################################
     # Run Model
+    #######################################################
     # each of the inputs has been formatted from UI inputs to the required type needed by teh model.
     # e.g. currently diet_info is a df whereas animal_input is a dict.
     # Might make sense to use all dicts???
@@ -311,18 +546,39 @@ def server(input, output, session):
     def NASEM_out():
         return nd.NASEM_model(get_diet_info(), animal_input(), equation_selection(), 'diet_database.db', nd.coeff_dict)
     
+    
+    @reactive.Calc
+    def full_model_output():
+        '''
+        Prepare model output data to be rendered or filtered further
+        '''
+        model_df = (pd.DataFrame
+            .from_dict(
+                NASEM_out()['model_results_full'], orient='index', columns=['Value']
+                )
+            .reset_index(
+                names="Model Variable"
+                )
+            .assign(
+                Value = lambda df: df['Value'].round(3)
+                )
+            .merge(var_desc, how = 'left')
+            )
+        return model_df
+
+    @output
+    @render.table
+    def key_model_data():
+        # Variables to return:
+        vars_return = ['Mlk_Prod_comp','milk_fat', 'milk_protein', 'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow', 'An_MEIn', 'Trg_MEuse', 'An_MPIn', 'An_MPuse_g_Trg']
+        # this reindexing will put them in the order of vars_return
+        return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return)
+        
+    
     @output
     @render.table
     def model_data():
-        model_df = pd.DataFrame.from_dict(
-            NASEM_out()['model_results_full'], orient='index', columns=['Value']
-            ).reset_index(
-                names="Model Variable"
-                ).assign(
-                    Value = lambda df: df['Value'].round(3)
-                    ).merge(var_desc, how = 'left')
-
-        return model_df
+        return full_model_output()
 
     @output
     @render.table
@@ -340,4 +596,4 @@ def server(input, output, session):
         return NASEM_out()['feed_data']
 
 
-app = App(app_ui, server)
+app = App(app_ui, server,  debug=False)
