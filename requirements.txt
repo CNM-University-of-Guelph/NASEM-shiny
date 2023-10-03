@@ -6,6 +6,6 @@ jinja2
 markdown2
 re
 io
-datetimeß
+datetime
 ipydatagrid
 nasem_dairy @ git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
