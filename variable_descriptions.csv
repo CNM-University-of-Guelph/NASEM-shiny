@@ -24,17 +24,21 @@ Fd_RUP_base,% RUP of a feedstuff
 Fd_RUP_base_%_CP,"Dt_RUP_base_%_CP, %CP RUP diet"
 Fd_RUP_base_%_diet,"Fd_RUP_base_%_diet,  % RUP diet"
 Fd_RUP_base_kg/d,"Fd_RUP_base_kg/d, kg/d RUP intake"
+Fd_RDP_base,% RDP of a feedstuff
+Fd_RDP_base_%_CP,"Dt_RDP_base_%_CP, %CP RDP diet"
+Fd_RDP_base_%_diet,"Fd_RDP_base_%_diet,  % RDP diet"
+Fd_RDP_base_kg/d,"Fd_RDP_base_kg/d, kg/d RDP intake"
 Fd_NDFIn,Duplicate of sum(Fd_NDF_kg/d)
 TT_dcFdNDF_48h,48 hour total tract NDF digestability
 TT_dcFdNDF_Base,Stores the NDF digestability estimate selected by Use_DNDF_IV
-TT_dcFdNDF_Lg,Lignin based NDF total tract digestibility 
+TT_dcFdNDF_Lg,Lignin based NDF total tract digestibility
 Fd_DigNDFIn_Base,"Digestible NDF intake, kg/d"
 Fd_DigSt,Digestible starch content of feed
 Fd_DigStIn_Base,"Digerstible starch intake, kg/d"
 Fd_fHydr_FA,Hydrated fatty acid content of feed?
 Fd_NPNCP,"NPN in CP equivalent in the feed DM, kg/d"
 Fd_TP,True protein content of feed
-Fd_NPNDM,Estimate of NPN mass based on urea N content 
+Fd_NPNDM,Estimate of NPN mass based on urea N content
 Fd_rOM,Feed residal organic matter content
 Fd_DigrOMt,"Truly digested rOM in each feed, % DM"
 Fd_DigrOMtIn,"Truly digested rOM intake, kg/d"
@@ -156,8 +160,8 @@ Ur_Nout_g,"N loss in urine, g/d"
 Ur_DEout,"Digestible energy loss in urine, Mcal/d"
 An_MEIn,"Metabolizable energy intake, Mcal/d"
 An_NE_In,"Net energy intake, Mcal/d"
-An_NE,Net erngy intake/ DMI
-Trg_MEuse,ME requirement Mcal/d
+An_NE,"Net energy lactation, Mcal/kg DM"
+Trg_MEuse,"Metabolizable energy requirement, Mcal/d"
 An_NEmUse_NS,"Unstressed maintenance costs, Mcal/d"
 An_MBW,"Metabolic body weight, kg"
 An_NEm_Act_Graze,"Net energy costs for grazing, Mcal/d"
@@ -224,7 +228,7 @@ An_LactDay_MlkPred,Variable to cap DIM at 375 for milk yield predictions
 Mlk_Fat_g,"Predicted milk fat, g/d"
 Mlk_NP,"Net protein content of milk, kg/d"
 Mlk_Fat,"Predicted milk fat, kg/d"
-Mlk_Prod_comp,"Predicted milk productiom, kg/d"
+Mlk_Prod_comp,"Predicted milk production, kg/d"
 An_MPavail_Milk_Trg,Metabolizable protein available milk production
 Mlk_NP_MPalow_Trg_g,"Net protein in milk based on available metabolizable protein, g/d"
 Mlk_Prod_MPalow,"Metabolizable protein allowable milk production, kg/d"
@@ -232,3 +236,6 @@ An_MEavail_Milk,"Metabolizable energy available for milk production, Mcal/d"
 Mlk_Prod_NEalow,"Net energy allowable milk production, Mcal/d"
 milk_fat,"Predicted milk fat content, %"
 milk_protein,"Predicted milk protein content, %"
+An_MPuse_kg_Trg,"Metabolizable protein requirement, kg/d"
+Dt_NDF,"Diet Neutral Detergent Fibre, %"
+An_DCADmeq,"Dietary Cation-Anion Difference, mEq"

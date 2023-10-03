@@ -5,9 +5,9 @@ import sqlite3
 # Display results, temporary
 def display_diet_values(df):
     '''
-    Takes a dataframe from model output and formats it for better viewing. Temporary solution.
+    Takes a dataframe from model output and formats it for better viewing.
     '''
-    components = ['Fd_CP', 'Fd_RUP_base', 'Fd_NDF', 'Fd_ADF', 'Fd_St', 'Fd_CFat', 'Fd_Ash']
+    components = ['Fd_CP', 'Fd_RDP_base', 'Fd_RUP_base', 'Fd_NDF', 'Fd_ADF', 'Fd_St', 'Fd_CFat', 'Fd_Ash']
     rows = []
     
     # select diet row and store as dictionary
@@ -22,6 +22,22 @@ def display_diet_values(df):
     headers = ['Component', '% DM', 'kg/d']
 
     table = pd.DataFrame(rows, columns = headers)
+
+    # map new names
+    components_long = [
+        'Crude Protein (CP)',
+        'Rumen Degradeable Protein (RDP)',
+        'Rumen Undegradeable Protein (RUP)',
+        'Neutral detergent fibre (NDF)',
+        'Acid detergent fibre (ADF)',
+        'Starch',
+        'Fat',
+        'Ash'
+    ]
+
+    table = table.assign(
+        Component = components_long
+        )
 
     return table
 
@@ -70,13 +86,14 @@ def get_teaching_feeds() -> list:
         "Corn grain HM, fine grind",
         "Corn silage, typical",
         "Fat, canola oil",
-        "Manganese oxide",
+        "Magnesium oxide",
         "Sodium bicarbonate",
         "Soybean hulls",
         "Triticale silage, mid-maturity",
         "Urea",
         "Wheat straw",
-        "Triticale hay"
+        "Triticale hay",
+        'VitTM Premix, generic'
         ]
 
 def rename_df_cols_Fd_to_feed(df: pd.DataFrame) -> pd.DataFrame:
