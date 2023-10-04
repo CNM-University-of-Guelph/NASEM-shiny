@@ -141,3 +141,7 @@ dmypy.json
 # MacOS
 .DS_Store
 
+.vscode/launch.json
+.vscode/settings.json
+rsconnect-python/NASEM_shiny.json
+rsconnect-python/NASEM_shiny.json
