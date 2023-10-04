@@ -174,7 +174,7 @@ app_ui = ui.page_navbar(
 
                 ui.input_selectize(
                     "DMIn_eqn",
-                    label = "Select DM Intake equation to use (default is 'lactating, cow factors only'. Some don't currently work)",
+                    label = "Select DM Intake equation to use for predicting intake on Diet page (default is 'lactating, cow factors only'). Does not change model, user input DMI is always used in this app.",
                     choices = DM_intake_equation_strings(),
                     selected = 8, # type: ignore
                     multiple = False
@@ -335,6 +335,9 @@ app_ui = ui.page_navbar(
                         ui.br(),
                         ui.h4('extended output'),
                         ui.output_table('diet_info'),
+                        ui.h4("Confirm Model inputs:"),
+                        ui.output_table('animal_input_table_comparison'),
+                        ui.output_table('equation_selection_table')
                     )
                 ),
 
@@ -786,7 +789,7 @@ def server(input, output, session):
 
 
     @reactive.Calc
-    def animal_input():
+    def animal_input_SHINY() -> dict:
         return {
                 'An_Parity_rl': An_Parity_rl(),
                 'Trg_MilkProd': input.Trg_MilkProd(),
@@ -809,11 +812,32 @@ def server(input, output, session):
                 'An_Breed': input.An_Breed()
                 }
 
+    @reactive.Calc
+    def animal_input_RETURN() -> dict:
+        return NASEM_out()['animal_input']
+    
+    @reactive.Calc
+    def df_user_input_compare() -> pd.DataFrame:
+        '''
+        Compare user inputs from Shiny vs what gets returned by model.
+        Especially important for tracing DMI changes.
+        '''
+        df_user_input_SHINY = pd.DataFrame(animal_input_SHINY().items(), columns=['Variable Name', 'Value_SHINY'])
+        df_user_input_RETURN = pd.DataFrame(animal_input_RETURN().items(), columns=['Variable Name', 'Value_Model_Return'])
+
+        df_user_input_compare  = df_user_input_SHINY.merge(
+            df_user_input_RETURN, 
+            on='Variable Name', 
+            how='outer')
+        return df_user_input_compare
+    
     @output
     @render.table
-    def animal_inputs_table():
-        return pd.DataFrame(animal_input().items(), columns=['Variable Name', 'Value'])
+    def animal_input_table_comparison():
+        return df_user_input_compare()
 
+    
+    
     @reactive.Calc
     def equation_selection():
         return {'Use_DNDF_IV' : input.Use_DNDF_IV(), 'DMIn_eqn': input.DMIn_eqn()}
@@ -836,9 +860,15 @@ def server(input, output, session):
     @reactive.event(input.btn_run_model)
     def NASEM_out():
         print("Executed NASEM_model()")
-        return nd.NASEM_model(get_diet_info(), animal_input(), equation_selection(), user_selected_feed_library(), nd.coeff_dict)
+        # modify input.DMIn_eqn() to be 0 for model
+        modified_equation_selection = equation_selection().copy()
+        modified_equation_selection['DMIn_eqn'] = 0
+
+        return nd.NASEM_model(get_diet_info(), animal_input_SHINY().copy(), modified_equation_selection, user_selected_feed_library(), nd.coeff_dict)
     
-    
+    #######################################################
+    # Model Outputs
+    #######################################################
     @reactive.Calc
     def full_model_output():
         '''
@@ -859,6 +889,8 @@ def server(input, output, session):
         return model_df
         # return var_desc
 
+    
+
     ##################################################################
     # Model evaluation
     ##################################################################
@@ -875,17 +907,24 @@ def server(input, output, session):
     def key_model_data_milk():
         return df_key_model_data_milk()
     
-    @output
-    @render.table
-    def key_model_data_allowable_milk():
+
+    
+    @reactive.Calc
+    def df_key_model_data_allowable_milk():
         # Variables to return:
         vars_return = ['Mlk_Prod_MPalow', 'Mlk_Prod_NEalow']
         # this reindexing will put them in the order of vars_return
         return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return)
-
+    
     @output
     @render.table
-    def key_model_data_ME():
+    def key_model_data_allowable_milk():
+        return df_key_model_data_allowable_milk()
+    
+
+
+    @reactive.Calc
+    def df_key_model_data_ME():
         # Variables to return:
         vars_return = ['An_MEIn', 'Trg_MEuse', 'An_NE_In']
         # this reindexing will put them in the order of vars_return
@@ -893,39 +932,66 @@ def server(input, output, session):
 
     @output
     @render.table
-    def key_model_data_MP():
+    def key_model_data_ME():
+        return df_key_model_data_ME()
+    
+
+    @reactive.Calc
+    def df_key_model_data_MP():
         # Variables to return:
         vars_return = ['An_MPIn', 'An_MPuse_kg_Trg']
         # this reindexing will put them in the order of vars_return
         return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return)
-    
+
     @output
     @render.table
-    def key_model_data_DCAD():
+    def key_model_data_MP():
+        return df_key_model_data_MP()
+    
+
+
+    @reactive.Calc
+    def df_key_model_data_DCAD():
         # Variables to return:
         vars_return = ['An_DCADmeq']
         # this reindexing will put them in the order of vars_return
         return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return)
-    
-    
+
     @output
     @render.table
-    def key_model_data_NEL():
+    def key_model_data_DCAD():
+        return df_key_model_data_DCAD()
+    
+
+
+    @reactive.Calc
+    def df_key_model_data_NEL():
         # Variables to return:
         vars_return = ['An_NE', 'An_NE_In']
         # this reindexing will put them in the order of vars_return
         return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return)
+
+    @output
+    @render.table
+    def key_model_data_NEL():
+        return df_key_model_data_NEL()
+        
     
+    
+    @reactive.Calc
+    def df_key_model_data_energy_teaching():
+        # Variables to return:
+        vars_return = ['Trg_MEuse', 'An_MEmUse', 'An_MEgain', 'Gest_MEuse', 'Trg_Mlk_MEout', 'An_MEIn', 'Frm_NEgain', 'Rsrv_NEgain', 'GrUter_BWgain', 'An_MEIn', 'Mlk_Prod_NEalow', 'An_MEavail_Milk']
+        # this reindexing will put them in the order of vars_return
+        return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return)
+
     @output
     @render.table
     def key_model_data_energy_teaching():
-        # Variables to return:
-        vars_return = ['Trg_MEuse', 'An_MEmUse', 'An_MEgain', 'Gest_MEuse', 'Trg_Mlk_MEout', 'An_MEIn','Frm_NEgain', 'Rsrv_NEgain', 'GrUter_BWgain', 'An_MEIn', 'Mlk_Prod_NEalow', 'An_MEavail_Milk']
-        # this reindexing will put them in the order of vars_return
-        return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return)
-    
-    
-    ##################################################################    
+        return df_key_model_data_energy_teaching()
+
+
+
     
     @output
     @render.table
@@ -947,6 +1013,8 @@ def server(input, output, session):
     def feed_data():
         return NASEM_out()['feed_data']
     
+
+    
     @output
     @render.table
     def mineral_intakes():
@@ -966,15 +1034,19 @@ def server(input, output, session):
     @session.download(filename = lambda: f"NASEM_report-{date.today().isoformat()}.html")
     def btn_download_report():
         html_out = generate_report(
-            df_key_model_data_milk(),
-            df_key_model_data_milk(),
-            df_key_model_data_milk(),
-            df_key_model_data_milk(),
-            df_key_model_data_milk(),
-            df_key_model_data_milk(),
-            df_key_model_data_milk(),
-            df_key_model_data_milk()
-        )
+               df_milk = df_key_model_data_milk(),
+               df_allowable_milk = df_key_model_data_allowable_milk(),
+               df_ME = df_key_model_data_ME(),
+               df_MP = df_key_model_data_MP(),
+               df_diet_summary = display_diet_values(NASEM_out()["diet_info"]),
+               df_DCAD = df_key_model_data_DCAD(),
+               df_NEL = df_key_model_data_NEL(),
+               df_ration_ingredients = get_diet_info(),
+               df_energy_teaching = df_key_model_data_energy_teaching(),
+               df_full_model = full_model_output(),
+               df_animal_input_comparison = df_user_input_compare(), 
+               dict_equation_selections = equation_selection()
+                      )
     
         # Use io.BytesIO to yield the HTML content
         with io.StringIO() as buf:  # Use io.StringIO for string data
