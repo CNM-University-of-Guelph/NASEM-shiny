@@ -3,7 +3,6 @@ shinyswatch
 shinywidgets
 pandas
 jinja2
-markdown2
 ipydatagrid
 pytz
 nasem_dairy @ git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
