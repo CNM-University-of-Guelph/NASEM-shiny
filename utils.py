@@ -1,5 +1,5 @@
 import pandas as pd
-import sqlite3
+# import sqlite3
 
 
 # Display results, temporary
@@ -7,61 +7,69 @@ def display_diet_values(df):
     '''
     Takes a dataframe from model output and formats it for better viewing.
     '''
-    components = ['Fd_CP', 'Fd_RDP_base', 'Fd_RUP_base', 'Fd_NDF', 'Fd_ADF', 'Fd_St', 'Fd_CFat', 'Fd_Ash']
+    components = ['Fd_CP', 'Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP','Fd_RDP_base', 'Fd_RUP_base', 'Fd_NDF', 'Fd_ForNDFIn_percNDF','Fd_ADF', 'Fd_St', 'Fd_CFat', 'Fd_Ash']
     rows = []
     
     # select diet row and store as dictionary
-    diet_dict = df.loc['Diet',:].to_dict()
+    diet_dict =  df.assign(
+        Fd_ForNDFIn_percNDF = lambda df: df['Fd_ForNDFIn'] / df['Fd_NDF_kg/d']
+        ).loc['Diet',:].to_dict()
+    # diet_dict = df.loc['Diet',:].to_dict()
 
     # Iterate through values and select % and kg information
     for component in components:
-        percent_diet = round(diet_dict.get(component + '_%_diet'), 3) * 100
-        kg_diet = round(diet_dict.get(component + '_kg/d'), 2)    
+        if component in ['Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP', 'Fd_ForNDFIn_percNDF']:
+            percent_diet = round(diet_dict.get(component),2) * 100
+            kg_diet = None
+        else:
+            percent_diet = round(diet_dict.get(component + '_%_diet'), 3) * 100
+            kg_diet = round(diet_dict.get(component + '_kg/d'), 2)    
+        
         rows.append([component, percent_diet, kg_diet])
 
-    headers = ['Component', '% DM', 'kg/d']
+    headers = ['Component', '% DM', 'kg DM/d']
+
 
     table = pd.DataFrame(rows, columns = headers)
+
 
     # map new names
     components_long = [
         'Crude Protein (CP)',
-        'Rumen Degradeable Protein (RDP)',
-        'Rumen Undegradeable Protein (RUP)',
+        'Rumen Degradeable Protein (RDP % CP)',
+        'Rumen Undegradeable Protein (RUP % CP)',
+        'Rumen Degradeable Protein (RDP % Diet)',
+        'Rumen Undegradeable Protein (RUP % Diet)',
         'Neutral detergent fibre (NDF)',
+        'Forage NDF (% NDF)',
         'Acid detergent fibre (ADF)',
         'Starch',
         'Fat',
         'Ash'
     ]
 
+    suggestions_long = [
+        "15 - 17 %",
+        "< 70 %",
+        "33 - 40 %",
+        "~10 %",
+        "~7 %",
+        "28 - 40 %",
+        "65 - 75 %",
+        ">19 %",
+        "< 26 %",
+        "< 7 %",
+        "< 10 %"
+    ]
+
     table = table.assign(
-        Component = components_long
+        Component = components_long,
+        Suggestions = suggestions_long
         )
 
     return table
 
 
-
-# def get_feed_library_df(path_to_db):
-#     """A function to return the NASEM_feed_library as a dataframe. 
-
-#     Args:
-#         path_to_db (str): A file path as a string 
-
-#     Returns:
-#         A copy of the NASEM_feed_library table that is stored in a sqlite3 db as a pandas df.
-#     """
-#     conn = sqlite3.connect(path_to_db)
-   
-#     # SQL query to return the whole table
-#     query = "SELECT * FROM NASEM_feed_library"
-
-#     # get pandas to read table with query
-#     feed_library = pd.read_sql_query(query, conn)
-    
-#     conn.close()
-#     return feed_library
 
 
 def get_unique_feed_list(df: pd.DataFrame) -> list:
@@ -85,10 +93,13 @@ def get_teaching_feeds() -> list:
         "Canola meal",
         "Corn grain HM, fine grind",
         "Corn silage, typical",
+        "DDGS, high protein",
         "Fat, canola oil",
+        "Legume hay, mid-maturity",
         "Magnesium oxide",
         "Sodium bicarbonate",
         "Soybean hulls",
+        'Soybean meal, extruded',
         "Triticale silage, mid-maturity",
         "Urea",
         "Wheat straw",
