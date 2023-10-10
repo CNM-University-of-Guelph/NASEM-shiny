@@ -217,6 +217,8 @@ app_ui = ui.page_navbar(
                 x.ui.sidebar(
                     ui.input_switch('use_teaching_fd_library', 'Use teaching feed library', value=True),
                     ui.br(),
+                    ui.input_file('user_lib_upload', 'Upload custom feed library (.csv)', accept='.csv'),
+                    ui.br(),
                     ui.p("Feeds selected by user:"),
                     ui.output_data_frame('user_selected_feed_names'),
                     ui.br(),
@@ -224,6 +226,7 @@ app_ui = ui.page_navbar(
                 ),
                 ui.p("Click on a row in the table below to store the Feed Name in the side panel. This is a temporary list that will be shown you create your diet in the next step."),
                 output_widget('grid_feed_library'),
+                ui.output_text_verbatim('file_upload_summary')
             ),
             full_screen=True
         ),
@@ -382,13 +385,41 @@ def server(input, output, session):
 
     @reactive.Calc
     def user_selected_feed_library():
+        
         if input.use_teaching_fd_library():
             teaching_feeds =  get_teaching_feeds()
 
-            df_out = feed_library_default.query('Fd_Name.isin(@teaching_feeds)')
+            df_user_lib = feed_library_default.query('Fd_Name.isin(@teaching_feeds)')
+            return df_user_lib
+        
+        if input.user_lib_upload() is None:
+            print('No file uploaded and teaching mode not selected')
+            df_user_lib = feed_library_default
+        
         else:
-            df_out = feed_library_default
-        return df_out
+            print(input.user_lib_upload()[0])
+            f = input.user_lib_upload()[0]
+            
+            if f['type'] == 'text/csv':
+                print('file == text/csv')
+                # read in file
+                df_in = pd.read_csv(f['datapath'])
+                
+                # Check if all column names are present
+                req_cols = feed_library_default.columns
+                
+                if not all(col_name in df_in.columns for col_name in req_cols):
+                    raise ValueError("Not all required columns are present in the uploaded feed library.")
+                
+                # sort data and assign for use        
+                df_user_lib = df_in.sort_values("Fd_Name")
+            
+            else:
+                print('User upload failed - using default lib')
+                df_user_lib = feed_library_default
+
+        
+        return df_user_lib
 
     @reactive.Calc
     def unique_fd_list():
@@ -397,6 +428,26 @@ def server(input, output, session):
     @reactive.Calc
     def df_feed_library():
         return rename_df_cols_Fd_to_feed(user_selected_feed_library())
+    
+    #########################################################
+    # Custom feed library
+    #########################################################
+    # 
+    # 
+    # @reactive.Calc
+    # def user_feed_library():
+    #     pass
+    #     # if 
+    #     # feed_library_default = pd.read_csv('./NASEM_feed_library.csv').sort_values("Fd_Name")
+
+    # @output
+    # @render.text
+    # def file_upload_summary():
+       
+            
+    #     print(input.user_lib_upload())
+    #     return df_user_lib
+
 
     
 
@@ -687,6 +738,12 @@ def server(input, output, session):
     def raw_diet_info():
         return get_diet_info()
     
+
+
+
+
+
+
     #########################################################
     # DMI intake numbers for Diet page
     #########################################################
@@ -803,7 +860,7 @@ def server(input, output, session):
         # change page that is being viewed:
         # ui.update_navs("navbar_id", selected="Animal Inputs")
         anim_dict = {
-            "An_Parity_percent_first": 0.25, # converts to An_Parity_rl
+            "An_Parity_percent_first": 25, # converts to An_Parity_rl
             "Trg_MilkProd": 35,
             "An_BW": 780,
             "An_BCS": 3,
