@@ -31,13 +31,13 @@ def insert_new_ingredient(current_iter, feed_choices, feed_selected = None, kg_s
     newItemDiv = ui.div(
             {"id" : "userfeed_" + current_iter}, # div ID
             ui.row(
-                ui.column(4, ui.input_selectize("item_" + current_iter,
+                ui.column(6, ui.input_selectize("item_" + current_iter,
                                                 #  "Choose feeds to use in ration:",
                                                 label = "",
                                                 choices = feed_choices,
                                                 selected = feed_selected,
                                                 multiple = False)),
-                ui.column(2, ui.input_numeric('kg_' + current_iter, 
+                ui.column(3, ui.input_numeric('kg_' + current_iter, 
                             label = "",
                             min=0, 
                             max=100, 
@@ -264,40 +264,49 @@ app_ui = ui.page_navbar(
                             ),
                         # ),
                         
-                    #    ui.br(),
-                       ui.h2("Formulate ration:"),
-                        ui.row(
-                                ui.column(4, ui.input_action_button("add_demo_diet", "Add demo diet", class_='btn-info')),
-                                ui.column(4, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
-                            ),
-                       ui.output_ui("item_input"),
-                        ui.row(
-                                ui.column(4, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
-                                ui.column(4, ui.input_action_button("btn_reset_feeds", "Reset ingredients list"))
-                            ),
-                        ui.br(), ui.br(), ui.br(), ui.br()
-                            
+                       ui.row(
+                           ui.column(6, 
+                                     
+                                     ui.row(
+                                         ui.column(6, ui.h2("Formulate ration:")),
+                                         ui.column(6, ui.input_action_button("add_demo_diet", "Add demo diet", class_='btn-info')),
+                                        #  ui.column(6, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
+                                         ),
+                                         ui.br(),
+                                         ui.output_ui("item_input"),
+                                         ui.row(
+                                             ui.column(6, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
+                                             ui.column(6, ui.input_action_button("btn_reset_feeds", "Reset ingredients list"))
+                                             ),
+                                             ),
+                            ui.column(6, 
+                                      ui.panel_well(
+                                          ui.h2("Model Outputs - Snapshot"),
+                                          ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes. A snapshot of the results is displayed here:")),
+                                        #   ui.row(
+                                        #       ui.column(6, ui.output_table('snapshot_diet_data_model')),
+                                        #       ui.column(6, ui.output_table('model_snapshot'))
+                                        #       )
+                                              
+                                        ui.output_table('snapshot_diet_data_model'),
+                                        ui.output_table('model_snapshot')
+                                              
+                        ),)
+                       ),                    
                        
-                     
+                        ui.br(), ui.br(), ui.br(), ui.br(), 
                         # ui.br(),
                         # ui.output_table("user_selections")
                     )
                 ),
             ),
-        ui.nav("Run Model",
-                ui.panel_title("Run NASEM model"),
-                ui.br(),
+        ui.nav("Outputs",
+                ui.panel_title("NASEM Model Outputs"),
                 ui.row(
-                    ui.column(3, ui.input_action_button("btn_run_model", "Run NASEM model", class_='btn-warning')),
-                    ui.column(3, ui.br()),
-                    ui.column(3, ui.download_button("btn_download_report", "Download Report")),
-                    
-
+                    ui.column(3, ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes."))),
+                    ui.column(2, ui.download_button("btn_download_report", "Download Report", class_='btn-warning')),
                 ),
-
-                
-                ui.br(),
-
+               
                 ui.navset_tab_card(
                     ui.nav(
                         'Model Evaluation',
@@ -434,26 +443,6 @@ def server(input, output, session):
     def df_feed_library():
         return rename_df_cols_Fd_to_feed(user_selected_feed_library())
     
-    #########################################################
-    # Custom feed library
-    #########################################################
-    # 
-    # 
-    # @reactive.Calc
-    # def user_feed_library():
-    #     pass
-    #     # if 
-    #     # feed_library_default = pd.read_csv('./NASEM_feed_library.csv').sort_values("Fd_Name")
-
-    # @output
-    # @render.text
-    # def file_upload_summary():
-       
-            
-    #     print(input.user_lib_upload())
-    #     return df_user_lib
-
-
     
 
     ########################
@@ -629,11 +618,11 @@ def server(input, output, session):
         itemInput = ui.div(
             {"id" : "userfeed_1" },
             ui.row(
-                ui.column(4, ui.input_selectize( "item_1" ,
+                ui.column(6, ui.input_selectize( "item_1" ,
                                                  "Choose feeds to use in ration:",
                                                 choices = unique_fd_list(), # leave blank until feed library is loaded
                                                 multiple = False)),
-                ui.column(2, ui.input_numeric('kg_1', 
+                ui.column(3, ui.input_numeric('kg_1', 
                              label="Enter kg DM:", 
                              min=0, 
                              max=100, 
@@ -758,7 +747,7 @@ def server(input, output, session):
     @render.text
     # @reactive.event(input.btn_calc_DMI)
     def predicted_DMI():
-        
+        # This doesn't have a button to execute - changes each time the animal inputs change
         if input.DMIn_eqn() == '8': 
             pred_DMI = nd.calculate_Dt_DMIn_Lact1(
                 An_Parity_rl(), # adjusted from user input already
@@ -932,11 +921,42 @@ def server(input, output, session):
                 'An_Breed': input.An_Breed()
                 }
 
+
+    
+    #######################################################
+    # Run Model
+    #######################################################
+    # each of the inputs has been formatted from UI inputs to the required type needed by teh model.
+    # e.g. currently diet_info is a df whereas animal_input is a dict.
+    # Might make sense to use all dicts???
+
+
     @reactive.Calc
+    # @reactive.event(input.btn_run_model)
+    def NASEM_out():
+        print("Executed NASEM_model()")
+        # modify input.DMIn_eqn() to be 0 for model
+        modified_equation_selection = equation_selection().copy()
+        modified_equation_selection['DMIn_eqn'] = 0
+
+        return nd.NASEM_model(get_diet_info(), animal_input_SHINY().copy(), modified_equation_selection, user_selected_feed_library(), nd.coeff_dict)
+    
+    
+    @output
+    @render.table
+    @reactive.event(NASEM_out, ignore_init=True)
+    def animal_input_table_comparison():
+        return df_user_input_compare()
+    
+    @reactive.Calc
+    @reactive.event(NASEM_out, ignore_init=True)
     def animal_input_RETURN() -> dict:
         return NASEM_out()['animal_input']
     
+
+    
     @reactive.Calc
+    @reactive.event(NASEM_out, ignore_init=True)
     def df_user_input_compare() -> pd.DataFrame:
         '''
         Compare user inputs from Shiny vs what gets returned by model.
@@ -951,12 +971,7 @@ def server(input, output, session):
             how='outer')
         return df_user_input_compare
     
-    @output
-    @render.table
-    def animal_input_table_comparison():
-        return df_user_input_compare()
-
-    
+   
     
     @reactive.Calc
     def equation_selection():
@@ -968,28 +983,10 @@ def server(input, output, session):
         return pd.DataFrame(equation_selection().items(), columns=['Variable Name', 'Value'])
     
     #######################################################
-    # Run Model
-    #######################################################
-    # each of the inputs has been formatted from UI inputs to the required type needed by teh model.
-    # e.g. currently diet_info is a df whereas animal_input is a dict.
-    # Might make sense to use all dicts???
-
-    # TODO: somehow update or modify NASEM_model to accept user-modified: datagrid_feed_lib()
-
-    @reactive.Calc
-    @reactive.event(input.btn_run_model)
-    def NASEM_out():
-        print("Executed NASEM_model()")
-        # modify input.DMIn_eqn() to be 0 for model
-        modified_equation_selection = equation_selection().copy()
-        modified_equation_selection['DMIn_eqn'] = 0
-
-        return nd.NASEM_model(get_diet_info(), animal_input_SHINY().copy(), modified_equation_selection, user_selected_feed_library(), nd.coeff_dict)
-    
-    #######################################################
     # Model Outputs
     #######################################################
     @reactive.Calc
+    @reactive.event(NASEM_out, ignore_init=True)
     def full_model_output():
         '''
         Prepare model output data to be rendered or filtered further
@@ -1014,7 +1011,28 @@ def server(input, output, session):
     ##################################################################
     # Model evaluation
     ##################################################################
-   
+
+    ###############################
+    # Snapshot on Diet page
+    @reactive.Calc
+    def df_model_snapshot():
+        # Variables to return:
+        vars_return = ['Mlk_Prod_comp','milk_fat', 'milk_protein', 'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow']
+        # this reindexing will put them in the order of vars_return
+        return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return).filter(items = ["Description", "Value"])
+    
+    @output
+    @render.table()
+    def model_snapshot():
+        return df_model_snapshot()
+    
+    @output
+    @render.table
+    @reactive.event(NASEM_out, ignore_init=True)
+    def snapshot_diet_data_model():
+        return display_diet_values(NASEM_out()["diet_info"], is_snapshot=True)
+    ###############################
+
     @reactive.Calc
     def df_key_model_data_milk():
         # Variables to return:
@@ -1098,7 +1116,7 @@ def server(input, output, session):
         
     
     
-    @reactive.Calc
+    @reactive.Calc 
     def df_key_model_data_energy_teaching():
         # Variables to return:
         vars_return = ['Trg_MEuse', 'An_MEmUse', 'An_MEgain', 'Gest_MEuse', 'Trg_Mlk_MEout', 'An_MEIn', 'Frm_NEgain', 'Rsrv_NEgain', 'GrUter_BWgain', 'An_MEIn', 'Mlk_Prod_NEalow', 'An_MEavail_Milk']

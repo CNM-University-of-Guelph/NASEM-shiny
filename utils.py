@@ -3,11 +3,17 @@ import pandas as pd
 
 
 # Display results, temporary
-def display_diet_values(df):
+def display_diet_values(df, is_snapshot = False):
     '''
     Takes a dataframe from model output and formats it for better viewing.
+    The `is_snapshot` argument allows a shorter version to be returned for the "snapshot" output on Diet page.
     '''
-    components = ['Fd_CP', 'Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP','Fd_RDP_base', 'Fd_RUP_base', 'Fd_NDF', 'Fd_ForNDFIn_percNDF','Fd_ADF', 'Fd_St', 'Fd_CFat', 'Fd_Ash']
+    
+    if is_snapshot:
+        components = ['Fd_CP', 'Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP', 'Fd_NDF', 'Fd_ADF', 'Fd_St', 'Fd_CFat']
+    else:
+        components = ['Fd_CP', 'Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP','Fd_RDP_base', 'Fd_RUP_base', 'Fd_NDF', 'Fd_ForNDFIn_percNDF','Fd_ADF', 'Fd_St', 'Fd_CFat', 'Fd_Ash']
+    
     rows = []
     
     # select diet row and store as dictionary
@@ -32,40 +38,55 @@ def display_diet_values(df):
 
     table = pd.DataFrame(rows, columns = headers)
 
+    if is_snapshot:
+        components_long = [
+            'Crude Protein (CP)',
+            'Rumen Degradeable Protein (RDP % CP)',
+            'Rumen Undegradeable Protein (RUP % CP)',
+            'Neutral detergent fibre (NDF)',
+            'Acid detergent fibre (ADF)',
+            'Starch',
+            'Fat',
+        ]
+        
+        table = table.assign(
+            Component = components_long, # This replaces the original names in component col
+                ).drop(columns='kg DM/d')
 
-    # map new names
-    components_long = [
-        'Crude Protein (CP)',
-        'Rumen Degradeable Protein (RDP % CP)',
-        'Rumen Undegradeable Protein (RUP % CP)',
-        'Rumen Degradeable Protein (RDP % Diet)',
-        'Rumen Undegradeable Protein (RUP % Diet)',
-        'Neutral detergent fibre (NDF)',
-        'Forage NDF (% NDF)',
-        'Acid detergent fibre (ADF)',
-        'Starch',
-        'Fat',
-        'Ash'
-    ]
+    else:
+        # map new names
+        components_long = [
+            'Crude Protein (CP)',
+            'Rumen Degradeable Protein (RDP % CP)',
+            'Rumen Undegradeable Protein (RUP % CP)',
+            'Rumen Degradeable Protein (RDP % Diet)',
+            'Rumen Undegradeable Protein (RUP % Diet)',
+            'Neutral detergent fibre (NDF)',
+            'Forage NDF (% NDF)',
+            'Acid detergent fibre (ADF)',
+            'Starch',
+            'Fat',
+            'Ash'
+        ]
 
-    suggestions_long = [
-        "15 - 17 %",
-        "< 70 %",
-        "33 - 40 %",
-        "~10 %",
-        "~7 %",
-        "28 - 40 %",
-        "65 - 75 %",
-        ">19 %",
-        "< 26 %",
-        "< 7 %",
-        "< 10 %"
-    ]
+        suggestions_long = [
+            "15 - 17 %",
+            "< 70 %",
+            "33 - 40 %",
+            "~10 %",
+            "~7 %",
+            "28 - 40 %",
+            "65 - 75 %",
+            ">19 %",
+            "< 26 %",
+            "< 7 %",
+            "< 10 %"
+        ]
 
-    table = table.assign(
-        Component = components_long,
-        Suggestions = suggestions_long
-        )
+        table = table.assign(
+            Component = components_long, # This replaces the original names in component col
+            Suggestions = suggestions_long
+            )
 
     return table
 
