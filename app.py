@@ -59,8 +59,9 @@ def insert_scenario_buttons():
             {"id" : "scenario_button_div"}, # div ID
             ui.row(
                 ui.column(4, ui.input_action_button("add_demo_diet", "Add demo diet", class_='btn-info')),
-                ui.column(4, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
-            )
+                # ui.column(4, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
+            ),
+            ui.br()
             )
     ui.insert_ui(newItemDiv, 
                  selector = "#item_input", # place the new UI's below the initial item input
@@ -247,7 +248,8 @@ app_ui = ui.page_navbar(
                             ui.p("Feeds selected by user:"),
                             ui.output_data_frame('user_selected_feed_names_2'),
                             ui.br(),
-                            ui.input_action_button('reset_user_selected_feed_names_2', "Clear list")
+                            ui.input_action_button('reset_user_selected_feed_names_2', "Clear list"),
+                            open='closed'
                             ),
                         
                         # x.ui.card(
@@ -275,8 +277,9 @@ app_ui = ui.page_navbar(
                                          ui.br(),
                                          ui.output_ui("item_input"),
                                          ui.row(
-                                             ui.column(6, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
-                                             ui.column(6, ui.input_action_button("btn_reset_feeds", "Reset ingredients list"))
+                                             ui.column(4, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
+                                             ui.column(4, ui.input_action_button('btn_load_user_selected_feeds', 'Populate with selected feeds')),
+                                             ui.column(4, ui.input_action_button("btn_reset_feeds", "Reset ingredients list"))
                                              ),
                                              ),
                             ui.column(6, 
@@ -557,22 +560,35 @@ def server(input, output, session):
     
     @reactive.Effect
     def _():
-        # take a dependency on the user selection, which updates every time a cell is clicked
+        # This take a dependency on the user selection, which updates every time a cell is clicked
         prepare_user_selected_feed_names()
         
         # then, execute this code but preventing other code taking a dependency on it - prevents infinite loop
         with reactive.isolate():
             fd_lib_stored_copy = feed_library_index_stored().copy()
-            fd_lib_stored_copy.extend(prepare_user_selected_feed_names())
-            # remove duplicates (by converting to set) and then set the reactiveValue as this new list
 
+            # add on user selected feed names to reactive list
+            fd_lib_stored_copy.extend(prepare_user_selected_feed_names())
+            
+            # remove duplicates (by converting to set) and then set the reactiveValue as this new list
             feed_library_index_stored.set(list(set(fd_lib_stored_copy)))
+
 
     @reactive.Effect
     @reactive.event(input.reset_user_selected_feed_names, input.reset_user_selected_feed_names_2)
     def _():
         feed_library_index_stored.set([])
 
+
+
+    @reactive.Calc
+    def user_selected_feeds_list():
+                user_selected_feeds = (
+                    df_feed_lib_userfriendly()
+                    .reset_index(drop = True) # reset's index to match a 'row number' from selection with index (after filtering)
+                    .loc[feed_library_index_stored(),'Feed Name'])
+                
+                return user_selected_feeds.to_list()
 
     @output
     @render.data_frame
@@ -606,7 +622,9 @@ def server(input, output, session):
     user_feeds = reactive.Value(['item_1'])
     user_kgs = reactive.Value(['kg_1'])
     
-    #used for demo data
+    #used for 'iterate new ingredient' because variables can't be parsed into these functions
+    # so, the values are assigned to these 2 reactives which are then used by the iterate_new_ingredient function to set up a new feed
+    # originally used by demo diets
     feed_selected = reactive.Value(None)
     kg_selected = reactive.Value(0)
 
@@ -662,6 +680,26 @@ def server(input, output, session):
     def _():
         iterate_new_ingredient()
 
+
+    @reactive.Effect
+    @reactive.event(input.btn_load_user_selected_feeds)
+    def _():
+        '''used to update feeds based on user selections'''
+
+        feed_list = user_selected_feeds_list()
+
+        for i, feed in enumerate(feed_list):
+            if i == 0:
+                ui.update_selectize(id = 'item_1', choices = unique_fd_list(), selected = feed)
+                ui.update_numeric(id = 'kg_1', value = 0)
+            else:
+                feed_selected.set(feed) # type: ignore
+                kg_selected.set(0)
+                iterate_new_ingredient()
+        
+        # reset to defaults
+        feed_selected.set(None)
+        kg_selected.set(0)
 
 
     @reactive.Effect
@@ -824,63 +862,63 @@ def server(input, output, session):
     ########################
     # Add Assignment Diet
     ########################
-    @reactive.Effect
-    @reactive.event(input.add_assignment_diet)
-    def _():
-        ui.update_selectize(id = 'item_1', choices = unique_fd_list(), selected = "Corn grain HM, fine grind")
-        ui.update_numeric(id = 'kg_1', value = 2)
+    # @reactive.Effect
+    # @reactive.event(input.add_assignment_diet)
+    # def _():
+    #     ui.update_selectize(id = 'item_1', choices = unique_fd_list(), selected = "Corn grain HM, fine grind")
+    #     ui.update_numeric(id = 'kg_1', value = 2)
 
-        demo_dict = {
-            'Corn silage, typical': 8.0,
-            'Soybean meal, extruded': 4.5,
-            'Legume hay, mid-maturity': 7,
-            'VitTM Premix, generic': 0.20,
-            'DDGS, high protein': 1.0,
-            'Calcium phosphate (di)': 0.1,
-            'Calcium carbonate': 0.35,
-            'Fat, canola oil': 0.50,
-        }
+    #     demo_dict = {
+    #         'Corn silage, typical': 8.0,
+    #         'Soybean meal, extruded': 4.5,
+    #         'Legume hay, mid-maturity': 7,
+    #         'VitTM Premix, generic': 0.20,
+    #         'DDGS, high protein': 1.0,
+    #         'Calcium phosphate (di)': 0.1,
+    #         'Calcium carbonate': 0.35,
+    #         'Fat, canola oil': 0.50,
+    #     }
 
-        for feed, kg in demo_dict.items():
-            feed_selected.set(feed) # type: ignore
-            kg_selected.set(kg)
-            iterate_new_ingredient()
+    #     for feed, kg in demo_dict.items():
+    #         feed_selected.set(feed) # type: ignore
+    #         kg_selected.set(kg)
+    #         iterate_new_ingredient()
         
-        # reset to defaults
-        feed_selected.set(None)
-        kg_selected.set(0)
+    #     # reset to defaults
+    #     feed_selected.set(None)
+    #     kg_selected.set(0)
 
-        # animal:
-        # change page that is being viewed:
-        # ui.update_navs("navbar_id", selected="Animal Inputs")
-        anim_dict = {
-            "An_Parity_percent_first": 25, # converts to An_Parity_rl
-            "Trg_MilkProd": 35,
-            "An_BW": 780,
-            "An_BCS": 3,
-            "An_LactDay": 165,
-            "Trg_MilkFatp": 3.5,
-            "Trg_MilkTPp": 3.1,
-            "Trg_MilkLacp": 4.85,
-            "DMI": 23.65,
-            "An_BW_mature": 700,
-            "Trg_FrmGain": 0.1,
-            "An_GestDay": 50,
-            "An_GestLength": 280,
-            "Trg_RsrvGain": 0,
-            "Fet_BWbrth": 44.1,
-            "An_AgeMonth": 57, # converts to An_AgeDay
-            "An_305RHA_MlkTP": 280
-        }
+    #     # animal:
+    #     # change page that is being viewed:
+    #     # ui.update_navs("navbar_id", selected="Animal Inputs")
+    #     anim_dict = {
+    #         "An_Parity_percent_first": 25, # converts to An_Parity_rl
+    #         "Trg_MilkProd": 35,
+    #         "An_BW": 780,
+    #         "An_BCS": 3,
+    #         "An_LactDay": 165,
+    #         "Trg_MilkFatp": 3.5,
+    #         "Trg_MilkTPp": 3.1,
+    #         "Trg_MilkLacp": 4.85,
+    #         "DMI": 23.65,
+    #         "An_BW_mature": 700,
+    #         "Trg_FrmGain": 0.1,
+    #         "An_GestDay": 50,
+    #         "An_GestLength": 280,
+    #         "Trg_RsrvGain": 0,
+    #         "Fet_BWbrth": 44.1,
+    #         "An_AgeMonth": 57, # converts to An_AgeDay
+    #         "An_305RHA_MlkTP": 280
+    #     }
 
-        # Iterate over the dictionary and update values using ui.update_numeric
-        for an_item, an_val in anim_dict.items():
-            ui.update_numeric(id=an_item, value=an_val)
+    #     # Iterate over the dictionary and update values using ui.update_numeric
+    #     for an_item, an_val in anim_dict.items():
+    #         ui.update_numeric(id=an_item, value=an_val)
 
        
-        # remove buttons
-        ui.remove_ui(selector="div:has(> #add_demo_diet)")
-        ui.remove_ui(selector="div:has(> #add_assignment_diet)")
+    #     # remove buttons
+    #     ui.remove_ui(selector="div:has(> #add_demo_diet)")
+    #     ui.remove_ui(selector="div:has(> #add_assignment_diet)")
 
     #######################################################
     # Animal inputs
