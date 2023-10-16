@@ -250,14 +250,19 @@ app_ui = ui.page_navbar(
                             ui.input_action_button('reset_user_selected_feed_names_2', "Clear list")
                             ),
                         
-                        x.ui.card(
+                        # x.ui.card(
                             ui.row( 
-                                ui.column(4, ui.input_action_button('btn_calc_DMI', 'Predict DMI (from animal inputs)', class_='btn-secondary'), ui.output_text('predicted_DMI')),
+                                ui.column(4, 
+                                        #   ui.input_action_button('btn_calc_DMI', 'Predict DMI (from animal inputs)', class_='btn-secondary'), 
+                                          ui.p("Predicted DMI (from animal inputs):"),
+                                          ui.output_text('predicted_DMI')
+
+                                          ),
                                 ui.column(3, ui.input_numeric("DMI", "Target dry matter intake (kg/d)", 25, min=0)),
                                 ui.column(2, ui.p('Total diet intake (kg/d):'), ui.output_text('diet_total_intake')),
                                 ui.column(2, ui.p('Difference (kg):'), ui.output_text("intake_difference")),
                             ),
-                        ),
+                        # ),
                         
                     #    ui.br(),
                        ui.h2("Formulate ration:"),
@@ -751,7 +756,7 @@ def server(input, output, session):
     # Predict DMI for lactating cow
     @output
     @render.text
-    @reactive.event(input.btn_calc_DMI)
+    # @reactive.event(input.btn_calc_DMI)
     def predicted_DMI():
         
         if input.DMIn_eqn() == '8': 
