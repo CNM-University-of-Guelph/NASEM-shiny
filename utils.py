@@ -1,4 +1,5 @@
 import pandas as pd
+import nasem_dairy as nd
 # import sqlite3
 
 
@@ -156,3 +157,76 @@ def DM_intake_equation_strings() -> dict:
     16: 'Holstein x Jersey heifer, animal factors only, pen prepartum',
     17: 'Holstein x Jersey heifer, animal and feed factors, pen prepartum'
     }
+
+
+def calculate_DMI_prediction(
+        animal_input: dict,
+        equation_selection: dict,
+        diet_NDF: float,
+        coeff_dict: dict
+        ):
+    '''
+    This is used to calculate DMI using functions from nasem_dairy based on which prediction equation the user selects.
+    This is required in the app because the model is set to always run with the user-inputed target DMI
+    '''
+    
+    DMI = 0
+    animal_input = animal_input.copy()
+
+        # Calculate additional physiology values
+    animal_input['An_PrePartDay'] = animal_input['An_GestDay'] - animal_input['An_GestLength']
+    animal_input['An_PrePartWk'] = animal_input['An_PrePartDay'] / 7
+
+
+    equation_selection_in = equation_selection.copy()
+    equation_selection = {}
+
+    for key, value in equation_selection_in.items():
+        try:
+            num_value = int(value)
+            equation_selection[key] = num_value
+        except ValueError:
+            print(f"Unable to convert '{value}' to an integer for key '{key}'")
+
+
+    # Predict DMI for lactating cow - also use this equation if 0 is selected for model (i.e. user input)
+    if equation_selection['DMIn_eqn'] in [0,8]: 
+        # print("using DMIn_eqn: 8")
+        DMI = nd.calculate_Dt_DMIn_Lact1(
+            animal_input['An_Parity_rl'], 
+            animal_input['Trg_MilkProd'], 
+            animal_input['An_BW'], 
+            animal_input['An_BCS'],
+            animal_input['An_LactDay'], 
+            animal_input['Trg_MilkFatp'], 
+            animal_input['Trg_MilkTPp'], 
+            animal_input['Trg_MilkLacp'])
+
+    # Predict DMI for heifers    
+    elif equation_selection['DMIn_eqn'] in [2,3,4,5,6,7,12,13,14,15,16,17]:
+        DMI = nd.heifer_growth(
+            equation_selection['DMIn_eqn'], 
+            # diet_info.loc['Diet', 'Fd_NDF'],
+            diet_NDF, 
+            animal_input['An_BW'], 
+            animal_input['An_BW_mature'], 
+            animal_input['An_PrePartWk'], 
+            coeff_dict)
+
+    
+    elif equation_selection['DMIn_eqn'] in [10,11]:
+        DMI = nd.dry_cow_equations(
+            equation_selection['DMIn_eqn'], 
+            animal_input['An_BW'], 
+            animal_input['An_PrePartWk'], 
+            animal_input['An_GestDay'], 
+            animal_input['An_GestLength'], 
+            diet_NDF, 
+            coeff_dict)
+        
+    else:
+        # It needs to catch all possible solutions, otherwise it's possible that it stays unchanged without warning
+        print("DMIn_eqn uncaught - DMI not changed. equation_selection[DMIn_eqn]: "+ str(equation_selection['DMIn_eqn']) )
+
+    return round(DMI,2)
+

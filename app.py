@@ -15,7 +15,7 @@ from ipydatagrid import DataGrid
 # pip install git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
 import nasem_dairy as nd
 
-from utils import display_diet_values, rename_df_cols_Fd_to_feed, DM_intake_equation_strings, get_unique_feed_list, get_teaching_feeds
+from utils import display_diet_values, rename_df_cols_Fd_to_feed, DM_intake_equation_strings, get_unique_feed_list, get_teaching_feeds, calculate_DMI_prediction
 from generate_report import generate_report
 
 
@@ -143,7 +143,10 @@ app_ui = ui.page_navbar(
             ),
             ui.nav(
                 'Animal Management',
-                ui.input_numeric("An_LactDay", "Average days in milk:", 100, min=0),
+                ui.panel_conditional(
+                    "input.An_StatePhys === 'Lactating Cow'",
+                    ui.input_numeric("An_LactDay", "Average days in milk:", 100, min=0)
+                ),
                 ui.input_numeric("An_GestDay", "Average days pregnant (d)", 46, min=0),
                 ui.br(),
                 ui.p(
@@ -155,16 +158,19 @@ app_ui = ui.page_navbar(
                 ),
 
             ui.nav(
-                'Milk Production',
-                ui.h3("Milk Yield"),
-                ui.input_numeric("Trg_MilkProd", "Target milk production (kg/d)", 35, min=0),
-                
-                ui.br(),
-                
-                ui.h3("Milk Components"),
-                ui.input_numeric("Trg_MilkFatp", "Target milk fat %", 3.8, min=0, ),
-                ui.input_numeric("Trg_MilkTPp", "Target milk true protein %", 3.1, min=0, ),
-                ui.input_numeric("Trg_MilkLacp", "Target milk lactose %", 4.85, min=0, )
+                'Milk Production',               
+                ui.panel_conditional("input.An_StatePhys === 'Lactating Cow'",
+                    {"id" : "milk_production_conditional_panel" },
+                    ui.h3("Milk Yield"),
+                    ui.input_numeric("Trg_MilkProd", "Target milk production (kg/d)", 35, min=0),
+                    
+                    ui.br(),
+                    
+                    ui.h3("Milk Components"),
+                    ui.input_numeric("Trg_MilkFatp", "Target milk fat %", 3.8, min=0, ),
+                    ui.input_numeric("Trg_MilkTPp", "Target milk true protein %", 3.1, min=0, ),
+                    ui.input_numeric("Trg_MilkLacp", "Target milk lactose %", 4.85, min=0, )
+                    ),
                 ),
 
 
@@ -256,7 +262,7 @@ app_ui = ui.page_navbar(
                             ui.row( 
                                 ui.column(4, 
                                         #   ui.input_action_button('btn_calc_DMI', 'Predict DMI (from animal inputs)', class_='btn-secondary'), 
-                                          ui.p("Predicted DMI (from animal inputs):"),
+                                          ui.p("Predicted DMI (from selected equation):"),
                                           ui.output_text('predicted_DMI')
 
                                           ),
@@ -785,23 +791,14 @@ def server(input, output, session):
     @render.text
     # @reactive.event(input.btn_calc_DMI)
     def predicted_DMI():
+        Dt_NDF = NASEM_out()["diet_info"].loc['Diet','Fd_NDF'].copy()
         # This doesn't have a button to execute - changes each time the animal inputs change
-        if input.DMIn_eqn() == '8': 
-            pred_DMI = nd.calculate_Dt_DMIn_Lact1(
-                An_Parity_rl(), # adjusted from user input already
-                input.Trg_MilkProd(), 
-                input.An_BW(), 
-                input.An_BCS(),
-                input.An_LactDay(), 
-                input.Trg_MilkFatp(), 
-                input.Trg_MilkTPp(), 
-                input.Trg_MilkLacp()
-                )
-            pred_DMI = str(round(pred_DMI, 2))+' kg'
-        else:
-            print("Only able to calculate intake for DMIn_eqn == 8")
-            pred_DMI = 'NA - check DMIn_eqn'
-
+        pred_DMI = calculate_DMI_prediction(
+          animal_input=animal_input_SHINY().copy(),
+          diet_NDF = Dt_NDF,
+          equation_selection= equation_selection(),
+          coeff_dict= nd.coeff_dict
+        )
         return pred_DMI
 
     @reactive.Calc
@@ -821,6 +818,23 @@ def server(input, output, session):
         '''
         return round((total_diet_intake()-input.DMI()),3)
 
+
+    ########################
+    # Dry Cow UI setup
+    ########################
+
+    @reactive.Effect
+    def _():
+        if input.An_StatePhys() == 'Dry Cow':
+            ui.update_selectize('DMIn_eqn', selected='10')
+
+            ui.insert_ui(ui.div(ui.em('Dry cow is selected so no milk production data can be entered.')), 
+                 selector = "#milk_production_conditional_panel", # place the new UI's below the initial item input
+                 where = "afterEnd")
+            
+            ui.update_numeric('An_GestDay', value = 220)
+            ui.update_numeric('Trg_FrmGain', value = 0.1)
+            ui.update_numeric('Trg_RsrvGain', value = 0)
 
 
       
@@ -1003,11 +1017,14 @@ def server(input, output, session):
         df_user_input_SHINY = pd.DataFrame(animal_input_SHINY().items(), columns=['Variable Name', 'Value_SHINY'])
         df_user_input_RETURN = pd.DataFrame(animal_input_RETURN().items(), columns=['Variable Name', 'Value_Model_Return'])
 
-        df_user_input_compare  = df_user_input_SHINY.merge(
-            df_user_input_RETURN, 
-            on='Variable Name', 
-            how='outer')
-        return df_user_input_compare
+        # df_user_input_compare  = df_user_input_SHINY.merge(
+        #     df_user_input_RETURN, 
+        #     on='Variable Name', 
+        #     how='outer')
+        
+        print('test')
+        # return df_user_input_compare
+        return 'test'
     
    
     
@@ -1220,7 +1237,7 @@ def server(input, output, session):
                df_ration_ingredients = get_diet_info(),
                df_energy_teaching = df_key_model_data_energy_teaching(),
                df_full_model = full_model_output(),
-               df_animal_input_comparison = df_user_input_compare(), 
+            #    df_animal_input_comparison = df_user_input_compare(), 
                dict_equation_selections = equation_selection()
                       )
     

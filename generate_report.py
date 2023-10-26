@@ -25,7 +25,7 @@ def generate_report(
     df_ration_ingredients: pd.DataFrame,
     df_energy_teaching: pd.DataFrame,
     df_full_model: pd.DataFrame,
-    df_animal_input_comparison: pd.DataFrame,
+    # df_animal_input_comparison: pd.DataFrame,
     dict_equation_selections: dict
     ):
 
@@ -58,7 +58,8 @@ def generate_report(
     html_ration_ingredients = df_ration_ingredients.to_html()
     html_energy_teaching = df_energy_teaching.to_html()
     html_full_model = df_full_model.to_html()
-    html_user_input_compare = df_animal_input_comparison.to_html()
+    # html_user_input_compare = df_animal_input_comparison.to_html()
+    html_user_input_compare = pd.DataFrame().to_html()
     html_equation_selections = df_equation_selections.to_html()
 
     
