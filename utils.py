@@ -11,7 +11,7 @@ def display_diet_values(df, is_snapshot = False):
     '''
     
     if is_snapshot:
-        components = ['Fd_CP', 'Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP', 'Fd_NDF', 'Fd_ADF', 'Fd_St', 'Fd_CFat']
+        components = ['Fd_CP', 'Fd_RDP_base', 'Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP', 'Fd_NDF', 'Fd_ADF', 'Fd_St', 'Fd_CFat']
     else:
         components = ['Fd_CP', 'Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP','Fd_RDP_base', 'Fd_RUP_base', 'Fd_NDF', 'Fd_ForNDFIn_percNDF','Fd_ADF', 'Fd_St', 'Fd_CFat', 'Fd_Ash']
     
@@ -42,6 +42,7 @@ def display_diet_values(df, is_snapshot = False):
     if is_snapshot:
         components_long = [
             'Crude Protein (CP)',
+            'Rumen Degradeable Protein (RDP % Diet)',
             'Rumen Degradeable Protein (RDP % CP)',
             'Rumen Undegradeable Protein (RUP % CP)',
             'Neutral detergent fibre (NDF)',
@@ -74,7 +75,7 @@ def display_diet_values(df, is_snapshot = False):
             "15 - 17 %",
             "< 70 %",
             "33 - 40 %",
-            "~10 %",
+            "10 - 12 %", # NASEM book suggestion
             "~7 %",
             "28 - 40 %",
             "65 - 75 %",
@@ -86,9 +87,8 @@ def display_diet_values(df, is_snapshot = False):
 
         table = table.assign(
             Component = components_long, # This replaces the original names in component col
-            Suggestions = suggestions_long
+             **{'Suggestions (lactating cow)' : suggestions_long}
             )
-
     return table
 
 
@@ -229,4 +229,63 @@ def calculate_DMI_prediction(
         print("DMIn_eqn uncaught - DMI not changed. equation_selection[DMIn_eqn]: "+ str(equation_selection['DMIn_eqn']) )
 
     return round(DMI,2)
+
+def format_mineral_dictionaries(mineral_dict):
+
+    df = pd.DataFrame(mineral_dict.items(), columns=['Mineral_Name', 'Value']).assign(
+        Mineral = lambda df: df['Mineral_Name'].str.split('_').str[1],
+        Type = lambda df: df['Mineral_Name'].str.split('_').str[2]
+    )#.set_index('Mineral')
+
+    #df.index.name= None
+
+    return df
+
+def format_minerals_supply_and_req(
+        NASEM_mineral_req_dict: pd.DataFrame,
+        NASEM_mineral_bal_dict: pd.DataFrame,
+        NASEM_mineral_intakes: pd.DataFrame
+        ):
+
+    mineral_req_and_balance_df = (
+        pd.concat(
+            [format_mineral_dictionaries(NASEM_mineral_req_dict),
+            format_mineral_dictionaries(NASEM_mineral_bal_dict)]
+            )
+        .pivot(index='Mineral', columns='Type', values='Value')
+        .reset_index()
+        )
+
+
+    mineral_intakes_formatted = (
+        NASEM_mineral_intakes.assign(
+            Diet_percent = lambda df: df['Dt_micro'].fillna(df['Dt_macro'])
+            )
+            .drop(columns=['Dt_macro', 'Dt_micro',])
+            .reset_index(names='Mineral')
+            .round(2)
+            )
+
+    mineral_req_and_balance_and_intakes = (
+        mineral_intakes_formatted
+        .merge(mineral_req_and_balance_df)
+        .rename(
+            columns = {'Dt_mineralIn':'Diet Supply (TDS), g/d',
+                'Diet_percent':'Diet Density',
+                'req':'Absorbed Requirement (TAR), g/d',
+                'Abs_mineralIn':'Absorbed Supply (TAS), g/d',
+                'bal':'Balance (TAS - TAR), g/d'
+                }
+                )
+        .assign(
+            Diet_Density_Units = lambda df: df['Mineral'].apply(lambda x: '%' if x in ['Ca', 'P', 'Mg', 'Cl', 'K', 'Na', 'S'] else 'mg/kg'),
+            # Balance = lambda df: df['Absorbed Supply (TAS)'] - df['Absorbed Requirement (TAR)']
+        )
+        .reindex(columns = ['Mineral','Diet Density', 'Diet_Density_Units', 'Absorbed Requirement (TAR), g/d', 'Absorbed Supply (TAS), g/d','Diet Supply (TDS), g/d',  'Balance (TAS - TAR), g/d' ])
+    )
+
+    return mineral_req_and_balance_and_intakes
+
+
+
 

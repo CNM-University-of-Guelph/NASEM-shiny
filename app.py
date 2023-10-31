@@ -15,7 +15,7 @@ from ipydatagrid import DataGrid
 # pip install git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
 import nasem_dairy as nd
 
-from utils import display_diet_values, rename_df_cols_Fd_to_feed, DM_intake_equation_strings, get_unique_feed_list, get_teaching_feeds, calculate_DMI_prediction
+from utils import display_diet_values, rename_df_cols_Fd_to_feed, DM_intake_equation_strings, get_unique_feed_list, get_teaching_feeds, calculate_DMI_prediction, format_minerals_supply_and_req
 from generate_report import generate_report
 
 
@@ -58,7 +58,7 @@ def insert_scenario_buttons():
     newItemDiv = ui.div(
             {"id" : "scenario_button_div"}, # div ID
             ui.row(
-                ui.column(4, ui.input_action_button("add_demo_diet", "Add demo diet", class_='btn-info')),
+                ui.column(4, ui.input_action_button("add_demo_diet", "Add demo lactating diet", class_='btn-info')),
                 # ui.column(4, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
             ),
             ui.br()
@@ -122,7 +122,7 @@ app_ui = ui.page_navbar(
                 ui.input_selectize(
                     'An_StatePhys', 
                     label = 'Select physiological state:', 
-                    choices = {'Lactating Cow': 'Lactating Cow', 'Dry Cow': 'Dry Cow', 'Calf':'Calf'}, 
+                    choices = {'Lactating Cow': 'Lactating Cow', 'Dry Cow': 'Dry Cow'}, #'Calf':'Calf'
                     selected = 'Lactating Cow'
                     ),
                 ui.br(),
@@ -184,6 +184,19 @@ app_ui = ui.page_navbar(
                     "Use_DNDF_IV", 
                     "Use_DNDF_IV (NASEM default is Lg based)",
                     choices = {0:"Lg based", 1:"DNDF48 for forages", 2:"DNDF48 for all"}, # type: ignore
+                    ), 
+
+                ui.input_radio_buttons(
+                    "Monensin_eqn", 
+                    "Use Monensin equations?",
+                    choices = {0:"No", 1:"Yes"}, # type: ignore
+                    ),     
+
+                ui.input_radio_buttons(
+                    "mProd_eqn", 
+                    "Milk production equation to use for calcs (currently hard-coded to use Trg_MilkProd):",
+                    choices = {0: 'Trg_MilkProd', 1: 'component based predicted', 2: 'NE Allowable', 3: 'MP Allowable', 4: 'min(NE,MPAllow)'},  # type: ignore
+                    selected=1 # type: ignore
                     ), 
 
                 ui.input_selectize(
@@ -261,7 +274,6 @@ app_ui = ui.page_navbar(
                         # x.ui.card(
                             ui.row( 
                                 ui.column(4, 
-                                        #   ui.input_action_button('btn_calc_DMI', 'Predict DMI (from animal inputs)', class_='btn-secondary'), 
                                           ui.p("Predicted DMI (from selected equation):"),
                                           ui.output_text('predicted_DMI')
 
@@ -277,7 +289,7 @@ app_ui = ui.page_navbar(
                                      
                                      ui.row(
                                          ui.column(6, ui.h2("Formulate ration:")),
-                                         ui.column(6, ui.input_action_button("add_demo_diet", "Add demo diet", class_='btn-info')),
+                                         ui.column(6, ui.input_action_button("add_demo_diet", "Add demo lactating diet", class_='btn-info')),
                                         #  ui.column(6, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
                                          ),
                                          ui.br(),
@@ -291,14 +303,21 @@ app_ui = ui.page_navbar(
                             ui.column(6, 
                                       ui.panel_well(
                                           ui.h2("Model Outputs - Snapshot"),
-                                          ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes. A snapshot of the results is displayed here:")),
+                                          ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes. The following snapshot shows the calculated diet proportions of key components and some model outputs (different output is shown for dry cows):")),
                                         #   ui.row(
                                         #       ui.column(6, ui.output_table('snapshot_diet_data_model')),
                                         #       ui.column(6, ui.output_table('model_snapshot'))
                                         #       )
                                               
                                         ui.output_table('snapshot_diet_data_model'),
-                                        ui.output_table('model_snapshot')
+                                        ui.panel_conditional(
+                                            "input.An_StatePhys === 'Lactating Cow'",
+                                            ui.output_table('model_snapshot')
+                                            ),
+                                        ui.panel_conditional(
+                                            "input.An_StatePhys !== 'Lactating Cow'",
+                                            ui.output_table('model_snapshot_drycow')
+                                            ),
                                               
                         ),)
                        ),                    
@@ -364,7 +383,7 @@ app_ui = ui.page_navbar(
 
                     ui.nav(
                         'Advanced',
-                        ui.h5('All model predicitons'),
+                        ui.h5('All model predictions'),
                         ui.output_table('model_data'),
                         ui.br(),
                         ui.h4('extended output'),
@@ -424,7 +443,7 @@ def server(input, output, session):
             f = input.user_lib_upload()[0]
             
             if f['type'] == 'text/csv':
-                print('file == text/csv')
+                # print('file == text/csv')
                 # read in file
                 df_in = pd.read_csv(f['datapath'])
                 
@@ -789,7 +808,6 @@ def server(input, output, session):
     # Predict DMI for lactating cow
     @output
     @render.text
-    # @reactive.event(input.btn_calc_DMI)
     def predicted_DMI():
         Dt_NDF = NASEM_out()["diet_info"].loc['Diet','Fd_NDF'].copy()
         # This doesn't have a button to execute - changes each time the animal inputs change
@@ -799,7 +817,7 @@ def server(input, output, session):
           equation_selection= equation_selection(),
           coeff_dict= nd.coeff_dict
         )
-        return pred_DMI
+        return str(pred_DMI)
 
     @reactive.Calc
     def total_diet_intake():
@@ -828,13 +846,28 @@ def server(input, output, session):
         if input.An_StatePhys() == 'Dry Cow':
             ui.update_selectize('DMIn_eqn', selected='10')
 
-            ui.insert_ui(ui.div(ui.em('Dry cow is selected so no milk production data can be entered.')), 
+            ui.insert_ui(ui.div(
+                {'id' : 'drycow_input_warnaing'},
+                ui.em('Dry cow is selected so no milk production data can be entered.')), 
                  selector = "#milk_production_conditional_panel", # place the new UI's below the initial item input
                  where = "afterEnd")
             
             ui.update_numeric('An_GestDay', value = 220)
             ui.update_numeric('Trg_FrmGain', value = 0.1)
             ui.update_numeric('Trg_RsrvGain', value = 0)
+            ui.update_numeric('Trg_MilkProd', value = 0)
+        
+        elif input.An_StatePhys() == 'Lactating Cow':
+            ui.update_selectize('DMIn_eqn', selected='8')
+
+            ui.remove_ui(selector="div#drycow_input_warnaing")
+            
+            ui.update_numeric('An_GestDay', value = 46)
+            ui.update_numeric('Trg_FrmGain', value = 0.6)
+            ui.update_numeric('Trg_RsrvGain', value = 0.1)
+            ui.update_numeric('Trg_MilkProd', value = 35)
+
+
 
 
       
@@ -987,28 +1020,34 @@ def server(input, output, session):
     # @reactive.event(input.btn_run_model)
     def NASEM_out():
         print("Executed NASEM_model()")
+        
         # modify input.DMIn_eqn() to be 0 for model
         modified_equation_selection = equation_selection().copy()
         modified_equation_selection['DMIn_eqn'] = 0
+        #DMIn_eqn equation forced to 0 for shiny app
+
+        modified_equation_selection['mProd_eqn'] = 0 # Force it to use target (user input) MY for energy and protein requirements, etc
+
+         
 
         return nd.NASEM_model(get_diet_info(), animal_input_SHINY().copy(), modified_equation_selection, user_selected_feed_library(), nd.coeff_dict)
     
     
     @output
     @render.table
-    @reactive.event(NASEM_out, ignore_init=True)
+    # @reactive.event(NASEM_out, ignore_init=True)
     def animal_input_table_comparison():
         return df_user_input_compare()
     
     @reactive.Calc
-    @reactive.event(NASEM_out, ignore_init=True)
+    # @reactive.event(NASEM_out, ignore_init=True)
     def animal_input_RETURN() -> dict:
         return NASEM_out()['animal_input']
     
 
     
     @reactive.Calc
-    @reactive.event(NASEM_out, ignore_init=True)
+    # @reactive.event(NASEM_out, ignore_init=True)
     def df_user_input_compare() -> pd.DataFrame:
         '''
         Compare user inputs from Shiny vs what gets returned by model.
@@ -1017,20 +1056,20 @@ def server(input, output, session):
         df_user_input_SHINY = pd.DataFrame(animal_input_SHINY().items(), columns=['Variable Name', 'Value_SHINY'])
         df_user_input_RETURN = pd.DataFrame(animal_input_RETURN().items(), columns=['Variable Name', 'Value_Model_Return'])
 
-        # df_user_input_compare  = df_user_input_SHINY.merge(
-        #     df_user_input_RETURN, 
-        #     on='Variable Name', 
-        #     how='outer')
+        df_user_input_compare  = df_user_input_SHINY.merge(
+            df_user_input_RETURN, 
+            on='Variable Name', 
+            how='outer')
         
         print('test')
-        # return df_user_input_compare
-        return 'test'
+        return df_user_input_compare
+        # return 'test'
     
    
     
     @reactive.Calc
     def equation_selection():
-        return {'Use_DNDF_IV' : input.Use_DNDF_IV(), 'DMIn_eqn': input.DMIn_eqn()}
+        return {'Use_DNDF_IV' : input.Use_DNDF_IV(), 'DMIn_eqn': input.DMIn_eqn(), 'mProd_eqn': input.mProd_eqn(), 'Monensin_eqn': input.Monensin_eqn()}
     
     @output
     @render.table
@@ -1072,7 +1111,7 @@ def server(input, output, session):
     @reactive.Calc
     def df_model_snapshot():
         # Variables to return:
-        vars_return = ['Mlk_Prod_comp','milk_fat', 'milk_protein', 'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow']
+        vars_return = ['Mlk_Prod_comp','milk_fat', 'milk_protein', 'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow', 'An_RDPbal_g']
         # this reindexing will put them in the order of vars_return
         return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return).filter(items = ["Description", "Value"])
     
@@ -1081,6 +1120,19 @@ def server(input, output, session):
     def model_snapshot():
         return df_model_snapshot()
     
+    @reactive.Calc
+    def df_model_snapshot_drycow():
+        # Variables to return:
+        vars_return = ['An_MEIn', 'Trg_MEuse', 'An_MEbal', 'An_MPIn_g', 'An_MPuse_g_Trg', 'An_MPBal_g_Trg','An_RDPIn_g', 'Du_MiCP_g','An_RDPbal_g', 'An_DCADmeq']
+        # this reindexing will put them in the order of vars_return
+        return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return).filter(items = ["Description", "Value"])
+    
+    @output
+    @render.table()
+    def model_snapshot_drycow():
+        return df_model_snapshot_drycow() 
+    
+
     @output
     @render.table
     @reactive.event(NASEM_out, ignore_init=True)
@@ -1211,14 +1263,20 @@ def server(input, output, session):
     @output
     @render.table
     def mineral_intakes():
-        mineral_df = (
-            NASEM_out()['mineral_intakes']
-            .assign(
-                Diet_percent = lambda df: df['Dt_micro'].fillna(df['Dt_macro']))
-                .drop(columns=['Dt_macro', 'Dt_micro','Abs_mineralIn'])
-                .reset_index(names='Mineral')
-                .round(2)
-                )
+        # mineral_df = (
+        #     NASEM_out()['mineral_intakes']
+        #     .assign(
+        #         Diet_percent = lambda df: df['Dt_micro'].fillna(df['Dt_macro'])
+        #         )
+        #         .drop(columns=['Dt_macro', 'Dt_micro','Abs_mineralIn'])
+        #         .reset_index(names='Mineral')
+        #         .round(2)
+        #         )
+        mineral_df = format_minerals_supply_and_req(
+            NASEM_out()['mineral_requirements_dict'],
+            NASEM_out()['mineral_balance_dict'],
+            NASEM_out()['mineral_intakes']).round(2)
+        
         return mineral_df
     
 
@@ -1238,10 +1296,11 @@ def server(input, output, session):
                df_energy_teaching = df_key_model_data_energy_teaching(),
                df_full_model = full_model_output(),
             #    df_animal_input_comparison = df_user_input_compare(), 
-               dict_equation_selections = equation_selection()
+               dict_equation_selections = equation_selection(),
+               df_snapshot= df_model_snapshot() if input.An_StatePhys() == 'Lactating Cow' else df_model_snapshot_drycow()
                       )
     
-        # Use io.BytesIO to yield the HTML content
+        # Use io.BytesIO to yield the HTML content 
         with io.StringIO() as buf:  # Use io.StringIO for string data
             buf.write(html_out)
             yield buf.getvalue()

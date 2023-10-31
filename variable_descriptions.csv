@@ -75,8 +75,8 @@ Dt_rOMIn,"Residual organic matter intake, kg/d"
 Du_MiN_VTln_g,Microbial N in g/d
 Du_MiN_VTnln_g,Microbial N in g/d
 f_mPrt_max,Genetic potential scalar for milk protein production
-Du_MiCP_g,"Microbial crude proetin, g"
-Du_MiTP_g,"Microbial true protein, g"
+Du_MiCP_g,"Microbial crude protein flow, g/d"
+Du_MiTP_g,"Microbial true protein flow, g/d"
 SIDigAARUPf,SI Digestibility of AA relative to RUP digestibility ([g dAA / g AA] / [g dRUP / g RUP])
 Fd_AAt_CP,True feed AA (g hydrated AAt/100 g CP) corrected for reported 24 h recovered AA
 Fd_AARUPIn,"Estimated RUP AAt outflow from each Feed, g hydrated AAt/d"
@@ -239,3 +239,7 @@ milk_protein,"Predicted milk protein content, %"
 An_MPuse_kg_Trg,"Metabolizable protein requirement, kg/d"
 Dt_NDF,"Diet Neutral Detergent Fibre, %"
 An_DCADmeq,"Dietary Cation-Anion Difference, mEq"
+An_RDPbal_g,"Rumen microbial CP balance, g/d"
+An_MPBal_g_Trg,"Metabolisable protein balance, g/d"
+An_RDPIn_g,"Animal RDP intake, g/d"
+An_MEbal,"Metabolizable energy balance, Mcal/d"
