@@ -77,7 +77,7 @@ def remove_ingredient(current_iter):
 ##############################################################################################
 
 app_ui = ui.page_navbar(
-    #  shinyswatch.theme.materia(),
+    #shinyswatch.theme.materia(),
 
     ui.nav(
         'Welcome',
@@ -222,6 +222,7 @@ app_ui = ui.page_navbar(
                 ui.p('View column groups:'),
                 ui.input_switch('cols_show_all', 'Show all columns')
                 ),
+            # ui.br(),
             ui.panel_conditional( "!input.cols_show_all",
                 x.ui.layout_column_wrap(1/5,                  
                     ui.input_switch('cols_common', 'Commonly used',  value=True),                    
@@ -396,7 +397,8 @@ app_ui = ui.page_navbar(
                 ), 
         title= "NASEM for python",
         id='navbar_id',
-        inverse = True,
+        inverse = False,
+        fillable=False
     # fillable=False,
     # # *****************************************************************************************************
     # Current glitch prevents the filters working on feed library widget when using a x.ui. page_fillable() 
