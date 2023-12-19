@@ -5,4 +5,4 @@ pandas
 jinja2
 ipydatagrid
 pytz
-nasem_dairy @ git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
+nasem_dairy @ git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python@v1.0.0a0

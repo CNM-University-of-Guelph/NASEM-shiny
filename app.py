@@ -81,7 +81,8 @@ app_ui = ui.page_navbar(
 
     ui.nav(
         'Welcome',
-        ui.h2("Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)"),
+        # ui.h2("Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)"),
+        ui.panel_title("Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)"),
         ui.br(),
         ui.p(
             "This app is a simplified version of the model described in the 8th Edition of the ", 
@@ -396,6 +397,7 @@ app_ui = ui.page_navbar(
                 ),
                 ), 
         title= "NASEM for python",
+        # window_title= "NASEM dairy",
         id='navbar_id',
         inverse = False,
         fillable=False
@@ -1113,7 +1115,7 @@ def server(input, output, session):
     @reactive.Calc
     def df_model_snapshot():
         # Variables to return:
-        vars_return = ['Mlk_Prod_comp','milk_fat', 'milk_protein', 'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow', 'An_RDPbal_g']
+        vars_return = ['Mlk_Prod_comp','milk_fat', 'milk_protein', 'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow', 'An_RDPbal_g', 'Du_MiCP_g']
         # this reindexing will put them in the order of vars_return
         return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return).filter(items = ["Description", "Value"])
     
