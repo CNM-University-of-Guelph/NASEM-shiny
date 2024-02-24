@@ -83,7 +83,7 @@ def remove_ingredient(current_iter):
 app_ui = ui.page_navbar(
     #shinyswatch.theme.materia(),
 
-    ui.nav(
+    ui.nav_panel(
         'Welcome',
         # ui.h2("Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)"),
         ui.panel_title("Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)"),
@@ -113,21 +113,21 @@ app_ui = ui.page_navbar(
         ), 
 
 
-    ui.nav(
+    ui.nav_panel(
         "Inputs",
         animal_inputs_ui('nav_inputs')
 
         ),
-    ui.nav("Feed Library",
+    ui.nav_panel("Feed Library",
        feed_library_ui('nav_feed_library')
         ),
 
 
-        ui.nav("Diet",
+        ui.nav_panel("Diet",
                 # ui.panel_title("Diet"),
-                x.ui.card(
-                    x.ui.layout_sidebar(
-                        x.ui.sidebar(
+                ui.card(
+                    ui.layout_sidebar(
+                        ui.sidebar(
                             ui.p("Feeds selected by user:"),
                             ui.output_data_frame('user_selected_feed_names_2'),
                             ui.br(),
@@ -135,7 +135,7 @@ app_ui = ui.page_navbar(
                             open='closed'
                             ),
                         
-                        # x.ui.card(
+                        # ui.card(
                             ui.row( 
                                 ui.column(4, 
                                           ui.p("Predicted DMI (from selected equation):"),
@@ -193,15 +193,15 @@ app_ui = ui.page_navbar(
                     )
                 ),
             ),
-        ui.nav("Outputs",
+        ui.nav_panel("Outputs",
                 ui.panel_title("NASEM Model Outputs"),
                 ui.row(
                     ui.column(3, ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes."))),
                     ui.column(2, ui.download_button("btn_download_report", "Download Report", class_='btn-warning')),
                 ),
                
-                ui.navset_tab_card(
-                    ui.nav(
+                ui.navset_card_tab(
+                    ui.nav_panel(
                         'Model Evaluation',
                         ui.h5('Milk production estimates:'),
                         ui.output_table('key_model_data_milk'),
@@ -219,7 +219,7 @@ app_ui = ui.page_navbar(
 
                         ),
 
-                    ui.nav(
+                    ui.nav_panel(
                         'Diet Analysis',
                         ui.h5('Diet summary:'),
                         ui.output_table('diet_data_model'),
@@ -236,17 +236,17 @@ app_ui = ui.page_navbar(
                         ui.h5("Ration ingredients:"),
                         ui.output_table('raw_diet_info'),
                     ),
-                    ui.nav(
+                    ui.nav_panel(
                         'Vitamins and Minerals',
                         ui.output_table('mineral_intakes')
 
                         ),
-                    ui.nav(
+                    ui.nav_panel(
                         "Energy - teaching",
                         ui.output_table('key_model_data_energy_teaching')
                         ),
 
-                    ui.nav(
+                    ui.nav_panel(
                         'Advanced',
                         ui.h5('All model predictions'),
                         ui.output_table('model_data'),
@@ -256,7 +256,7 @@ app_ui = ui.page_navbar(
                         ui.h4("Confirm Model inputs:"),
                         ui.output_table('animal_input_table_comparison'),
                         ui.output_table('equation_selection_table'),
-                        ui.output_text_verbatim('testing')
+                        # ui.output_text_verbatim('testing')
                     )
                 ),
                 ), 
@@ -286,12 +286,13 @@ app_ui = ui.page_navbar(
 # Server
 
 def server(input, output, session):
-   
-    @output
-    @render.text
-    def testing():
-        # return(animal_input_reactives()['An_StatePhys']())
-        return(animal_input_dict())
+    
+    # Output text for printing during dev
+    # @output
+    # @render.text
+    # def testing():
+    #     # return(animal_input_reactives()['An_StatePhys']())
+    #     return(animal_input_dict())
 
     # Feed library
     user_selected_feed_library, user_selected_feeds = feed_library_server("nav_feed_library", feed_library_default = feed_library_default, user_selections_reset = input.reset_user_selected_feed_names_2)
@@ -468,11 +469,6 @@ def server(input, output, session):
         return get_diet_info()
     
 
-
-
-
-
-
     #########################################################
     # DMI intake numbers for Diet page
     #########################################################
@@ -493,7 +489,7 @@ def server(input, output, session):
 
     @reactive.Calc
     def total_diet_intake():
-        return get_diet_info().copy().sum(numeric_only=True)[0]
+        return get_diet_info().copy()['kg_user'].sum()
 
     @output
     @render.text
@@ -516,7 +512,6 @@ def server(input, output, session):
     
     @reactive.Effect
     def _():
-        print(animal_input_reactives()['An_StatePhys']())
         if animal_input_reactives()['An_StatePhys']() == 'Dry Cow':
             ui.update_selectize('DMIn_eqn', selected='10')
 
@@ -604,10 +599,6 @@ def server(input, output, session):
 
         modified_equation_selection['mProd_eqn'] = 0 # Force it to use target (user input) MY for energy and protein requirements, etc
 
-        print(animal_input_dict())
-        print(modified_equation_selection)
-        print(user_selected_feed_library())
-
         return nd.NASEM_model(get_diet_info(), animal_input_dict().copy(), modified_equation_selection, user_selected_feed_library(), nd.coeff_dict)
     
     
@@ -639,11 +630,8 @@ def server(input, output, session):
             on='Variable Name', 
             how='outer')
         
-        print('test')
         return df_user_input_compare
-        # return df_user_input_SHINY
-        # return 'test'
-    
+        
    
     
     @output
@@ -673,9 +661,7 @@ def server(input, output, session):
             .merge(var_desc, how = 'left')
             )
         return model_df
-        # return var_desc
-
-    
+            
 
     ##################################################################
     # Model evaluation
@@ -838,15 +824,6 @@ def server(input, output, session):
     @output
     @render.table
     def mineral_intakes():
-        # mineral_df = (
-        #     NASEM_out()['mineral_intakes']
-        #     .assign(
-        #         Diet_percent = lambda df: df['Dt_micro'].fillna(df['Dt_macro'])
-        #         )
-        #         .drop(columns=['Dt_macro', 'Dt_micro','Abs_mineralIn'])
-        #         .reset_index(names='Mineral')
-        #         .round(2)
-        #         )
         mineral_df = format_minerals_supply_and_req(
             NASEM_out()['mineral_requirements_dict'],
             NASEM_out()['mineral_balance_dict'],

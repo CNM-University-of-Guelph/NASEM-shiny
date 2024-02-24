@@ -8,8 +8,8 @@ from utils import DM_intake_equation_strings
 @module.ui
 def animal_inputs_ui():
     return ([
-        ui.navset_tab_card( 
-            ui.nav(
+        ui.navset_card_tab( 
+            ui.nav_panel(
                 'Animal Description',
                 ui.input_selectize(
                     'An_Breed', 
@@ -39,7 +39,7 @@ def animal_inputs_ui():
                 
                 
             ),
-            ui.nav(
+            ui.nav_panel(
                 'Animal Management',
                 ui.panel_conditional(
                     "input.An_StatePhys === 'Lactating Cow'",
@@ -55,7 +55,7 @@ def animal_inputs_ui():
 
                 ),
 
-            ui.nav(
+            ui.nav_panel(
                 'Milk Production',               
                 ui.panel_conditional("input.An_StatePhys === 'Lactating Cow'",
                     {"id" : "milk_production_conditional_panel" },
@@ -72,7 +72,7 @@ def animal_inputs_ui():
                 ),
 
 
-            ui.nav(
+            ui.nav_panel(
                 'Advanced',
                 
                 ui.panel_title("Equation selections"),
