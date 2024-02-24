@@ -173,7 +173,7 @@ def calculate_DMI_prediction(
     DMI = 0
     animal_input = animal_input.copy()
 
-        # Calculate additional physiology values
+    # Calculate additional physiology values
     animal_input['An_PrePartDay'] = animal_input['An_GestDay'] - animal_input['An_GestLength']
     animal_input['An_PrePartWk'] = animal_input['An_PrePartDay'] / 7
 
