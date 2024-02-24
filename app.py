@@ -15,7 +15,7 @@ from ipydatagrid import DataGrid
 # pip install git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
 import nasem_dairy as nd
 
-from utils import display_diet_values, rename_df_cols_Fd_to_feed, DM_intake_equation_strings, get_unique_feed_list, get_teaching_feeds
+from utils import display_diet_values, rename_df_cols_Fd_to_feed, DM_intake_equation_strings, get_unique_feed_list, get_teaching_feeds, calculate_DMI_prediction, format_minerals_supply_and_req
 from generate_report import generate_report
 
 
@@ -31,13 +31,13 @@ def insert_new_ingredient(current_iter, feed_choices, feed_selected = None, kg_s
     newItemDiv = ui.div(
             {"id" : "userfeed_" + current_iter}, # div ID
             ui.row(
-                ui.column(4, ui.input_selectize("item_" + current_iter,
+                ui.column(6, ui.input_selectize("item_" + current_iter,
                                                 #  "Choose feeds to use in ration:",
                                                 label = "",
                                                 choices = feed_choices,
                                                 selected = feed_selected,
                                                 multiple = False)),
-                ui.column(2, ui.input_numeric('kg_' + current_iter, 
+                ui.column(3, ui.input_numeric('kg_' + current_iter, 
                             label = "",
                             min=0, 
                             max=100, 
@@ -58,9 +58,10 @@ def insert_scenario_buttons():
     newItemDiv = ui.div(
             {"id" : "scenario_button_div"}, # div ID
             ui.row(
-                ui.column(4, ui.input_action_button("add_demo_diet", "Add demo diet", class_='btn-info')),
-                ui.column(4, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
-            )
+                ui.column(4, ui.input_action_button("add_demo_diet", "Add demo lactating diet", class_='btn-info')),
+                # ui.column(4, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
+            ),
+            ui.br()
             )
     ui.insert_ui(newItemDiv, 
                  selector = "#item_input", # place the new UI's below the initial item input
@@ -76,11 +77,12 @@ def remove_ingredient(current_iter):
 ##############################################################################################
 
 app_ui = ui.page_navbar(
-    #  shinyswatch.theme.materia(),
+    #shinyswatch.theme.materia(),
 
     ui.nav(
         'Welcome',
-        ui.h2("Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)"),
+        # ui.h2("Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)"),
+        ui.panel_title("Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)"),
         ui.br(),
         ui.p(
             "This app is a simplified version of the model described in the 8th Edition of the ", 
@@ -121,7 +123,7 @@ app_ui = ui.page_navbar(
                 ui.input_selectize(
                     'An_StatePhys', 
                     label = 'Select physiological state:', 
-                    choices = {'Lactating Cow': 'Lactating Cow', 'Dry Cow': 'Dry Cow', 'Calf':'Calf'}, 
+                    choices = {'Lactating Cow': 'Lactating Cow', 'Dry Cow': 'Dry Cow'}, #'Calf':'Calf'
                     selected = 'Lactating Cow'
                     ),
                 ui.br(),
@@ -142,7 +144,10 @@ app_ui = ui.page_navbar(
             ),
             ui.nav(
                 'Animal Management',
-                ui.input_numeric("An_LactDay", "Average days in milk:", 100, min=0),
+                ui.panel_conditional(
+                    "input.An_StatePhys === 'Lactating Cow'",
+                    ui.input_numeric("An_LactDay", "Average days in milk:", 100, min=0)
+                ),
                 ui.input_numeric("An_GestDay", "Average days pregnant (d)", 46, min=0),
                 ui.br(),
                 ui.p(
@@ -154,16 +159,19 @@ app_ui = ui.page_navbar(
                 ),
 
             ui.nav(
-                'Milk Production',
-                ui.h3("Milk Yield"),
-                ui.input_numeric("Trg_MilkProd", "Target milk production (kg/d)", 35, min=0),
-                
-                ui.br(),
-                
-                ui.h3("Milk Components"),
-                ui.input_numeric("Trg_MilkFatp", "Target milk fat %", 3.8, min=0, ),
-                ui.input_numeric("Trg_MilkTPp", "Target milk true protein %", 3.1, min=0, ),
-                ui.input_numeric("Trg_MilkLacp", "Target milk lactose %", 4.85, min=0, )
+                'Milk Production',               
+                ui.panel_conditional("input.An_StatePhys === 'Lactating Cow'",
+                    {"id" : "milk_production_conditional_panel" },
+                    ui.h3("Milk Yield"),
+                    ui.input_numeric("Trg_MilkProd", "Target milk production (kg/d)", 35, min=0),
+                    
+                    ui.br(),
+                    
+                    ui.h3("Milk Components"),
+                    ui.input_numeric("Trg_MilkFatp", "Target milk fat %", 3.8, min=0, ),
+                    ui.input_numeric("Trg_MilkTPp", "Target milk true protein %", 3.1, min=0, ),
+                    ui.input_numeric("Trg_MilkLacp", "Target milk lactose %", 4.85, min=0, )
+                    ),
                 ),
 
 
@@ -177,6 +185,19 @@ app_ui = ui.page_navbar(
                     "Use_DNDF_IV", 
                     "Use_DNDF_IV (NASEM default is Lg based)",
                     choices = {0:"Lg based", 1:"DNDF48 for forages", 2:"DNDF48 for all"}, # type: ignore
+                    ), 
+
+                ui.input_radio_buttons(
+                    "Monensin_eqn", 
+                    "Use Monensin equations?",
+                    choices = {0:"No", 1:"Yes"}, # type: ignore
+                    ),     
+
+                ui.input_radio_buttons(
+                    "mProd_eqn", 
+                    "Milk production equation to use for calcs (currently hard-coded to use Trg_MilkProd):",
+                    choices = {0: 'Trg_MilkProd', 1: 'component based predicted', 2: 'NE Allowable', 3: 'MP Allowable', 4: 'min(NE,MPAllow)'},  # type: ignore
+                    selected=1 # type: ignore
                     ), 
 
                 ui.input_selectize(
@@ -202,6 +223,7 @@ app_ui = ui.page_navbar(
                 ui.p('View column groups:'),
                 ui.input_switch('cols_show_all', 'Show all columns')
                 ),
+            # ui.br(),
             ui.panel_conditional( "!input.cols_show_all",
                 x.ui.layout_column_wrap(1/5,                  
                     ui.input_switch('cols_common', 'Commonly used',  value=True),                    
@@ -217,6 +239,8 @@ app_ui = ui.page_navbar(
                 x.ui.sidebar(
                     ui.input_switch('use_teaching_fd_library', 'Use teaching feed library', value=True),
                     ui.br(),
+                    ui.input_file('user_lib_upload', 'Upload custom feed library (.csv)', accept='.csv'),
+                    ui.br(),
                     ui.p("Feeds selected by user:"),
                     ui.output_data_frame('user_selected_feed_names'),
                     ui.br(),
@@ -224,6 +248,7 @@ app_ui = ui.page_navbar(
                 ),
                 ui.p("Click on a row in the table below to store the Feed Name in the side panel. This is a temporary list that will be shown you create your diet in the next step."),
                 output_widget('grid_feed_library'),
+                ui.output_text_verbatim('file_upload_summary')
             ),
             full_screen=True
         ),
@@ -244,52 +269,74 @@ app_ui = ui.page_navbar(
                             ui.p("Feeds selected by user:"),
                             ui.output_data_frame('user_selected_feed_names_2'),
                             ui.br(),
-                            ui.input_action_button('reset_user_selected_feed_names_2', "Clear list")
+                            ui.input_action_button('reset_user_selected_feed_names_2', "Clear list"),
+                            open='closed'
                             ),
                         
-                        x.ui.card(
+                        # x.ui.card(
                             ui.row( 
-                                ui.column(4, ui.input_action_button('btn_calc_DMI', 'Predict DMI (from animal inputs)', class_='btn-secondary'), ui.output_text('predicted_DMI')),
+                                ui.column(4, 
+                                          ui.p("Predicted DMI (from selected equation):"),
+                                          ui.output_text('predicted_DMI')
+
+                                          ),
                                 ui.column(3, ui.input_numeric("DMI", "Target dry matter intake (kg/d)", 25, min=0)),
                                 ui.column(2, ui.p('Total diet intake (kg/d):'), ui.output_text('diet_total_intake')),
                                 ui.column(2, ui.p('Difference (kg):'), ui.output_text("intake_difference")),
                             ),
-                        ),
+                        # ),
                         
-                    #    ui.br(),
-                       ui.h2("Formulate ration:"),
-                        ui.row(
-                                ui.column(4, ui.input_action_button("add_demo_diet", "Add demo diet", class_='btn-info')),
-                                ui.column(4, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
-                            ),
-                       ui.output_ui("item_input"),
-                        ui.row(
-                                ui.column(4, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
-                                ui.column(4, ui.input_action_button("btn_reset_feeds", "Reset ingredients list"))
-                            ),
-                        ui.br(), ui.br(), ui.br(), ui.br()
-                            
+                       ui.row(
+                           ui.column(6, 
+                                     
+                                     ui.row(
+                                         ui.column(6, ui.h2("Formulate ration:")),
+                                         ui.column(6, ui.input_action_button("add_demo_diet", "Add demo lactating diet", class_='btn-info')),
+                                        #  ui.column(6, ui.input_action_button("add_assignment_diet", 'Load assignment scenario', class_='btn-danger'))
+                                         ),
+                                         ui.br(),
+                                         ui.output_ui("item_input"),
+                                         ui.row(
+                                             ui.column(4, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
+                                             ui.column(4, ui.input_action_button('btn_load_user_selected_feeds', 'Populate with selected feeds')),
+                                             ui.column(4, ui.input_action_button("btn_reset_feeds", "Reset ingredients list"))
+                                             ),
+                                             ),
+                            ui.column(6, 
+                                      ui.panel_well(
+                                          ui.h2("Model Outputs - Snapshot"),
+                                          ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes. The following snapshot shows the calculated diet proportions of key components and some model outputs (different output is shown for dry cows):")),
+                                        #   ui.row(
+                                        #       ui.column(6, ui.output_table('snapshot_diet_data_model')),
+                                        #       ui.column(6, ui.output_table('model_snapshot'))
+                                        #       )
+                                              
+                                        ui.output_table('snapshot_diet_data_model'),
+                                        ui.panel_conditional(
+                                            "input.An_StatePhys === 'Lactating Cow'",
+                                            ui.output_table('model_snapshot')
+                                            ),
+                                        ui.panel_conditional(
+                                            "input.An_StatePhys !== 'Lactating Cow'",
+                                            ui.output_table('model_snapshot_drycow')
+                                            ),
+                                              
+                        ),)
+                       ),                    
                        
-                     
+                        ui.br(), ui.br(), ui.br(), ui.br(), 
                         # ui.br(),
                         # ui.output_table("user_selections")
                     )
                 ),
             ),
-        ui.nav("Run Model",
-                ui.panel_title("Run NASEM model"),
-                ui.br(),
+        ui.nav("Outputs",
+                ui.panel_title("NASEM Model Outputs"),
                 ui.row(
-                    ui.column(3, ui.input_action_button("btn_run_model", "Run NASEM model", class_='btn-warning')),
-                    ui.column(3, ui.br()),
-                    ui.column(3, ui.download_button("btn_download_report", "Download Report")),
-                    
-
+                    ui.column(3, ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes."))),
+                    ui.column(2, ui.download_button("btn_download_report", "Download Report", class_='btn-warning')),
                 ),
-
-                
-                ui.br(),
-
+               
                 ui.navset_tab_card(
                     ui.nav(
                         'Model Evaluation',
@@ -338,7 +385,7 @@ app_ui = ui.page_navbar(
 
                     ui.nav(
                         'Advanced',
-                        ui.h5('All model predicitons'),
+                        ui.h5('All model predictions'),
                         ui.output_table('model_data'),
                         ui.br(),
                         ui.h4('extended output'),
@@ -350,8 +397,10 @@ app_ui = ui.page_navbar(
                 ),
                 ), 
         title= "NASEM for python",
+        # window_title= "NASEM dairy",
         id='navbar_id',
-        inverse = True,
+        inverse = False,
+        fillable=False
     # fillable=False,
     # # *****************************************************************************************************
     # Current glitch prevents the filters working on feed library widget when using a x.ui. page_fillable() 
@@ -382,13 +431,41 @@ def server(input, output, session):
 
     @reactive.Calc
     def user_selected_feed_library():
+        
         if input.use_teaching_fd_library():
             teaching_feeds =  get_teaching_feeds()
 
-            df_out = feed_library_default.query('Fd_Name.isin(@teaching_feeds)')
+            df_user_lib = feed_library_default.query('Fd_Name.isin(@teaching_feeds)')
+            return df_user_lib
+        
+        if input.user_lib_upload() is None:
+            print('No file uploaded and teaching mode not selected')
+            df_user_lib = feed_library_default
+        
         else:
-            df_out = feed_library_default
-        return df_out
+            print(input.user_lib_upload()[0])
+            f = input.user_lib_upload()[0]
+            
+            if f['type'] == 'text/csv':
+                # print('file == text/csv')
+                # read in file
+                df_in = pd.read_csv(f['datapath'])
+                
+                # Check if all column names are present
+                req_cols = feed_library_default.columns
+                
+                if not all(col_name in df_in.columns for col_name in req_cols):
+                    raise ValueError("Not all required columns are present in the uploaded feed library.")
+                
+                # sort data and assign for use        
+                df_user_lib = df_in.sort_values("Fd_Name")
+            
+            else:
+                print('User upload failed - using default lib')
+                df_user_lib = feed_library_default
+
+        
+        return df_user_lib
 
     @reactive.Calc
     def unique_fd_list():
@@ -397,7 +474,7 @@ def server(input, output, session):
     @reactive.Calc
     def df_feed_library():
         return rename_df_cols_Fd_to_feed(user_selected_feed_library())
-
+    
     
 
     ########################
@@ -512,22 +589,35 @@ def server(input, output, session):
     
     @reactive.Effect
     def _():
-        # take a dependency on the user selection, which updates every time a cell is clicked
+        # This take a dependency on the user selection, which updates every time a cell is clicked
         prepare_user_selected_feed_names()
         
         # then, execute this code but preventing other code taking a dependency on it - prevents infinite loop
         with reactive.isolate():
             fd_lib_stored_copy = feed_library_index_stored().copy()
-            fd_lib_stored_copy.extend(prepare_user_selected_feed_names())
-            # remove duplicates (by converting to set) and then set the reactiveValue as this new list
 
+            # add on user selected feed names to reactive list
+            fd_lib_stored_copy.extend(prepare_user_selected_feed_names())
+            
+            # remove duplicates (by converting to set) and then set the reactiveValue as this new list
             feed_library_index_stored.set(list(set(fd_lib_stored_copy)))
+
 
     @reactive.Effect
     @reactive.event(input.reset_user_selected_feed_names, input.reset_user_selected_feed_names_2)
     def _():
         feed_library_index_stored.set([])
 
+
+
+    @reactive.Calc
+    def user_selected_feeds_list():
+                user_selected_feeds = (
+                    df_feed_lib_userfriendly()
+                    .reset_index(drop = True) # reset's index to match a 'row number' from selection with index (after filtering)
+                    .loc[feed_library_index_stored(),'Feed Name'])
+                
+                return user_selected_feeds.to_list()
 
     @output
     @render.data_frame
@@ -561,7 +651,9 @@ def server(input, output, session):
     user_feeds = reactive.Value(['item_1'])
     user_kgs = reactive.Value(['kg_1'])
     
-    #used for demo data
+    #used for 'iterate new ingredient' because variables can't be parsed into these functions
+    # so, the values are assigned to these 2 reactives which are then used by the iterate_new_ingredient function to set up a new feed
+    # originally used by demo diets
     feed_selected = reactive.Value(None)
     kg_selected = reactive.Value(0)
 
@@ -573,11 +665,11 @@ def server(input, output, session):
         itemInput = ui.div(
             {"id" : "userfeed_1" },
             ui.row(
-                ui.column(4, ui.input_selectize( "item_1" ,
+                ui.column(6, ui.input_selectize( "item_1" ,
                                                  "Choose feeds to use in ration:",
                                                 choices = unique_fd_list(), # leave blank until feed library is loaded
                                                 multiple = False)),
-                ui.column(2, ui.input_numeric('kg_1', 
+                ui.column(3, ui.input_numeric('kg_1', 
                              label="Enter kg DM:", 
                              min=0, 
                              max=100, 
@@ -617,6 +709,26 @@ def server(input, output, session):
     def _():
         iterate_new_ingredient()
 
+
+    @reactive.Effect
+    @reactive.event(input.btn_load_user_selected_feeds)
+    def _():
+        '''used to update feeds based on user selections'''
+
+        feed_list = user_selected_feeds_list()
+
+        for i, feed in enumerate(feed_list):
+            if i == 0:
+                ui.update_selectize(id = 'item_1', choices = unique_fd_list(), selected = feed)
+                ui.update_numeric(id = 'kg_1', value = 0)
+            else:
+                feed_selected.set(feed) # type: ignore
+                kg_selected.set(0)
+                iterate_new_ingredient()
+        
+        # reset to defaults
+        feed_selected.set(None)
+        kg_selected.set(0)
 
 
     @reactive.Effect
@@ -687,6 +799,12 @@ def server(input, output, session):
     def raw_diet_info():
         return get_diet_info()
     
+
+
+
+
+
+
     #########################################################
     # DMI intake numbers for Diet page
     #########################################################
@@ -694,26 +812,16 @@ def server(input, output, session):
     # Predict DMI for lactating cow
     @output
     @render.text
-    @reactive.event(input.btn_calc_DMI)
     def predicted_DMI():
-        
-        if input.DMIn_eqn() == '8': 
-            pred_DMI = nd.calculate_Dt_DMIn_Lact1(
-                An_Parity_rl(), # adjusted from user input already
-                input.Trg_MilkProd(), 
-                input.An_BW(), 
-                input.An_BCS(),
-                input.An_LactDay(), 
-                input.Trg_MilkFatp(), 
-                input.Trg_MilkTPp(), 
-                input.Trg_MilkLacp()
-                )
-            pred_DMI = str(round(pred_DMI, 2))+' kg'
-        else:
-            print("Only able to calculate intake for DMIn_eqn == 8")
-            pred_DMI = 'NA - check DMIn_eqn'
-
-        return pred_DMI
+        Dt_NDF = NASEM_out()["diet_info"].loc['Diet','Fd_NDF'].copy()
+        # This doesn't have a button to execute - changes each time the animal inputs change
+        pred_DMI = calculate_DMI_prediction(
+          animal_input=animal_input_SHINY().copy(),
+          diet_NDF = Dt_NDF,
+          equation_selection= equation_selection(),
+          coeff_dict= nd.coeff_dict
+        )
+        return str(pred_DMI)
 
     @reactive.Calc
     def total_diet_intake():
@@ -731,6 +839,38 @@ def server(input, output, session):
         Calculate the difference in intake between target DMI and diet total kg DM for 'Diet' page
         '''
         return round((total_diet_intake()-input.DMI()),3)
+
+
+    ########################
+    # Dry Cow UI setup
+    ########################
+
+    @reactive.Effect
+    def _():
+        if input.An_StatePhys() == 'Dry Cow':
+            ui.update_selectize('DMIn_eqn', selected='10')
+
+            ui.insert_ui(ui.div(
+                {'id' : 'drycow_input_warnaing'},
+                ui.em('Dry cow is selected so no milk production data can be entered.')), 
+                 selector = "#milk_production_conditional_panel", # place the new UI's below the initial item input
+                 where = "afterEnd")
+            
+            ui.update_numeric('An_GestDay', value = 220)
+            ui.update_numeric('Trg_FrmGain', value = 0.1)
+            ui.update_numeric('Trg_RsrvGain', value = 0)
+            ui.update_numeric('Trg_MilkProd', value = 0)
+        
+        elif input.An_StatePhys() == 'Lactating Cow':
+            ui.update_selectize('DMIn_eqn', selected='8')
+
+            ui.remove_ui(selector="div#drycow_input_warnaing")
+            
+            ui.update_numeric('An_GestDay', value = 46)
+            ui.update_numeric('Trg_FrmGain', value = 0.6)
+            ui.update_numeric('Trg_RsrvGain', value = 0.1)
+            ui.update_numeric('Trg_MilkProd', value = 35)
+
 
 
 
@@ -773,63 +913,63 @@ def server(input, output, session):
     ########################
     # Add Assignment Diet
     ########################
-    @reactive.Effect
-    @reactive.event(input.add_assignment_diet)
-    def _():
-        ui.update_selectize(id = 'item_1', choices = unique_fd_list(), selected = "Corn grain HM, fine grind")
-        ui.update_numeric(id = 'kg_1', value = 2)
+    # @reactive.Effect
+    # @reactive.event(input.add_assignment_diet)
+    # def _():
+    #     ui.update_selectize(id = 'item_1', choices = unique_fd_list(), selected = "Corn grain HM, fine grind")
+    #     ui.update_numeric(id = 'kg_1', value = 2)
 
-        demo_dict = {
-            'Corn silage, typical': 8.0,
-            'Soybean meal, extruded': 4.5,
-            'Legume hay, mid-maturity': 7,
-            'VitTM Premix, generic': 0.20,
-            'DDGS, high protein': 1.0,
-            'Calcium phosphate (di)': 0.1,
-            'Calcium carbonate': 0.35,
-            'Fat, canola oil': 0.50,
-        }
+    #     demo_dict = {
+    #         'Corn silage, typical': 8.0,
+    #         'Soybean meal, extruded': 4.5,
+    #         'Legume hay, mid-maturity': 7,
+    #         'VitTM Premix, generic': 0.20,
+    #         'DDGS, high protein': 1.0,
+    #         'Calcium phosphate (di)': 0.1,
+    #         'Calcium carbonate': 0.35,
+    #         'Fat, canola oil': 0.50,
+    #     }
 
-        for feed, kg in demo_dict.items():
-            feed_selected.set(feed) # type: ignore
-            kg_selected.set(kg)
-            iterate_new_ingredient()
+    #     for feed, kg in demo_dict.items():
+    #         feed_selected.set(feed) # type: ignore
+    #         kg_selected.set(kg)
+    #         iterate_new_ingredient()
         
-        # reset to defaults
-        feed_selected.set(None)
-        kg_selected.set(0)
+    #     # reset to defaults
+    #     feed_selected.set(None)
+    #     kg_selected.set(0)
 
-        # animal:
-        # change page that is being viewed:
-        # ui.update_navs("navbar_id", selected="Animal Inputs")
-        anim_dict = {
-            "An_Parity_percent_first": 0.25, # converts to An_Parity_rl
-            "Trg_MilkProd": 35,
-            "An_BW": 780,
-            "An_BCS": 3,
-            "An_LactDay": 165,
-            "Trg_MilkFatp": 3.5,
-            "Trg_MilkTPp": 3.1,
-            "Trg_MilkLacp": 4.85,
-            "DMI": 23.65,
-            "An_BW_mature": 700,
-            "Trg_FrmGain": 0.1,
-            "An_GestDay": 50,
-            "An_GestLength": 280,
-            "Trg_RsrvGain": 0,
-            "Fet_BWbrth": 44.1,
-            "An_AgeMonth": 57, # converts to An_AgeDay
-            "An_305RHA_MlkTP": 280
-        }
+    #     # animal:
+    #     # change page that is being viewed:
+    #     # ui.update_navs("navbar_id", selected="Animal Inputs")
+    #     anim_dict = {
+    #         "An_Parity_percent_first": 25, # converts to An_Parity_rl
+    #         "Trg_MilkProd": 35,
+    #         "An_BW": 780,
+    #         "An_BCS": 3,
+    #         "An_LactDay": 165,
+    #         "Trg_MilkFatp": 3.5,
+    #         "Trg_MilkTPp": 3.1,
+    #         "Trg_MilkLacp": 4.85,
+    #         "DMI": 23.65,
+    #         "An_BW_mature": 700,
+    #         "Trg_FrmGain": 0.1,
+    #         "An_GestDay": 50,
+    #         "An_GestLength": 280,
+    #         "Trg_RsrvGain": 0,
+    #         "Fet_BWbrth": 44.1,
+    #         "An_AgeMonth": 57, # converts to An_AgeDay
+    #         "An_305RHA_MlkTP": 280
+    #     }
 
-        # Iterate over the dictionary and update values using ui.update_numeric
-        for an_item, an_val in anim_dict.items():
-            ui.update_numeric(id=an_item, value=an_val)
+    #     # Iterate over the dictionary and update values using ui.update_numeric
+    #     for an_item, an_val in anim_dict.items():
+    #         ui.update_numeric(id=an_item, value=an_val)
 
        
-        # remove buttons
-        ui.remove_ui(selector="div:has(> #add_demo_diet)")
-        ui.remove_ui(selector="div:has(> #add_assignment_diet)")
+    #     # remove buttons
+    #     ui.remove_ui(selector="div:has(> #add_demo_diet)")
+    #     ui.remove_ui(selector="div:has(> #add_assignment_diet)")
 
     #######################################################
     # Animal inputs
@@ -870,11 +1010,48 @@ def server(input, output, session):
                 'An_Breed': input.An_Breed()
                 }
 
+
+    
+    #######################################################
+    # Run Model
+    #######################################################
+    # each of the inputs has been formatted from UI inputs to the required type needed by teh model.
+    # e.g. currently diet_info is a df whereas animal_input is a dict.
+    # Might make sense to use all dicts???
+
+
     @reactive.Calc
+    # @reactive.event(input.btn_run_model)
+    def NASEM_out():
+        print("Executed NASEM_model()")
+        
+        # modify input.DMIn_eqn() to be 0 for model
+        modified_equation_selection = equation_selection().copy()
+        modified_equation_selection['DMIn_eqn'] = 0
+        #DMIn_eqn equation forced to 0 for shiny app
+
+        modified_equation_selection['mProd_eqn'] = 0 # Force it to use target (user input) MY for energy and protein requirements, etc
+
+         
+
+        return nd.NASEM_model(get_diet_info(), animal_input_SHINY().copy(), modified_equation_selection, user_selected_feed_library(), nd.coeff_dict)
+    
+    
+    @output
+    @render.table
+    # @reactive.event(NASEM_out, ignore_init=True)
+    def animal_input_table_comparison():
+        return df_user_input_compare()
+    
+    @reactive.Calc
+    # @reactive.event(NASEM_out, ignore_init=True)
     def animal_input_RETURN() -> dict:
         return NASEM_out()['animal_input']
     
+
+    
     @reactive.Calc
+    # @reactive.event(NASEM_out, ignore_init=True)
     def df_user_input_compare() -> pd.DataFrame:
         '''
         Compare user inputs from Shiny vs what gets returned by model.
@@ -887,18 +1064,16 @@ def server(input, output, session):
             df_user_input_RETURN, 
             on='Variable Name', 
             how='outer')
+        
+        print('test')
         return df_user_input_compare
+        # return 'test'
     
-    @output
-    @render.table
-    def animal_input_table_comparison():
-        return df_user_input_compare()
-
-    
+   
     
     @reactive.Calc
     def equation_selection():
-        return {'Use_DNDF_IV' : input.Use_DNDF_IV(), 'DMIn_eqn': input.DMIn_eqn()}
+        return {'Use_DNDF_IV' : input.Use_DNDF_IV(), 'DMIn_eqn': input.DMIn_eqn(), 'mProd_eqn': input.mProd_eqn(), 'Monensin_eqn': input.Monensin_eqn()}
     
     @output
     @render.table
@@ -906,28 +1081,10 @@ def server(input, output, session):
         return pd.DataFrame(equation_selection().items(), columns=['Variable Name', 'Value'])
     
     #######################################################
-    # Run Model
-    #######################################################
-    # each of the inputs has been formatted from UI inputs to the required type needed by teh model.
-    # e.g. currently diet_info is a df whereas animal_input is a dict.
-    # Might make sense to use all dicts???
-
-    # TODO: somehow update or modify NASEM_model to accept user-modified: datagrid_feed_lib()
-
-    @reactive.Calc
-    @reactive.event(input.btn_run_model)
-    def NASEM_out():
-        print("Executed NASEM_model()")
-        # modify input.DMIn_eqn() to be 0 for model
-        modified_equation_selection = equation_selection().copy()
-        modified_equation_selection['DMIn_eqn'] = 0
-
-        return nd.NASEM_model(get_diet_info(), animal_input_SHINY().copy(), modified_equation_selection, user_selected_feed_library(), nd.coeff_dict)
-    
-    #######################################################
     # Model Outputs
     #######################################################
     @reactive.Calc
+    @reactive.event(NASEM_out, ignore_init=True)
     def full_model_output():
         '''
         Prepare model output data to be rendered or filtered further
@@ -952,7 +1109,41 @@ def server(input, output, session):
     ##################################################################
     # Model evaluation
     ##################################################################
-   
+
+    ###############################
+    # Snapshot on Diet page
+    @reactive.Calc
+    def df_model_snapshot():
+        # Variables to return:
+        vars_return = ['Mlk_Prod_comp','milk_fat', 'milk_protein', 'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow', 'An_RDPbal_g', 'Du_MiCP_g']
+        # this reindexing will put them in the order of vars_return
+        return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return).filter(items = ["Description", "Value"])
+    
+    @output
+    @render.table()
+    def model_snapshot():
+        return df_model_snapshot()
+    
+    @reactive.Calc
+    def df_model_snapshot_drycow():
+        # Variables to return:
+        vars_return = ['An_MEIn', 'Trg_MEuse', 'An_MEbal', 'An_MPIn_g', 'An_MPuse_g_Trg', 'An_MPBal_g_Trg','An_RDPIn_g', 'Du_MiCP_g','An_RDPbal_g', 'An_DCADmeq']
+        # this reindexing will put them in the order of vars_return
+        return full_model_output().query('`Model Variable`.isin(@vars_return)').set_index('Model Variable').reindex(vars_return).filter(items = ["Description", "Value"])
+    
+    @output
+    @render.table()
+    def model_snapshot_drycow():
+        return df_model_snapshot_drycow() 
+    
+
+    @output
+    @render.table
+    @reactive.event(NASEM_out, ignore_init=True)
+    def snapshot_diet_data_model():
+        return display_diet_values(NASEM_out()["diet_info"], is_snapshot=True)
+    ###############################
+
     @reactive.Calc
     def df_key_model_data_milk():
         # Variables to return:
@@ -1036,7 +1227,7 @@ def server(input, output, session):
         
     
     
-    @reactive.Calc
+    @reactive.Calc 
     def df_key_model_data_energy_teaching():
         # Variables to return:
         vars_return = ['Trg_MEuse', 'An_MEmUse', 'An_MEgain', 'Gest_MEuse', 'Trg_Mlk_MEout', 'An_MEIn', 'Frm_NEgain', 'Rsrv_NEgain', 'GrUter_BWgain', 'An_MEIn', 'Mlk_Prod_NEalow', 'An_MEavail_Milk']
@@ -1076,14 +1267,20 @@ def server(input, output, session):
     @output
     @render.table
     def mineral_intakes():
-        mineral_df = (
-            NASEM_out()['mineral_intakes']
-            .assign(
-                Diet_percent = lambda df: df['Dt_micro'].fillna(df['Dt_macro']))
-                .drop(columns=['Dt_macro', 'Dt_micro','Abs_mineralIn'])
-                .reset_index(names='Mineral')
-                .round(2)
-                )
+        # mineral_df = (
+        #     NASEM_out()['mineral_intakes']
+        #     .assign(
+        #         Diet_percent = lambda df: df['Dt_micro'].fillna(df['Dt_macro'])
+        #         )
+        #         .drop(columns=['Dt_macro', 'Dt_micro','Abs_mineralIn'])
+        #         .reset_index(names='Mineral')
+        #         .round(2)
+        #         )
+        mineral_df = format_minerals_supply_and_req(
+            NASEM_out()['mineral_requirements_dict'],
+            NASEM_out()['mineral_balance_dict'],
+            NASEM_out()['mineral_intakes']).round(2)
+        
         return mineral_df
     
 
@@ -1102,11 +1299,12 @@ def server(input, output, session):
                df_ration_ingredients = get_diet_info(),
                df_energy_teaching = df_key_model_data_energy_teaching(),
                df_full_model = full_model_output(),
-               df_animal_input_comparison = df_user_input_compare(), 
-               dict_equation_selections = equation_selection()
+            #    df_animal_input_comparison = df_user_input_compare(), 
+               dict_equation_selections = equation_selection(),
+               df_snapshot= df_model_snapshot() if input.An_StatePhys() == 'Lactating Cow' else df_model_snapshot_drycow()
                       )
     
-        # Use io.BytesIO to yield the HTML content
+        # Use io.BytesIO to yield the HTML content 
         with io.StringIO() as buf:  # Use io.StringIO for string data
             buf.write(html_out)
             yield buf.getvalue()

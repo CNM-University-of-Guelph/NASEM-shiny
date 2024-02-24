@@ -25,8 +25,9 @@ def generate_report(
     df_ration_ingredients: pd.DataFrame,
     df_energy_teaching: pd.DataFrame,
     df_full_model: pd.DataFrame,
-    df_animal_input_comparison: pd.DataFrame,
-    dict_equation_selections: dict
+    # df_animal_input_comparison: pd.DataFrame,
+    dict_equation_selections: dict,
+    df_snapshot: pd.DataFrame
     ):
 
     '''
@@ -58,8 +59,10 @@ def generate_report(
     html_ration_ingredients = df_ration_ingredients.to_html()
     html_energy_teaching = df_energy_teaching.to_html()
     html_full_model = df_full_model.to_html()
-    html_user_input_compare = df_animal_input_comparison.to_html()
+    # html_user_input_compare = df_animal_input_comparison.to_html()
+    html_user_input_compare = pd.DataFrame().to_html()
     html_equation_selections = df_equation_selections.to_html()
+    html_snapshot = df_snapshot.to_html()
 
     
 
@@ -87,6 +90,11 @@ def generate_report(
             <div class="container">
                 <h1> NASEM 2021 - Report </h1>
                 <h2 class="bg-info text-white">Model Evaluation</h2>
+
+                <h3>Model Snapshot</h3>
+                <div class="table-responsive">
+                    {html_snapshot}
+                </div>
 
                 <h3>Milk DataFrame</h3>
                 <div class="table-responsive">
@@ -158,14 +166,14 @@ def generate_report(
                     <div class="card">
                         <div class="card-header" id="headingOne">
                             <h2 class="mb-0">
-                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
                                     aria-expanded="true" aria-controls="collapseOne">
                                     <span>&#x25BC;</span> Advanced
                                 </button>
                             </h2>
                         </div>
 
-                        <div id="collapseOne" class="collapse" aria-labelledby="headingOne"
+                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
                             data-parent="#collapsible-container">
 
                             <h2 class="bg-info text-white">Advanced</h2>

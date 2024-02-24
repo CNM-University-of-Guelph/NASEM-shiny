@@ -21,7 +21,7 @@ dependencies:
   - executing=0.8.3
   - gast=0.4.0
   - h11=0.14.0
-  - htmltools=0.3.0
+  - htmltools=0.4.1
   - idna=3.4
   - importlib-metadata=6.0.0
   - importlib_metadata=6.0.0

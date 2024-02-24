@@ -146,3 +146,11 @@ dmypy.json
 rsconnect-python/NASEM_shiny.json
 rsconnect-python/NASEM_shiny.json
 dev.html
+
+/.luarc.json
+deploy_instructions.txt
+NASEM_feed_library teaching - student assignment version.xlsx
+NASEM_feed_library teaching.csv
+NASEM_feed_library teaching.xls
+NASEM_feed_library teaching.xlsx
+pattys_library.csv
