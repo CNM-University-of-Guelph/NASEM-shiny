@@ -2,6 +2,7 @@ import pandas as pd
 from shiny import Inputs, Outputs, Session, module, render, ui, module, reactive, req
 from shinywidgets import output_widget, render_widget, reactive_read
 from ipydatagrid import DataGrid
+import pickle
 
 from utils import DM_intake_equation_strings
 
@@ -9,6 +10,13 @@ from utils import DM_intake_equation_strings
 def animal_inputs_ui():
     return ([
         ui.navset_card_tab( 
+            ui.nav_panel(
+                'Info',
+                ui.p("Info text"),
+                ui.br(),
+                ui.input_file('pkl_upload', "Upload .NDsession file from a previous session.", accept='.NDsession',width='500px'),
+                ui.br()
+            ),
             ui.nav_panel(
                 'Animal Description',
                 ui.input_selectize(
@@ -20,7 +28,7 @@ def animal_inputs_ui():
                 ui.input_selectize(
                     'An_StatePhys', 
                     label = 'Select physiological state:', 
-                    choices = {'Lactating Cow': 'Lactating Cow', 'Dry Cow': 'Dry Cow'}, #'Calf':'Calf'
+                    choices = {'Lactating Cow': 'Lactating Cow', 'Dry Cow': 'Dry Cow'}, # 'Heifer': 'Heifer', 'Calf': 'Calf'
                     selected = 'Lactating Cow'
                     ),
                 ui.br(),
@@ -75,40 +83,73 @@ def animal_inputs_ui():
             ui.nav_panel(
                 'Advanced',
                 
-                ui.panel_title("Equation selections"),
+               # ui.panel_title("Equation selections"),
                 
-                # There are 3 NDF Digestability estimates, 0=Lg based, 1=DNDF48 for forages, 2=DNDF48 for all
-                ui.input_radio_buttons(
-                    "Use_DNDF_IV", 
-                    "Use_DNDF_IV (NASEM default is Lg based)",
-                    choices = {0:"Lg based", 1:"DNDF48 for forages", 2:"DNDF48 for all"}, # type: ignore
-                    ), 
-
-                ui.input_radio_buttons(
-                    "Monensin_eqn", 
-                    "Use Monensin equations?",
-                    choices = {0:"No", 1:"Yes"}, # type: ignore
-                    ),     
-
-                ui.input_radio_buttons(
-                    "mProd_eqn", 
-                    "Milk production equation to use for calcs (currently hard-coded to use Trg_MilkProd):",
-                    choices = {0: 'Trg_MilkProd', 1: 'component based predicted', 2: 'NE Allowable', 3: 'MP Allowable', 4: 'min(NE,MPAllow)'},  # type: ignore
-                    selected=1 # type: ignore
-                    ), 
-
-                ui.input_selectize(
-                    "DMIn_eqn",
-                    label = "Select DM Intake equation to use for predicting intake on Diet page (default is 'lactating, cow factors only'). Does not change model, user input DMI is always used in this app.",
-                    choices = DM_intake_equation_strings(),
-                    selected = 8, # type: ignore
-                    multiple = False
-                    ),
+               
                 
                 ui.input_numeric("An_GestLength", "Gestation length (d)", 280, min=0),
                 ui.input_numeric("Fet_BWbrth", "Calf birth weight (kg)", 44.1, min=0),
 
                 ui.input_numeric("An_305RHA_MlkTP", "Milk True Protein rolling heard average (kg/305 d)", 396, min = 0),
+
+                ui.input_numeric("An_AgeDryFdStart", "Day starter feed is first offered to calves", 14, min=0),
+                ui.input_numeric("Env_TempCurr", "Current mean daily temperature (°C)", 22, min=-50, max=50),
+                ui.input_numeric("Env_DistParlor", "Distance from the barn or paddock to the parlor (meters)", 0, min=0),
+                ui.input_numeric("Env_TripsParlor", "Number of daily trips to and from the parlor", 0, min=0),
+                ui.input_numeric("Env_Topo", "Positive elevation change per day (meters)", 0, min=0),
+
+                ui.accordion(
+                    ui.accordion_panel(
+                        'Equation selections',
+                        ui.input_selectize(
+                            "DMIn_eqn",
+                            label = "Select DM Intake equation to use for predicting intake on Diet page (default is 'lactating, cow factors only'). Does not change model, user input DMI is always used in this app.",
+                            choices = DM_intake_equation_strings(),
+                            selected = 8, # type: ignore
+                            multiple = False,
+                            width='500px'
+                            ),                        
+                        ui.input_radio_buttons(
+                            "mProd_eqn", 
+                            "Milk production equation to use for calcs (currently hard-coded to use Trg_MilkProd):",
+                            choices = {0: 'Trg_MilkProd', 1: 'component based predicted', 
+                                       2: 'NE Allowable', 3: 'MP Allowable', 4: 'min(NE,MPAllow)'},  # type: ignore
+                            selected = 1 # type: ignore
+                            ), 
+
+                        ui.input_radio_buttons(
+                            "mPrt_eqn", 
+                            ("Milk Protein equations and coefficients to use."
+                             "NRC is NRC2021", 
+                             "VT1 coefficients from Dec. 20, 2020 - Virginia Tech (no Phe, Thr, Trp, or Val)",
+                             "VT2 coefficients from April, 2022 solutions after further data cleaning - Virginia Tech (no Arg, Phe, Trp, or Val)"
+                             ), 
+                            choices = {0: "NRC", 1: "VT1", 2: "VT2"},
+                            selected = 0),
+                        ui.input_radio_buttons("mFat_eqn", "Milk Fat prediction equation", 
+                                               choices = {0: "Trg_MilkFatp", 1: "Predicted milk fat production"}, 
+                                               selected = 1),
+
+                        ui.input_radio_buttons("MiN_eqn", "MiN equation", 
+                                               choices={1: "Option 1", 2: "Option 2", 3: "Option 3"}, selected=1),
+                     
+                        ui.input_radio_buttons(
+                            "Use_DNDF_IV", 
+                            "Use_DNDF_IV (NASEM default is Lg based)",
+                            choices = {0:"Lg based", 1:"DNDF48 for forages", 2:"DNDF48 for all"}, # type: ignore
+                            ), 
+
+                        ui.input_radio_buttons(
+                            "Monensin_eqn", 
+                            "Use Monensin equations?",
+                            choices = {0:"No", 1:"Yes"}, # type: ignore
+                            ),     
+                      
+                        ui.input_radio_buttons("NonMilkCP_ClfLiq", "Non milk protein source?", choices={0: "No", 1: "Yes"}),
+            
+                        ui.input_radio_buttons("RumDevDisc_Clf", "Rumen development discount", choices={0: "No", 1: "Yes"})
+                    ) 
+                )
                 
                 )
             )
@@ -153,7 +194,19 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
                 'An_AgeDay': An_AgeDay(), 
                 'An_305RHA_MlkTP': input.An_305RHA_MlkTP(),
                 'An_StatePhys': input.An_StatePhys(),
-                'An_Breed': input.An_Breed()
+                'An_Breed': input.An_Breed(),
+                'An_AgeDryFdStart' : input.An_AgeDryFdStart(),
+                'Env_TempCurr' : input.Env_TempCurr(),
+                'Env_DistParlor' : input.Env_DistParlor(),
+                'Env_TripsParlor' : input.Env_TripsParlor(),
+                'Env_Topo' : input.Env_Topo(),
+
+                # 'An_AgeDryFdStart': 14, #Day starter feed is first offered
+                # 'Env_TempCurr': 22, #,current mean daily temperature in degrees C
+                # 'Env_DistParlor': 0,#distance from the barn or paddock to the parlor in meters
+                # 'Env_TripsParlor': 0,#, number of daily trips to and from the parlor; generally 2 trips per milking times number of milkings
+                # 'Env_Topo': 0 #,the positive elevation change per day in meters
+                
                 }
     
     @reactive.Calc
@@ -165,7 +218,55 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
 
     @reactive.Calc
     def equation_selection() -> dict:
-        return {'Use_DNDF_IV' : input.Use_DNDF_IV(), 'DMIn_eqn': input.DMIn_eqn(), 'mProd_eqn': input.mProd_eqn(), 'Monensin_eqn': input.Monensin_eqn()}
+        return {
+            'Use_DNDF_IV' : input.Use_DNDF_IV(), 
+            'DMIn_eqn': input.DMIn_eqn(), 
+            'mProd_eqn': input.mProd_eqn(), 
+            'Monensin_eqn': input.Monensin_eqn()}
     
+    ########################
+    # Dry Cow UI setup
+    ########################
 
+    @reactive.Effect
+    def _():
+        if animal_input_reactives()['An_StatePhys']() == 'Dry Cow':
+            ui.update_selectize('DMIn_eqn', selected='10')
+
+            ui.insert_ui(ui.div(
+                {'id' : 'drycow_input_warning'},
+                ui.em('Dry cow is selected so no milk production data can be entered.')), 
+                 selector = "#milk_production_conditional_panel", # place the new UI's below the initial item input
+                 where = "afterEnd")
+            
+            ui.update_numeric('An_GestDay', value = 220)
+            ui.update_numeric('Trg_FrmGain', value = 0.1)
+            ui.update_numeric('Trg_RsrvGain', value = 0)
+            ui.update_numeric('Trg_MilkProd', value = 0)
+        
+        elif animal_input_reactives()['An_StatePhys']() == 'Lactating Cow':
+            ui.update_selectize('DMIn_eqn', selected='8')
+
+            ui.remove_ui(selector="div#drycow_input_warning")
+            
+            ui.update_numeric('An_GestDay', value = 46)
+            ui.update_numeric('Trg_FrmGain', value = 0.6)
+            ui.update_numeric('Trg_RsrvGain', value = 0.1)
+            ui.update_numeric('Trg_MilkProd', value = 35)
+    
+    ########################
+    # Load session file
+    @reactive.Effect
+    def _():
+        pkl_input = req(input.pkl_upload())
+        
+        print(pkl_input[0])
+        file_path = pkl_input[0]["datapath"]
+        with open(file_path, 'rb') as f:
+            pkl_dict = pickle.load(f)
+        
+        print(pkl_dict['ModelOutput'])
+        print(pkl_dict['FeedLibrary'])
+
+        
     return(animal_input_dict, animal_input_reactives, equation_selection)
