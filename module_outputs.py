@@ -164,7 +164,7 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
 
     @render.data_frame
     def diet_summary_model():
-        df = display_diet_values(NASEM_out().get_value("diet_data"))
+        df = display_diet_values(NASEM_out())
         return prepare_df_render(df, 10, 80, cols_longer='Component')
      
     @render.data_frame
@@ -220,7 +220,7 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
             df_allowable_milk=df_key_model_data_allowable_milk(),
             df_ME=df_key_model_data_ME(),
             df_MP=df_key_model_data_MP(),
-            df_diet_summary=display_diet_values(NASEM_out().get_value("diet_data")),
+            df_diet_summary=display_diet_values(NASEM_out()),
             df_DCAD=df_key_model_data_DCAD(),
             df_NEL=df_key_model_data_NEL(),
             df_ration_ingredients=NASEM_out.get_value('user_diet'),

@@ -362,7 +362,8 @@ def server(input, output, session):
     def get_user_diet():
     # Get items from input by name
     # returns a dataframe as a reactive
-    # each 'feed' and 'kg' value is stored in these reactives (named 'item_1', etc) which means we can iterate through them and store their values in a list when we need them
+    # each 'feed' and 'kg' value is stored in these reactives (named 'item_1', etc) 
+    # which means we can iterate through them and store their values in a list when we need them
         items = [getattr(input, x) for x in user_feeds()]
         kg = [getattr(input, x) for x in user_kgs()]
         
@@ -381,12 +382,6 @@ def server(input, output, session):
     def get_diet_total() -> float:
         return get_user_diet()['kg_user'].sum(numeric_only=True)
 
-
-    # # render table by calling the calc function for it's output       
-    # @output
-    # @render.table
-    # def user_selections():
-    #     return format_diet_info()
 
     @output
     @render.table
@@ -609,7 +604,7 @@ def server(input, output, session):
     @render.data_frame
     @reactive.event(NASEM_out)
     def snapshot_diet_data_model():
-        df = display_diet_values(NASEM_out().get_value("diet_data"), is_snapshot=True)
+        df = display_diet_values(NASEM_out(), is_snapshot=True)
         return prepare_df_render(df, 1, 90, cols_longer='Component') 
     ###############################
 

@@ -13,7 +13,7 @@ var_desc = pd.read_csv(app_dir / "variable_descriptions.csv").query("Description
 feed_library_default = pd.read_csv(app_dir / 'NASEM_feed_library.csv').sort_values("Fd_Name")
 
 # Display results, temporary
-def display_diet_values(diet_dict: dict, is_snapshot = False):
+def display_diet_values(model_output = nd.ModelOutput, is_snapshot = False):
     '''
     Takes a dataframe from model output and formats it for better viewing.
     The `is_snapshot` argument allows a shorter version to be returned for the "snapshot" output on Diet page.
@@ -30,21 +30,17 @@ def display_diet_values(diet_dict: dict, is_snapshot = False):
             'Dt_ForNDFIn_percNDF','Dt_ADF', 'Dt_St', 'Dt_CFat', 'Dt_Ash'
             ]
 
-
     rows = []
-
-    # Add dietary forage NDF intake as a % of diet NDF intake
-    diet_dict['Dt_ForNDFIn_percNDF'] = diet_dict.get('Dt_ForNDFIn') / diet_dict.get('Dt_NDFIn')
 
     # Iterate through values and select % and kg information
     for component in components: 
         if component in ['Dt_RDP_CP', 'Dt_RUP_CP', 'Dt_ForNDFIn_percNDF']:
-            percent_diet = round(float(diet_dict.get(component)),2) 
+            percent_diet = round(float(model_output.get_value(component)),2) 
             kg_diet = None
         else:
-            percent_diet = round(float(diet_dict.get(component)), 2) 
-            # print(type(diet_dict.get(f'{component}In')))
-            kg_diet = round(float(diet_dict.get(f'{component}In')),2)    
+            percent_diet = round(float(model_output.get_value(component)), 2) 
+            # print(type(model_output.get_value(f'{component}In')))
+            kg_diet = round(float(model_output.get_value(f'{component}In')),2)    
 
         rows.append([component, percent_diet, kg_diet])
 
@@ -266,7 +262,7 @@ def calculate_DMI_prediction(
         
     else:
         # It needs to catch all possible solutions, otherwise it's possible that it stays unchanged without warning
-        print(f"DMIn_eqn uncaught - DMI not changed. DMIn_eqn == {str(DMIn_eqn)}")
+        print(f"SHINY DMI func: DMIn_eqn uncaught - DMI not changed. DMIn_eqn == {str(DMIn_eqn)}")
         return 'DMI error'
 
     return round(DMI,2)
@@ -327,8 +323,7 @@ def prepare_df_render(df_in, *args, cols_longer = [], use_DataTable = True):
         return render.DataGrid(df, height='auto')
 
 
-def get_clean_vars(var: str,
-               model_output = nd.ModelOutput):
+def get_clean_vars(var: str, model_output = nd.ModelOutput):
     '''
     Clean vars gets values from model_output and then converts any single arrays to floats and rounding to 4 significant figures.
     By getting values directly here, meaningful errors can be returned.
