@@ -236,8 +236,9 @@ def server(input, output, session):
     def _():
         if input.navbar_id() == 'nav_feed_lib':
             feed_lib_tab_views.set(feed_lib_tab_views() + 1)
-            print(feed_lib_tab_views())
-        
+
+    @reactive.effect
+    def _():
         if feed_lib_tab_views() == 1:
             ui.update_sidebar('main_sidebar', show=True)
 

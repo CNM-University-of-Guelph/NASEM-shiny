@@ -13,18 +13,6 @@ def feed_library_ui():
             ui.navset_underline(
             ui.nav_panel(
                 ui.h6('Feed Library'),
-                    # ui.div( 
-                    #     ui.h6('Feed Library'), 
-                    #     # ui.tooltip(
-                    #     #     icon_svg("circle-info", margin_left='10px', height='1.5em'), 
-                    #     #     ui.tags.li("Select rows from feed library to store the Feed Name in the side panel."),
-                    #     #     ui.tags.li("These stored feeds can be used to populate the Diet"),
-                    #     #     ui.tags.li("Click on column names to arrange, use filters and see more columns using View Settings") 
-                    #     # ),
-                    #     style = 'display: inline-flex; align-items: center;'
-                    #     ),
-                
-                    # ),
                     ui.card(
                         ui.card_header( 
                             # ui.tooltip(
@@ -41,7 +29,6 @@ def feed_library_ui():
                             class_="custom-tooltip"
                             # options={'max-width': '300px'}
                             ),
-                                                    # ),
                             ui.popover(
                                 ui.span(
                                     ui.em('View Settings     '),
@@ -86,9 +73,6 @@ def feed_library_ui():
                         add their own feeds should copy an existing feed and update with known values.
 
                         """),
-                    
-                    # ui.p("Download the default library to use as a template of required columns. ",
-                    # "Not all columns are available on feed tests, so it is suggested that users who want to add their own feeds should copy an existing feed and update with known values."),
                     ui.download_button('download_lib_default', 'Download default feed library', class_='btn-info', width='50%'),
                     
                     ui.input_file('user_lib_upload', ui.strong('Upload custom feed library (.csv)'), accept='.csv', width='100%'), 
