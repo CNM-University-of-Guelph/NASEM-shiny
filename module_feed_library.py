@@ -1,11 +1,11 @@
 import pandas as pd
 from shiny import Inputs, Outputs, Session, module, render, ui, module, reactive, req
-from shinywidgets import output_widget, render_widget, reactive_read
-from ipydatagrid import DataGrid
+# from shinywidgets import output_widget, render_widget, reactive_read
+# from ipydatagrid import DataGrid
 from faicons import icon_svg
 import io
 
-from utils import get_teaching_feeds, get_unique_feed_list, rename_df_cols_Fd_to_feed
+from utils import get_teaching_feeds, rename_df_cols_Fd_to_feed, pad_cols_UI_df
 
 @module.ui
 def feed_library_ui():
@@ -110,118 +110,8 @@ def feed_library_ui():
             
             ),
             ui.nav_spacer(),
-            # ui.nav_control(
-            #     ui.popover(
-            #         ui.span(
-            #             ui.em('View Settings     '),
-            #             icon_svg('gears'),
-            #             style="position:absolute; top: 12px; right: 7px;",
-            #         ),
-            #     ui.p("Row filtering:"),
-            #     ui.input_checkbox('use_teaching_fd_library', 'Filter feeds for teaching', value=False),
-            #     ui.input_checkbox("hide_calf_feeds", "Hide calf related feeds", True),
-            #     ui.br(),
-            #     ui.p("Column Views:"),
-            #     ui.input_switch('cols_show_all', 'Show all columns'),
-            #     ui.panel_conditional( "!input.cols_show_all",
-            #         ui.input_switch('cols_common', 'Show commonly used columns',  value=True),
-            #         ui.input_switch("cols_amino_acids", "Amino Acids"),
-            #         ui.input_switch('cols_fatty_acids', 'Fatty Acids'),
-            #         ui.input_switch('cols_vitamins', 'Vitamins'),
-            #         ui.input_switch('cols_minerals', 'Minerals'),
-            #         ),
-            #     placement="left",
-            #     id="card_popover",
-            #     ),
-            # ),
         ),
-        
-             
-        
-          
-              
-               
-     
      ])
-                
-            # ui.layout_sidebar(
-                # ui.sidebar(
-                #     ui.input_file('user_lib_upload', 'Upload custom feed library (.csv)', accept='.csv'),
-                #     ui.br(),
-                #     ui.p("Feeds selected by user:"),
-                #     ui.output_data_frame('user_selected_feed_names'),
-                #     # ui.br(),
-                #     # ui.input_action_button('reset_user_selected_feed_names', "Clear list")
-                #     ),
-          
-                # output_widget('grid_feed_library', fill = True),
-            #     ui.output_data_frame('datagrid_feed_library'),
-             
-            # full_screen=True,
-            # min_height= '600px'
-            # )
-        # ])
-        # ui.card(
-        #     ui.card_header(
-        #         # ui.h5('Feed Library'),
-        #         ui.row(
-        #             ui.column(2,  
-        #                     ui.tooltip(
-        #                         ui.div( 
-        #                             ui.h5('Feed Library'), 
-        #                             icon_svg("circle-info", margin_left='10px', height='1.5em'), 
-        #                             style = 'display: inline-flex; align-items: center;'
-        #                             ),
-        #                     ui.tags.li("Select rows from feed library to store the Feed Name in the side panel."),
-        #                     ui.tags.li("These stored feeds can be used to populate the Diet"),
-        #                     ui.tags.li("Click on column names to arrange, use filters and see more columns using View Settings") 
-        #                     ),
-        #             ),
-        #             ui.column(4, ui.input_action_button('btn_feed_lib_upload', 'Upload custom feed library', class_='btn-primary'))
-        #         ),
-              
-        #         ui.popover(
-        #             ui.span(
-        #                 ui.em('View Settings     '),
-        #                 icon_svg('gears'),
-        #                 style="position:absolute; top: 12px; right: 7px;",
-        #             ),
-        #         ui.p("Row filtering:"),
-        #         ui.input_checkbox('use_teaching_fd_library', 'Filter feeds for teaching', value=False),
-        #         ui.input_checkbox("hide_calf_feeds", "Hide calf related feeds", True),
-        #         ui.br(),
-        #         ui.p("Column Views:"),
-        #         ui.input_switch('cols_show_all', 'Show all columns'),
-        #         ui.panel_conditional( "!input.cols_show_all",
-        #             ui.input_switch('cols_common', 'Show commonly used columns',  value=True),
-        #             ui.input_switch("cols_amino_acids", "Amino Acids"),
-        #             ui.input_switch('cols_fatty_acids', 'Fatty Acids'),
-        #             ui.input_switch('cols_vitamins', 'Vitamins'),
-        #             ui.input_switch('cols_minerals', 'Minerals'),
-        #             ),
-        #         placement="left",
-        #         id="card_popover",
-        #         ),
-        #     ),
-          
-                
-        #     # ui.layout_sidebar(
-        #         # ui.sidebar(
-        #         #     ui.input_file('user_lib_upload', 'Upload custom feed library (.csv)', accept='.csv'),
-        #         #     ui.br(),
-        #         #     ui.p("Feeds selected by user:"),
-        #         #     ui.output_data_frame('user_selected_feed_names'),
-        #         #     # ui.br(),
-        #         #     # ui.input_action_button('reset_user_selected_feed_names', "Clear list")
-        #         #     ),
-          
-        #         # output_widget('grid_feed_library', fill = True),
-        #         ui.output_data_frame('datagrid_feed_library'),
-             
-        #     full_screen=True,
-        #     min_height= '600px'
-        #     )
-        # ])
 
 
 @module.server
@@ -382,9 +272,9 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
     @render.data_frame
     def datagrid_feed_library():
         df = df_feed_lib_userfriendly().copy()
+        print(df.columns)
         #pad column names to extend width. The \u00A0 is a non-breaking space (as spaces are being stripped by DataGrid)
-        padded_columns = [col.ljust(25,"\u00A0") for col in df.columns]
-        df.columns = padded_columns
+        df = pad_cols_UI_df(df, 25, n_length_longer=70, cols_longer=['Feed Name'])
         return render.DataGrid(df, selection_mode="rows", editable=False, filters=True)
 
     ########################
@@ -439,28 +329,13 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
     def _():
         ''' Reset the user selections from DataGrid clicking events. Clears the list in UI.'''
         feed_library_index_stored.set([])
-          # then, execute this code but preventing other code taking a dependency on it - prevents infinite loop
-        # with reactive.isolate():
-        #     fd_lib_stored_copy = feed_library_index_stored().copy()
 
-        #     # add on user selected feed names to reactive list
-        #     fd_lib_stored_copy.extend(prepare_user_selected_feed_names())
-            
-        #     # remove duplicates (by converting to set) and then set the reactiveValue as this new list
-        #     feed_library_index_stored.set(list(set(fd_lib_stored_copy)))
 
     @reactive.Calc
     def user_selected_feeds():
-            print(df_feed_lib_userfriendly())
-            return(
-                    df_feed_lib_userfriendly()
-                    .reset_index(drop = True) # reset's index to match a 'row number' from selection with index (after filtering)
-                    .loc[feed_library_index_stored(),'Feed Name'])
-
-
-    # @reactive.Calc
-    # def user_selected_feeds_list():
-    #         return user_selected_feeds().to_list()
+        return(df_feed_lib_userfriendly()
+               .reset_index(drop = True) # reset's index to match a 'row number' from selection with index (after filtering)
+               .loc[feed_library_index_stored(),'Feed Name'])
 
     @output
     @render.data_frame
@@ -489,22 +364,6 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
             })
             print('toglles OUT')
 
-    # @reactive.effect
-    # @reactive.event(input.btn_feed_lib_upload)
-    # def _():
-    #     m = ui.modal(
-    #             ui.p("Download the default library to use as a template of required columns. ",
-    #                  "Not all columns are available on feed tests, so it is suggested that users who want to add their own feeds should copy an existing feed and update with known values."),
-    #             ui.download_button('download_lib_default', 'Download default feed library', class_='btn-info'),
-    #             ui.br(),ui.br(),
-    #             ui.input_file('user_lib_upload', 'Upload custom feed library (.csv)', accept='.csv', width='100%'), 
-    #             title = 'Feed Library Files',
-    #             easy_close = True,
-    #             size='l',
-    #             footer=ui.modal_button('Done')
-    #         )
-    #     ui.modal_show(m)
-
     @render.download(filename='default_NASEM_library.csv')
     def download_lib_default():
         # Use io.BytesIO to yield the csv content 
@@ -513,7 +372,4 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
             # buf.write()
             yield buf.getvalue()
     
-    # @reactive.Effect 
-    # def _():
-    #     print(df_feed_library().info())
     return(user_selected_feed_library, user_selected_feeds)

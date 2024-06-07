@@ -1,7 +1,16 @@
+from shiny import render
 import pandas as pd
 import nasem_dairy as nd
 # import sqlite3
+from pathlib import Path
 
+
+# load data required
+app_dir = Path(__file__).parent
+var_desc = pd.read_csv(app_dir / "variable_descriptions.csv").query("Description != 'Duplicate'")
+
+# Load global resources
+feed_library_default = pd.read_csv(app_dir / 'NASEM_feed_library.csv').sort_values("Fd_Name")
 
 # Display results, temporary
 def display_diet_values(diet_dict: dict, is_snapshot = False):
@@ -94,93 +103,6 @@ def display_diet_values(diet_dict: dict, is_snapshot = False):
                     **{'Suggestions (lactating cow)' : suggestions_long}
                 )
     return table
-
-# def display_diet_values(df, is_snapshot = False):
-#     '''
-#     Takes a dataframe from model output and formats it for better viewing.
-#     The `is_snapshot` argument allows a shorter version to be returned for the "snapshot" output on Diet page.
-#     '''
-    
-#     if is_snapshot:
-#         components = ['Fd_CP', 'Fd_RDP_base', 'Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP', 'Fd_NDF', 'Fd_ADF', 'Fd_St', 'Fd_CFat']
-#     else:
-#         components = ['Fd_CP', 'Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP','Fd_RDP_base', 'Fd_RUP_base', 'Fd_NDF', 'Fd_ForNDFIn_percNDF','Fd_ADF', 'Fd_St', 'Fd_CFat', 'Fd_Ash']
-    
-#     rows = []
-    
-#     # select diet row and store as dictionary
-#     diet_dict =  df.assign(
-#         Fd_ForNDFIn_percNDF = lambda df: df['Fd_ForNDFIn'] / df['Fd_NDFIn']
-#         ).loc['Diet',:].to_dict()
-#     # diet_dict = df.loc['Diet',:].to_dict()
-
-#     # Iterate through values and select % and kg information
-#     for component in components:
-#         if component in ['Fd_RDP_base_%_CP', 'Fd_RUP_base_%_CP', 'Fd_ForNDFIn_percNDF']:
-#             percent_diet = round(diet_dict.get(component),2) * 100
-#             kg_diet = None
-#         else:
-#             percent_diet = round(diet_dict.get(component + '_%_diet'), 3) * 100
-#             kg_diet = round(diet_dict.get(component + '_kg/d'), 2)    
-        
-#         rows.append([component, percent_diet, kg_diet])
-
-#     headers = ['Component', '% DM', 'kg DM/d']
-
-
-#     table = pd.DataFrame(rows, columns = headers)
-
-#     if is_snapshot:
-#         components_long = [
-#             'Crude Protein (CP)',
-#             'Rumen Degradeable Protein (RDP % Diet)',
-#             'Rumen Degradeable Protein (RDP % CP)',
-#             'Rumen Undegradeable Protein (RUP % CP)',
-#             'Neutral detergent fibre (NDF)',
-#             'Acid detergent fibre (ADF)',
-#             'Starch',
-#             'Fat',
-#         ]
-        
-#         table = table.assign(
-#             Component = components_long, # This replaces the original names in component col
-#                 ).drop(columns='kg DM/d')
-
-#     else:
-#         # map new names
-#         components_long = [
-#             'Crude Protein (CP)',
-#             'Rumen Degradeable Protein (RDP % CP)',
-#             'Rumen Undegradeable Protein (RUP % CP)',
-#             'Rumen Degradeable Protein (RDP % Diet)',
-#             'Rumen Undegradeable Protein (RUP % Diet)',
-#             'Neutral detergent fibre (NDF)',
-#             'Forage NDF (% NDF)',
-#             'Acid detergent fibre (ADF)',
-#             'Starch',
-#             'Fat',
-#             'Ash'
-#         ]
-
-#         suggestions_long = [
-#             "15 - 17 %",
-#             "< 70 %",
-#             "33 - 40 %",
-#             "10 - 12 %", # NASEM book suggestion
-#             "~7 %",
-#             "28 - 40 %",
-#             "65 - 75 %",
-#             ">19 %",
-#             "< 26 %",
-#             "< 7 %",
-#             "< 10 %"
-#         ]
-
-#         table = table.assign(
-#             Component = components_long, # This replaces the original names in component col
-#              **{'Suggestions (lactating cow)' : suggestions_long}
-#             )
-#     return table
 
 
 def get_unique_feed_list(df: pd.DataFrame) -> list:
@@ -349,66 +271,89 @@ def calculate_DMI_prediction(
 
     return round(DMI,2)
 
-# def format_mineral_dictionaries(mineral_dict):
-
-#     df = pd.DataFrame(mineral_dict.items(), columns=['Mineral_Name', 'Value']).assign(
-#         Mineral = lambda df: df['Mineral_Name'].str.split('_').str[1],
-#         Type = lambda df: df['Mineral_Name'].str.split('_').str[2]
-#     )#.set_index('Mineral')
-
-#     #df.index.name= None
-
-#     return df
-
-# def format_minerals_supply_and_req(
-#         NASEM_mineral_req_dict: pd.DataFrame,
-#         NASEM_mineral_bal_dict: pd.DataFrame,
-#         NASEM_mineral_intakes: pd.DataFrame
-#         ):
-
-#     mineral_req_and_balance_df = (
-#         pd.concat(
-#             [format_mineral_dictionaries(NASEM_mineral_req_dict),
-#             format_mineral_dictionaries(NASEM_mineral_bal_dict)]
-#             )
-#         .pivot(index='Mineral', columns='Type', values='Value')
-#         .reset_index()
-#         )
-
-
-#     mineral_intakes_formatted = (
-#         NASEM_mineral_intakes.assign(
-#             Diet_percent = lambda df: df['Dt_micro'].fillna(df['Dt_macro'])
-#             )
-#             .drop(columns=['Dt_macro', 'Dt_micro',])
-#             .reset_index(names='Mineral')
-#             .round(2)
-#             )
-
-#     mineral_req_and_balance_and_intakes = (
-#         mineral_intakes_formatted
-#         .merge(mineral_req_and_balance_df)
-#         .rename(
-#             columns = {'Dt_mineralIn':'Diet Supply (TDS), g/d',
-#                 'Diet_percent':'Diet Density',
-#                 'req':'Absorbed Requirement (TAR), g/d',
-#                 'Abs_mineralIn':'Absorbed Supply (TAS), g/d',
-#                 'bal':'Balance (TAS - TAR), g/d'
-#                 }
-#                 )
-#         .assign(
-#             Diet_Density_Units = lambda df: df['Mineral'].apply(lambda x: '%' if x in ['Ca', 'P', 'Mg', 'Cl', 'K', 'Na', 'S'] else 'mg/kg'),
-#             # Balance = lambda df: df['Absorbed Supply (TAS)'] - df['Absorbed Requirement (TAR)']
-#         )
-#         .reindex(columns = ['Mineral','Diet Density', 'Diet_Density_Units', 'Absorbed Requirement (TAR), g/d', 'Absorbed Supply (TAS), g/d','Diet Supply (TDS), g/d',  'Balance (TAS - TAR), g/d' ])
-#     )
-
-#     return mineral_req_and_balance_and_intakes
-
 ##########################################################################################
 
+def pad_cols_UI_df(df: pd.DataFrame, 
+                   n_length = 15, 
+                   n_length_longer = 100,
+                   cols_longer: int|list|str = None # -1 for last column, 0 for first column
+                   ):
+    """
+    df : pd.DataFrame to assign new column names to for rendering UI better
+    n_length : minimum width of column
+    n_length_longer: length for columns that will be given 'longer' length
+    index_longer: index or list of indices for columns to have the longer length
+    """
+    if cols_longer is None:
+        cols_longer = []
 
-def get_vars_as_df(vars_return: list, model_output: nd.ModelOutput) -> pd.DataFrame:
+    # Ensure index_longer is a list
+    if isinstance(cols_longer, (int, str)):
+        cols_longer = [cols_longer]
+    
+    # Convert column names to their respective indices
+    adjusted_indices = []
+    for idx in cols_longer:
+        if isinstance(idx, int) and idx < 0:
+            adjusted_indices.append(len(df.columns) + idx)
+        elif isinstance(idx, str):
+            adjusted_indices.append(df.columns.get_loc(idx))
+        else:
+            adjusted_indices.append(idx)
+    padded_columns = [
+        col.ljust(n_length_longer, "\u00A0") if i in adjusted_indices else col.ljust(n_length, "\u00A0")
+        for i, col in enumerate(df.columns)
+    ]
+    
+    df.columns = padded_columns
+    return df
+
+def prepare_df_render(df_in, *args, cols_longer = [], use_DataTable = True):
+        
+    if cols_longer == []:
+        list_longer = ['Description']
+    else:
+        list_longer = cols_longer # this will pass None through if needed
+
+    try: 
+        df = pad_cols_UI_df(df_in, *args, cols_longer=list_longer)
+        
+    except (KeyError) as e:
+        raise KeyError(f"A column provided to cols_longer argument was not found in df: {e} ") from e
+
+    if use_DataTable == True:
+        return render.DataTable(df, height='auto')
+    else:
+        return render.DataGrid(df, height='auto')
+
+
+def get_clean_vars(var: str,
+               model_output = nd.ModelOutput):
+    '''
+    Clean vars gets values from model_output and then converts any single arrays to floats and rounding to 4 significant figures.
+    By getting values directly here, meaningful errors can be returned.
+
+    '''
+    model_var = model_output.get_value(var)
+    
+    if model_var is None:
+        print(f"Value not in ModelOutput: {var}")
+        return None  
+    
+    try:
+    # Try to convert the value to float
+        floatvar = float(model_var)
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"Variable cannot be converted to a float. Likely it is a multi-value np.array. Error from: {var}: {model_var} ") from e
+
+    sig_figs = 4
+
+    return float(f"{floatvar:.{sig_figs}g}")
+
+
+def get_vars_as_df(vars_return: list, 
+                   model_output: nd.ModelOutput,
+                   var_desc: pd.DataFrame = var_desc) -> pd.DataFrame:
     """
     Create a pandas DataFrame from a list of variable names.
 
@@ -420,11 +365,19 @@ def get_vars_as_df(vars_return: list, model_output: nd.ModelOutput) -> pd.DataFr
     pd.DataFrame: A DataFrame with two columns 'Variable' and 'Value', containing the variable names
                   and their corresponding values.
     """
+
     # Create a dictionary with variable names as keys and their corresponding values as float
-    dict_return = {var: model_output.get_value(var) for var in vars_return}
+    dict_return = {var: get_clean_vars(var, model_output) for var in vars_return}
+
     # Convert the dictionary to a DataFrame
-    df = pd.DataFrame(list(dict_return.items()), columns=['Variable', 'Value'])
-    
+    df = (
+        pd.DataFrame(
+            list(dict_return.items()), 
+            columns=['Model Variable', 'Value']
+            )
+        .merge(var_desc, how = 'left')
+        )
+            
     return df
 
 # Example usage:
