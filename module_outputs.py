@@ -88,9 +88,10 @@ def outputs_ui():
 def outputs_server(input: Inputs, output: Outputs, session: Session, 
                    NASEM_out, 
                    user_selected_feed_library,
-                   animal_input_dict
+                   animal_input_dict,
+                   df_model_snapshot
                    ):
-    
+
     ######################################################
     # Prepare dataframes to render to UI or use in report
     ######################################################
@@ -223,11 +224,12 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
             df_diet_summary=display_diet_values(NASEM_out()),
             df_DCAD=df_key_model_data_DCAD(),
             df_NEL=df_key_model_data_NEL(),
-            df_ration_ingredients=NASEM_out.get_value('user_diet'),
+            df_ration_ingredients=NASEM_out().get_value('user_diet'),
             df_energy_teaching=df_key_model_data_energy_teaching(),
             df_full_model=pd.DataFrame(),
             dict_equation_selections=NASEM_out().get_value('equation_selection'),
-            df_snapshot=df_model_snapshot() if animal_input_reactives()['An_StatePhys']() == 'Lactating Cow' else df_model_snapshot_drycow()
+            df_snapshot=df_model_snapshot()
+            # df_snapshot=df_model_snapshot() if animal_input_reactives()['An_StatePhys']() == 'Lactating Cow' else df_model_snapshot_drycow()
         )
 
         with io.StringIO() as buf:

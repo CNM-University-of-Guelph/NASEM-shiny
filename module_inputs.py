@@ -185,6 +185,7 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
                 'Trg_MilkTPp': input.Trg_MilkTPp(),
                 'Trg_MilkLacp': input.Trg_MilkLacp(),
                 'DMI' : user_selected_DMI(), # This input is passed in from main app.py 
+                # 'DMI' : 10,
                 'An_BW_mature': input.An_BW_mature(),
                 'Trg_FrmGain': input.Trg_FrmGain(),
                 'An_GestDay': input.An_GestDay(),
@@ -268,5 +269,11 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
         print(pkl_dict['ModelOutput'])
         print(pkl_dict['FeedLibrary'])
 
-        
+    print('anim dict')
+    @reactive.effect
+    def _():
+        print('test')
+        print(animal_input_dict())
+
+
     return(animal_input_dict, animal_input_reactives, equation_selection)

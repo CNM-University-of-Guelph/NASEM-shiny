@@ -9,13 +9,12 @@ from utils import get_teaching_feeds, rename_df_cols_Fd_to_feed, pad_cols_UI_df
 
 @module.ui
 def feed_library_ui():
-     return ([
-            ui.navset_underline(
+    return ([
+        ui.navset_underline(
             ui.nav_panel(
                 ui.h6('Feed Library'),
                     ui.card(
                         ui.card_header( 
-                            # ui.tooltip(
                            ui.tooltip(
                                 ui.span( 
                                     ui.em('Info'), 
@@ -130,15 +129,12 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
         if input.user_lib_upload() is None:
             
             print('No file uploaded and teaching mode not selected')
-            # print(feed_library_default)
             df_user_lib = feed_library_default
         
         else:
-            # print(input.user_lib_upload()[0])
             f = input.user_lib_upload()[0]
             
             if f['type'] == 'text/csv':
-                # print('file == text/csv')
                 # read in file
                 df_in = pd.read_csv(f['datapath'])
                 
@@ -155,7 +151,6 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
                 print('User upload failed - using default lib')
                 df_user_lib = feed_library_default
 
-        # print(df_user_lib.info())
         return df_user_lib
 
 
@@ -256,7 +251,6 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
     @render.data_frame
     def datagrid_feed_library():
         df = df_feed_lib_userfriendly().copy()
-        print(df.columns)
         #pad column names to extend width. The \u00A0 is a non-breaking space (as spaces are being stripped by DataGrid)
         df = pad_cols_UI_df(df, 25, n_length_longer=70, cols_longer=['Feed Name'])
         return render.DataGrid(df, selection_mode="rows", editable=False, filters=True)
@@ -317,14 +311,11 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
 
     @reactive.Calc
     def user_selected_feeds():
-        return(df_feed_lib_userfriendly()
+        df = (df_feed_lib_userfriendly()
                .reset_index(drop = True) # reset's index to match a 'row number' from selection with index (after filtering)
                .loc[feed_library_index_stored(),'Feed Name'])
+        return df
 
-    @output
-    @render.data_frame
-    def user_selected_feed_names():
-        return pd.DataFrame(user_selected_feeds())
     
     ################################
     # Downloads and Uploads
@@ -337,8 +328,7 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
             # uncheck boxes that are about to be disabled:
             ui.update_checkbox('use_teachng_fd_library', value=False)
             ui.update_checkbox('hide_calf_feeds', value=False)
-            # disable checkboxes that are unique to built-in library
-            print('toggleesssss')# Disable checkboxes that are unique to built-in library
+            # Disable checkboxes that are unique to built-in library
             checkbox_ids = [
                 session.ns("use_teaching_fd_library"),
                 session.ns("hide_calf_feeds")
@@ -346,7 +336,6 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
             await session.send_custom_message("toggleCheckboxHandler", {
                 "checkboxIds": checkbox_ids
             })
-            print('toglles OUT')
 
     @render.download(filename='default_NASEM_library.csv')
     def download_lib_default():
