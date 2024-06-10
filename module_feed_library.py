@@ -28,6 +28,11 @@ def feed_library_ui():
                             class_="custom-tooltip"
                             # options={'max-width': '300px'}
                             ),
+                            ui.span(
+                                ui.output_ui('set_usr_session_library'),
+                                style = 'display: inline-flex; align-items: center;'
+                            ),
+                            
                             ui.popover(
                                 ui.span(
                                     ui.em('View Settings     '),
@@ -98,10 +103,10 @@ def feed_library_ui():
 
 
 @module.server
-def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_library_default: pd.DataFrame, user_selections_reset):
+def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_library_initial, user_selections_reset, session_upload_library):
     '''
     input,output,session = required Shiny arguments
-    feed_library_default = default NASEM feed library that should be parsed to module on load
+    feed_library_initial = default NASEM feed library that should be parsed to module on load, as a reactive (either via session upload or default, see app.py)
     user_selections_reset = an input.button event that will trigger the stored user_selections to be cleared from list
 
     Returns:
@@ -115,21 +120,41 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
     #######################################################
     # set up feed library so that it can change based on user inputs
     # for now there is a bool for 'teaching' where the table is filtered
-   
+
+    session_library = reactive.value(feed_library_initial)
+
+    @render.ui
+    def set_usr_session_library():
+        '''If usr uploads pickle session file, replace default library with previous sessoin library. Still allows additional upload of new library.'''
+        if session_upload_library() is not None and isinstance(session_upload_library(), pd.DataFrame):
+            print("using library restored from .NDsession")
+            session_library.set(session_upload_library())
+
+            # Add UI message to remind that using library from restored session
+            return ui.span('Library has been restored from .NDsession. A new custom library can still be uploaded.', style='color:darkred; font-style:italic; margin-left:40px')
+        else:
+            #not sure if this is possible
+            print("restore default library")
+            session_library.set(feed_library_initial)
+            return ui.TagList
+        
+    @reactive.effect
+    def _():
+        print(session_library.get())
 
     @reactive.Calc
     def user_selected_feed_library():
         if input.use_teaching_fd_library():
             teaching_feeds =  get_teaching_feeds()
 
-            df_user_lib = feed_library_default.query('Fd_Name.isin(@teaching_feeds)')
+            df_user_lib = session_library.get().query('Fd_Name.isin(@teaching_feeds)')
             return df_user_lib
         
             
         if input.user_lib_upload() is None:
             
             print('No file uploaded and teaching mode not selected')
-            df_user_lib = feed_library_default
+            df_user_lib = session_library.get()
         
         else:
             f = input.user_lib_upload()[0]
@@ -139,17 +164,25 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
                 df_in = pd.read_csv(f['datapath'])
                 
                 # Check if all column names are present
-                req_cols = feed_library_default.columns
+                req_cols = session_library.get().columns
                 
                 if not all(col_name in df_in.columns for col_name in req_cols):
-                    raise ValueError("Not all required columns are present in the uploaded feed library.")
-                
-                # sort data and assign for use        
-                df_user_lib = df_in.sort_values("Fd_Name")
+                    print("Not all required columns are present in the uploaded feed library.")
+                    m = ui.modal(
+                        ui.p('Not all required columns are present in the uploaded feed library. Reverting to default feed library.'),
+                        ui.p('Please download the default feed library to use as a template for adding new feeds.'),
+                        title = 'Upload failed',
+                        easy_close=True,
+                    )
+                    ui.modal_show(m)
+                    df_user_lib = session_library.get()
+                else:
+                    # sort data and assign for use
+                    df_user_lib = df_in.sort_values("Fd_Name")
             
             else:
                 print('User upload failed - using default lib')
-                df_user_lib = feed_library_default
+                df_user_lib = session_library.get()
 
         return df_user_lib
 

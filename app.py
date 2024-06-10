@@ -118,19 +118,23 @@ def server(input, output, session):
     # Animal inputs
     #######################################################
     nav_diet_ns = session.ns('nav_diet')
-    animal_input_dict, animal_input_reactives, equation_selection = animal_inputs_server(
+    animal_input_dict, animal_input_reactives, equation_selection, usr_session_lib = animal_inputs_server(
         'nav_inputs', 
         input[nav_diet_ns("DMI")]
         )   
     
+
+    
     #######################################################
     # Feed library
-    #######################################################
+    #######################################################  
     user_selected_feed_library, user_selected_feeds = feed_library_server(
         "nav_feed_library", 
-        feed_library_default = feed_library_default, 
-        user_selections_reset = input.reset_user_selected_feed_names
+        feed_library_initial= feed_library_default, 
+        user_selections_reset = input.reset_user_selected_feed_names,
+        session_upload_library = usr_session_lib
         )
+        
     
 
     #######################################################################
