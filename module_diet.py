@@ -3,6 +3,7 @@
 from shiny import Inputs, Outputs, Session, module, render, ui, reactive, req
 import pandas as pd
 
+
 import nasem_dairy as nd
 
 from utils import (
@@ -14,7 +15,7 @@ from utils import (
     get_vars_as_df) 
 
 
-def insert_new_ingredient(current_iter, feed_choices, feed_selected, kg_selected, session_ns ):
+def insert_new_ingredient(current_iter, feed_choices, feed_selected, kg_selected, perc_selected, session_ns ):
     newItemDiv = ui.div(
         {"id": "userfeed_" + current_iter},
         ui.row(
@@ -29,11 +30,19 @@ def insert_new_ingredient(current_iter, feed_choices, feed_selected, kg_selected
                                           max=100,
                                           step=0.2,
                                           value=kg_selected)),
+            ui.column(3, ui.input_numeric('perc_' + current_iter,
+                                          label="",
+                                          min=0,
+                                          max=100,
+                                          step=0.2,
+                                          value=perc_selected)),
         )
     )
     ui.insert_ui(newItemDiv,
-                 selector=f"#{session_ns}-item_input",
-                 where="beforeEnd")
+                #  selector=f"#{session_ns}-item_input",
+                 selector=f"div#userfeed_1",
+                 where="beforeEnd",
+                 immediate=True) # this allows js to access ui and disable perc in correct order
 
 
 def remove_ingredient(current_iter):
@@ -62,7 +71,28 @@ def diet_ui():
                                     ui.column(6, ui.input_action_button("add_demo_diet", "Add demo lactating diet", class_='btn-info')),
                                 ),
                                 ui.br(),
-                                ui.output_ui("item_input"),
+                                # ui.output_ui("item_input"),
+                                ui.div(
+                                    {"id" : "userfeed_1" },
+                                    ui.row(
+                                        ui.column(6, ui.input_selectize("item_1" ,
+                                                                        "Choose feeds to use in ration:",
+                                                                        choices = {},
+                                                                        multiple = False)),
+                                        ui.column(3, ui.input_numeric('kg_1', 
+                                                    label="Enter kg DM:", 
+                                                    min=0, 
+                                                    max=100, 
+                                                    step = 0.2,
+                                                    value=0)),
+                                        ui.column(3, ui.input_numeric('perc_1',
+                                                    label = '% DM:',
+                                                    min = 0, 
+                                                    max = 100,
+                                                    step = 1, 
+                                                    value = 0))             
+                                    )
+                                ),
                                 ui.row(
                                     ui.column(4, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
                                     ui.column(4, ui.input_action_button('btn_load_user_selected_feeds', 'Populate with selected feeds')),
@@ -103,38 +133,64 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
     # originally used by demo diets
     feed_selected = reactive.Value(None)
     kg_selected = reactive.Value(0)
+    perc_selected = reactive.Value(0)
 
     # Initialize reactive values to store user selections
     user_feeds = reactive.Value(['item_1'])
     user_kgs = reactive.Value(['kg_1'])
+    user_percs = reactive.Value(['perc_1'])
 
     @reactive.Calc
     def unique_fd_list():
         return get_unique_feed_list(user_selected_feed_library())
 
     # set up UI with initial buttons
-    @output
-    @render.ui
-    def item_input():
-        # Generate initial item input
-        itemInput = ui.div(
-            {"id" : "userfeed_1" },
-            ui.row(
-                ui.column(6, ui.input_selectize("item_1" ,
-                                                 "Choose feeds to use in ration:",
-                                                choices = unique_fd_list(), # leave blank until feed library is loaded
-                                                multiple = False)),
-                ui.column(3, ui.input_numeric('kg_1', 
-                             label="Enter kg DM:", 
-                             min=0, 
-                             max=100, 
-                             step = 0.2,
-                             value=0)),
-            )
-        )
-        return itemInput
+    # @render.ui
+    # def item_input():
+    #     # Generate initial item input
+    #     itemInput = ui.div(
+    #         {"id" : "userfeed_1" },
+    #         ui.row(
+    #             ui.column(6, ui.input_selectize("item_1" ,
+    #                                              "Choose feeds to use in ration:",
+    #                                             choices = unique_fd_list(), # leave blank until feed library is loaded
+    #                                             multiple = False)),
+    #             ui.column(3, ui.input_numeric('kg_1', 
+    #                          label="Enter kg DM:", 
+    #                          min=0, 
+    #                          max=100, 
+    #                          step = 0.2,
+    #                          value=0)),
+    #             ui.column(3, ui.input_numeric('perc_1',
+    #                         label = '% DM:',
+    #                         min = 0, 
+    #                         max = 100,
+    #                         step = 1, 
+    #                         value = 0))             
+    #         )
+    #     )
+
+    #     return itemInput
+
+    # setup initial UI 
     
     
+    @reactive.effect
+    def _():
+        ui.update_selectize('item_1', choices=unique_fd_list())
+
+    
+    # @reactive.effect
+    # async def _():
+    #     # disable initial perc_1
+        
+    #     await asyncio.sleep(1)
+    #     await session.send_custom_message("toggleUIHandler", {
+    #             "UIObjectId": session.ns("perc_1"), "action" : "disable"
+    #         })
+
+
+
     @reactive.Calc
     def iterate_new_ingredient():
         '''
@@ -148,14 +204,19 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
         xout.append('item_' + current_iter)
         user_feeds.set(xout)
 
-        pout = user_kgs().copy()
-        pout.append('kg_' + current_iter)
-        user_kgs.set(pout)
+        kgout = user_kgs().copy()
+        kgout.append('kg_' + current_iter)
+        user_kgs.set(kgout)
+
+        pout = user_percs().copy()
+        pout.append('perc_' + current_iter)
+        user_percs.set(pout)
 
         insert_new_ingredient(current_iter = current_iter, 
                               feed_choices = unique_fd_list(), 
                               feed_selected=feed_selected(), 
                               kg_selected=kg_selected(),
+                              perc_selected=perc_selected(),
                               session_ns = session.ns
                               )
         return current_iter
@@ -170,21 +231,24 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
     @reactive.event(input.btn_load_user_selected_feeds)
     def _():
         '''used to update feeds based on user selections'''
-        # NOTE: this can be used for user session file
         feed_list = user_selected_feeds().to_list()
 
         for i, feed in enumerate(feed_list):
             if i == 0:
                 ui.update_selectize(id = 'item_1', choices = unique_fd_list(), selected = feed)
                 ui.update_numeric(id = 'kg_1', value = 0)
+                ui.update_numeric(id = 'perc_1', value = 0)
             else:
                 feed_selected.set(feed) # type: ignore
                 kg_selected.set(0)
+                perc_selected.set(0)
                 iterate_new_ingredient()
         
         # reset to defaults
         feed_selected.set(None)
         kg_selected.set(0)
+        perc_selected.set(0)
+
 
 
     @reactive.Effect
@@ -203,6 +267,7 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
         # reset reactive values to store user selections
         user_feeds.set(['item_1'])
         user_kgs.set(['kg_1'])
+        user_percs.set(['perc_1'])
 
         # Update initial UI elements:
         ui.update_selectize(id = 'item_1', choices=unique_fd_list())
@@ -210,8 +275,8 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
 
         # add demo button back:
         if input.add_demo_diet() > 0 or input.add_assignment_diet() > 0:
-            await session.send_custom_message("toggleButtonHandler", {
-                    "buttonId": session.ns("add_demo_diet"), "action" : "enable"
+            await session.send_custom_message("toggleUIHandler", {
+                    "UIObjectId": session.ns("add_demo_diet"), "action" : "enable"
                 })
 
 
@@ -243,10 +308,8 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
     @render.text
     def predicted_DMI():
         # Dt_NDF = NASEM_out()["diet_info"].loc['Diet','Fd_NDF'].copy()
-        print('start predDMI')
         # IF model has been executed, then use the user-input selection
         if get_diet_total_intake() > 0:
-            print('step2')
             req(NASEM_out())
             Dt_NDF = NASEM_out().get_value("Dt_NDF") 
 
@@ -295,22 +358,24 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
             'Triticale silage, mid-maturity': 6.5,
             'Corn grain HM, fine grind': 7,
             'Wheat straw': 1.2,
-            'Urea': 0.3,
+            'Urea': 0.32,
             'VitTM Premix, generic': 0.5,
         }
 
         for feed, kg in demo_dict.items():
             feed_selected.set(feed)
             kg_selected.set(kg)
+            perc_selected.set(0)
             iterate_new_ingredient()
 
         feed_selected.set(None)
         kg_selected.set(0)
-
+        perc_selected.set(0)
+        
         # disable button to prevent loading multiple times. On reset, this button 
         # is enabled again.
-        await session.send_custom_message("toggleButtonHandler", {
-                "buttonId": session.ns("add_demo_diet"), "action" : "disable"
+        await session.send_custom_message("toggleUIHandler", {
+                "UIObjectId": session.ns("add_demo_diet"), "action" : "disable"
             })
 
 
@@ -370,6 +435,31 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
         '''
         df = display_diet_values(NASEM_out(), is_snapshot=True)
         return prepare_df_render(df, 1, 90, cols_longer='Component') 
+
+
+    @reactive.Effect
+    # @reactive.event(user_kgs)
+    def _():
+        total_intake = get_diet_total_intake()
+        for kg_id, perc_id in zip(user_kgs(), user_percs()):
+            kg_value = getattr(input, kg_id)()
+
+            if total_intake > 0:
+                perc_value = (kg_value / total_intake) * 100
+                perc_value = float(f"{perc_value:.3g}") # 3 significant figures
+            else:
+                perc_value = 0
+            ui.update_numeric(id=perc_id, value=perc_value)
+
+    @reactive.effect
+    async def _():
+            perc_IDs = [session.ns(p) for p in user_percs()]
+            # req(all([await session.run_js(f"document.getElementById('{el_id}') !== null") for el_id in perc_IDs]))
+
+            await session.send_custom_message("disableUIList", {
+                    "UIObjectIds": perc_IDs
+                })
+
 
 
     return(get_user_diet, get_diet_total_intake, input.DMI, df_model_snapshot)

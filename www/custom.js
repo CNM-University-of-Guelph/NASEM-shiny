@@ -1,36 +1,36 @@
-function toggleCheckboxes(checkboxIds) {
+function toggleCheckboxes(UIObjectIds) {
     console.log("Hiding checkboxes after lib upload");
-    checkboxIds.forEach(function(checkboxId) {
-        var checkbox = document.getElementById(checkboxId);
-        if (checkbox) {
-            checkbox.disabled = true;  // Disable the checkbox
+    UIObjectIds.forEach(function(UIObjectId) {
+        var UIObject = document.getElementById(UIObjectId);
+        if (UIObject) {
+            UIObject.disabled = true;  // Disable the checkbox
         } else {
-            console.error('Checkbox element not found:', checkboxId);
+            console.error('Checkbox element not found:', UIObjectId);
         }
     });
 }
 
 // Register the handler for the custom message
-Shiny.addCustomMessageHandler("toggleCheckboxHandler", function(message) {
-    toggleCheckboxes(message.checkboxIds);
+Shiny.addCustomMessageHandler("disableUIList", function(message) {
+    toggleCheckboxes(message.UIObjectIds);
 });
 
 
 
-function toggleButton(buttonId, action) {
-    var button = document.getElementById(buttonId);
-    if (button) {
+function toggleUI(UIObjectId, action) {
+    var UIobject = document.getElementById(UIObjectId);
+    if (UIobject) {
         if (action === 'disable') {
-            button.disabled = true;  // Disable the button
+            UIobject.disabled = true;  // Disable the UI
         } else {
-            button.disabled = false; // Enable the button
+            UIobject.disabled = false; // Enable the UI
         }
     } else {
-        console.error('Button element not found:', buttonId);
+        console.error('UI element not found:', UIObjectId);
     }
 }
 
 // Register the handler for the custom message
-Shiny.addCustomMessageHandler("toggleButtonHandler", function(message) {
-    toggleButton(message.buttonId, message.action);
+Shiny.addCustomMessageHandler("toggleUIHandler", function(message) {
+    toggleUI(message.UIObjectId, message.action);
 });

@@ -273,11 +273,10 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
         # or selected_cells, etc.
         # row_selections = reactive_read(datagrid_feed_lib(), "selections")
 
-        # print(datagrid_feed_library().input_cell_selection() )
         # row_selections = datagrid_feed_library().input_cell_selection()["rows"] 
         # row_index = [list(range(row_number['r1'], row_number['r2']+1)) for row_number in row_selections]
         # flattened_index = [i for row in row_index for i in row]
-        # print(datagrid_feed_library.data_view(selected=True))
+
         flattened_index = datagrid_feed_library.cell_selection()["rows"]
 
         return(flattened_index)
@@ -333,9 +332,10 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
                 session.ns("use_teaching_fd_library"),
                 session.ns("hide_calf_feeds")
             ]
-            await session.send_custom_message("toggleCheckboxHandler", {
-                "checkboxIds": checkbox_ids
+            await session.send_custom_message("disableUIList", {
+                "UIObjectIds": checkbox_ids
             })
+
 
     @render.download(filename='default_NASEM_library.csv')
     def download_lib_default():
