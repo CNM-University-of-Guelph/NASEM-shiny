@@ -1,8 +1,9 @@
 import pandas as pd
 from shiny import Inputs, Outputs, Session, module, render, ui, module, reactive, req
-from shinywidgets import output_widget, render_widget, reactive_read
-from ipydatagrid import DataGrid
+# from shinywidgets import output_widget, render_widget, reactive_read
+# from ipydatagrid import DataGrid
 import pickle
+import nasem_dairy as nd
 
 from utils import DM_intake_equation_strings
 
@@ -259,17 +260,48 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
     
     ########################
     # Load session file
-    @reactive.Effect
-    def _():
+    @reactive.Calc
+    def pkl_session_upload():
         pkl_input = req(input.pkl_upload())
         
         print(pkl_input[0])
         file_path = pkl_input[0]["datapath"]
         with open(file_path, 'rb') as f:
             pkl_dict = pickle.load(f)
-        
-        print(pkl_dict['ModelOutput'])
-        print(pkl_dict['FeedLibrary'])
+
+        # Check pickle file
+        if not isinstance(pkl_dict, dict) or 'ModelOutput' not in pkl_dict or not isinstance(pkl_dict['ModelOutput'], nd.ModelOutput):
+            m = ui.modal(
+                ui.p('The uploaded file does not contain a valid ModelOutput entry. Please try again.'),
+                title='Upload failed',
+                easy_close=True,
+            )
+            ui.modal_show(m)
+            return {}
+
+        if 'FeedLibrary' not in pkl_dict or not isinstance(pkl_dict['FeedLibrary'], pd.DataFrame):
+            m = ui.modal(
+                ui.p('The uploaded file does not contain a valid Feed Library entry. Please try again.'),
+                title='Upload failed',
+                easy_close=True,
+            )
+            ui.modal_show(m)
+            return {}
+
+        return pkl_dict
+    
+    @reactive.effect
+    def _():
+        ''' This has the added function of instant dependency on pkl upload, leading to immediate modal warnings if something wrong.'''
+        print(pkl_session_upload())
+    
+
+    # Unpack session dictionary
+    def session_upload_library():
+        return pkl_session_upload()['FeedLibrary']
+
+    def session_upload_ModelOuput():
+        return pkl_session_upload()['ModelOutput']
 
 
-    return(animal_input_dict, animal_input_reactives, equation_selection)
+    return(animal_input_dict, animal_input_reactives, equation_selection, session_upload_library)
