@@ -77,8 +77,9 @@ app_ui = ui.page_navbar(
        value = 'nav_feed_lib'
         ),
     ui.nav_panel("Diet",
-        diet_ui('nav_diet')),
-            ui.nav_panel(
+        diet_ui('nav_diet')
+        ),
+    ui.nav_panel(
             "Outputs", 
             outputs_ui('nav_outputs')
             ), 

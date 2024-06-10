@@ -14,7 +14,9 @@ def animal_inputs_ui():
                 'Info',
                 ui.p("Info text"),
                 ui.br(),
-                ui.input_file('pkl_upload', "Upload .NDsession file from a previous session.", accept='.NDsession',width='500px'),
+                ui.input_file('pkl_upload', 
+                              "Upload .NDsession file from a previous session.", 
+                              accept='.NDsession', width='500px'),
                 ui.br()
             ),
             ui.nav_panel(
@@ -268,12 +270,6 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
         
         print(pkl_dict['ModelOutput'])
         print(pkl_dict['FeedLibrary'])
-
-    print('anim dict')
-    @reactive.effect
-    def _():
-        print('test')
-        print(animal_input_dict())
 
 
     return(animal_input_dict, animal_input_reactives, equation_selection)

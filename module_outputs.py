@@ -123,7 +123,7 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
 
     @reactive.Calc
     def df_key_model_data_NEL():
-        vars_return = ['An_NE', 'An_NE_In']
+        vars_return = ['An_NE', 'An_NEIn']
         return get_vars_as_df(vars_return, NASEM_out())
 
     @reactive.Calc 
