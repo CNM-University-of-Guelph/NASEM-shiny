@@ -287,7 +287,8 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
             )
             ui.modal_show(m)
             return {}
-
+        
+        ui.notification_show('.NDsession upload successful', type='message')
         return pkl_dict
     
     @reactive.effect
