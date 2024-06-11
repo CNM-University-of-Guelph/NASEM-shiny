@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import date
 import io
 import pickle
+from datetime import datetime
 
 from utils import display_diet_values, get_vars_as_df, validate_equation_selections, prepare_df_render
 from generate_report import generate_report
@@ -244,9 +245,14 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
     @render.download(filename = lambda: f"NASEM_simulation-{date.today().isoformat()}.NDsession")
     def btn_pkl_download():
         req(NASEM_out())
+        now = datetime.now()
+        # Format the date and time as a string
+        formatted_datetime = now.strftime("%Y-%m-%d %H:%M:%S")
+
         output_dict = {
             'ModelOutput' : NASEM_out(),
-            'FeedLibrary' : user_selected_feed_library()
+            'FeedLibrary' : user_selected_feed_library(),
+            'SaveTime': formatted_datetime
         }
         with io.BytesIO() as buf:
             pickle.dump(output_dict, buf)

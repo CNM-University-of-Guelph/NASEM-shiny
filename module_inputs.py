@@ -5,6 +5,7 @@ from shiny import Inputs, Outputs, Session, module, render, ui, module, reactive
 import pickle
 import nasem_dairy as nd
 
+
 from utils import DM_intake_equation_strings
 
 @module.ui
@@ -18,7 +19,8 @@ def animal_inputs_ui():
                 ui.input_file('pkl_upload', 
                               "Upload .NDsession file from a previous session.", 
                               accept='.NDsession', width='500px'),
-                ui.br()
+                ui.br(),
+                ui.output_ui('display_usr_session_modified_time')
             ),
             ui.nav_panel(
                 'Animal Description',
@@ -298,10 +300,20 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
         ui.notification_show('.NDsession upload successful', type='message')
         return pkl_dict
     
-    @reactive.effect
-    def _():
+        
+    @render.ui
+    def display_usr_session_modified_time():
         ''' This has the added function of instant dependency on pkl upload, leading to immediate modal warnings if something wrong.'''
-        print(pkl_session_upload())
+        pkl_session_upload()
+        return ui.div(
+            {"class": "callout callout-tip", "role": "alert" },
+            ui.div("Sesson Restored", class_ = "callout-title"),
+            ui.markdown(
+                f"""
+                - .NDsession loaded from:  {pkl_session_upload()['SaveTime']}
+                """
+            )
+        )
     
 
     # Unpack session dictionary
