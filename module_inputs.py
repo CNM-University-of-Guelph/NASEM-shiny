@@ -129,12 +129,13 @@ def animal_inputs_ui():
                              ), 
                             choices = {0: "NRC", 1: "VT1", 2: "VT2"},
                             selected = 0),
+
                         ui.input_radio_buttons("mFat_eqn", "Milk Fat prediction equation", 
                                                choices = {0: "Trg_MilkFatp", 1: "Predicted milk fat production"}, 
                                                selected = 1),
 
                         ui.input_radio_buttons("MiN_eqn", "MiN equation", 
-                                               choices={1: "Option 1", 2: "Option 2", 3: "Option 3"}, selected=1),
+                                               choices={1: "NRC (2021)", 2: "Hanigan (2021)", 3: "White (2017)"}, selected=1),
                      
                         ui.input_radio_buttons(
                             "Use_DNDF_IV", 
@@ -226,7 +227,13 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
             'Use_DNDF_IV' : input.Use_DNDF_IV(), 
             'DMIn_eqn': input.DMIn_eqn(), 
             'mProd_eqn': input.mProd_eqn(), 
-            'Monensin_eqn': input.Monensin_eqn()}
+            'mPrt_eqn': input.mPrt_eqn(),
+            'mFat_eqn': input.mFat_eqn(),
+            'Monensin_eqn': input.Monensin_eqn(),
+            'NonMilkCP_ClfLiq': input.NonMilkCP_ClfLiq(),
+            'RumDevDisc_Clf': input.RumDevDisc_Clf(),
+            'MiN_eqn': input.MiN_eqn()
+            }
     
     ########################
     # Dry Cow UI setup
