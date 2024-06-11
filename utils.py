@@ -145,7 +145,7 @@ def rename_df_cols_Fd_to_feed(df: pd.DataFrame) -> pd.DataFrame:
 
 def DM_intake_equation_strings() -> dict:
     return {
-    0: 'user target DM intake',
+    # 0: 'user target DM intake',
     # 1: 'Milk fed calf',
     # 2: 'All heifers, animal factors only, NRC equation, individual animal',
     # 3: 'All heifers, animal and feed factors, NRC equation, individual animal',
@@ -200,8 +200,15 @@ def calculate_DMI_prediction(
 
     # Predict DMI for lactating cow - also use this equation if 0 is selected for model (i.e. user input)
     if DMIn_eqn in [0,8,11] or model_output is None: 
-        #  no model outputs needed:
-        if DMIn_eqn in [0,8]:
+        #  If dry cow eqn:
+        if DMIn_eqn == 11:
+            DMI = nd.calculate_Dt_DMIn_DryCow2(
+                animal_input['An_BW'], 
+                animal_input['An_GestDay'], 
+                animal_input['An_GestLength'] 
+                ) 
+        # This allows for if user has 9 selected, but model_output is none. Returns what it can.
+        else:
             Trg_NEmilk_Milk = nd.calculate_Trg_NEmilk_Milk(
                 animal_input['Trg_MilkTPp'], 
                 animal_input['Trg_MilkFatp'], 
@@ -215,13 +222,6 @@ def calculate_DMI_prediction(
                 animal_input['An_LactDay'], 
                 animal_input['An_Parity_rl'], 
                 Trg_NEmilk_Milk)
-            
-        elif DMIn_eqn == 11:
-            DMI = nd.calculate_Dt_DMIn_DryCow2(
-                animal_input['An_BW'], 
-                animal_input['An_GestDay'], 
-                animal_input['An_GestLength'] 
-                ) 
         
     elif DMIn_eqn == 9:
         DMI = nd.calculate_Dt_DMIn_Lact2(

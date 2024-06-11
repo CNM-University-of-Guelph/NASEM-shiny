@@ -5,9 +5,6 @@ from shiny import Inputs, Outputs, Session, module, render, ui, module, reactive
 import pickle
 import nasem_dairy as nd
 
-
-from utils import DM_intake_equation_strings
-
 @module.ui
 def animal_inputs_ui():
     return ([
@@ -106,14 +103,14 @@ def animal_inputs_ui():
                 ui.accordion(
                     ui.accordion_panel(
                         'Equation selections',
-                        ui.input_selectize(
-                            "DMIn_eqn",
-                            label = "Select DM Intake equation to use for predicting intake on Diet page (default is 'lactating, cow factors only'). Does not change model, user input DMI is always used in this app.",
-                            choices = DM_intake_equation_strings(),
-                            selected = 8, # type: ignore
-                            multiple = False,
-                            width='500px'
-                            ),                        
+                        # ui.input_selectize(
+                        #     "DMIn_eqn",
+                        #     label = "Select DM Intake equation to use for predicting intake on Diet page (default is 'lactating, cow factors only'). Does not change model, user input DMI is always used in this app.",
+                        #     choices = DM_intake_equation_strings(),
+                        #     selected = 8, # type: ignore
+                        #     multiple = False,
+                        #     width='500px'
+                        #     ),                        
                         ui.input_radio_buttons(
                             "mProd_eqn", 
                             "Milk production equation to use for calcs (currently hard-coded to use Trg_MilkProd):",
@@ -191,7 +188,6 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
                 'Trg_MilkTPp': input.Trg_MilkTPp(),
                 'Trg_MilkLacp': input.Trg_MilkLacp(),
                 'DMI' : user_selected_DMI(), # This input is passed in from main app.py 
-                # 'DMI' : 10,
                 'An_BW_mature': input.An_BW_mature(),
                 'Trg_FrmGain': input.Trg_FrmGain(),
                 'An_GestDay': input.An_GestDay(),

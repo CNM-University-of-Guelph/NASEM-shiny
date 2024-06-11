@@ -2,8 +2,8 @@
 
 from shiny import Inputs, Outputs, Session, module, render, ui, reactive, req
 import pandas as pd
-
-
+from faicons import icon_svg
+import htmltools
 import nasem_dairy as nd
 
 from utils import (
@@ -12,7 +12,8 @@ from utils import (
     calculate_DMI_prediction, 
     validate_equation_selections, 
     prepare_df_render,
-    get_vars_as_df) 
+    get_vars_as_df,
+    DM_intake_equation_strings) 
 
 
 def insert_new_ingredient(current_iter, feed_choices, feed_selected, kg_selected, perc_selected, session_ns ):
@@ -51,69 +52,116 @@ def remove_ingredient(current_iter):
 @module.ui
 def diet_ui():
     return ([
-        # ui.nav_panel(
-        #     "Diet",
-            ui.card(
-                ui.row(
-                    ui.column(4,
-                            ui.p("Predicted Feed Intake:"),
-                            ui.output_text('predicted_DMI')
-                    ),
-                    ui.column(3, ui.input_numeric("DMI", "Target dry matter intake (kg/d)", 26, min=0)),
-                    ui.column(2, ui.p('Total diet intake (kg/d):'), ui.output_text('diet_total_intake')),
-                    ui.column(2, ui.p('Difference (kg):'), ui.output_text("intake_difference")),
-                ),
-                ui.card(
-                    ui.row(
-                        ui.column(6,
-                                ui.row(
-                                    ui.column(6, ui.h2("Formulate ration:")),
-                                    ui.column(6, ui.input_action_button("add_demo_diet", "Add demo lactating diet", class_='btn-info')),
-                                ),
-                                ui.br(),
-                                # ui.output_ui("item_input"),
-                                ui.div(
-                                    {"id" : "userfeed_1" },
-                                    ui.row(
-                                        ui.column(6, ui.input_selectize("item_1" ,
-                                                                        "Choose feeds to use in ration:",
-                                                                        choices = {},
-                                                                        multiple = False)),
-                                        ui.column(3, ui.input_numeric('kg_1', 
-                                                    label="Enter kg DM:", 
-                                                    min=0, 
-                                                    max=100, 
-                                                    step = 0.2,
-                                                    value=0)),
-                                        ui.column(3, ui.input_numeric('perc_1',
-                                                    label = '% DM:',
-                                                    min = 0, 
-                                                    max = 100,
-                                                    step = 1, 
-                                                    value = 0))             
-                                    )
-                                ),
-                                ui.row(
-                                    ui.column(4, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
-                                    ui.column(4, ui.input_action_button('btn_load_user_selected_feeds', 'Populate with selected feeds')),
-                                    ui.column(4, ui.input_action_button("btn_reset_feeds", "Reset ingredients list"))
-                                ),
+        ui.layout_columns(
+                ui.layout_columns(
+                    ui.input_selectize(
+                        "DMIn_eqn",
+                        label =  ui.TagList(
+                            ui.span("Select DM Intake equation for prediction: ", 
+                                    style = htmltools.css(color='black', font_weight='bold')), 
+                            ui.em("Target intake always used in model outputs.")
+                            ),
+                        choices = DM_intake_equation_strings(),
+                        selected = 9, # type: ignore
+                        multiple = False,
+                        width='500px',
                         ),
-                        ui.column(6,
-                                ui.panel_well(
-                                    ui.h2("Model Outputs - Snapshot"),
-                                    ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes. " 
-                                               "The following snapshot shows the calculated diet proportions of key components and" 
-                                               " some model outputs (different output is shown for dry cows):")),
-                                    ui.output_data_frame('snapshot_diet_data_model'),
-                                    ui.output_data_frame('model_snapshot')
-                                ),
-                        )
-                    )
+                    ui.div(
+                        ui.div("Predicted Feed Intake:", class_ = "callout-title2-black"),
+                        ui.output_text('predicted_DMI'), 
+                    ),
+                    col_widths = (6,-1,5),
+                    class_ = "callout callout-note"
                 ),
-                min_height='650px'
-            )
-        # )
+
+                ui.layout_columns(
+                    ui.span(
+                        ui.input_numeric("DMI", ui.span("Target dry matter intake (kg/d):",
+                                                         class_ = "callout-title2-black"), 
+                                                         25, 
+                                                         min=0),
+                        class_ = "callout-inner callout-tip",
+                        style=htmltools.css(padding_bottom='0px')
+                    ),
+                    ui.span(
+                        ui.p('Diet Sum (kg/d):', class_ = "callout-title2-black"), 
+                        ui.span(ui.output_text('diet_total_intake'), class_='form-control form-control-disabled'),
+                        style=htmltools.css(padding_top='0.5rem')
+                        ),
+                    ui.span(
+                        ui.p('Difference (kg):', class_ = "callout-title2-black"), 
+                        ui.span(ui.output_text("intake_difference"),class_='form-control form-control-disabled'),
+                        style=htmltools.css(padding_top='0.5rem')
+                        ),
+                    
+                    col_widths = (6, 3, 3),
+                    class_ = "callout callout-caution",
+                ),
+            col_widths=(6,6),
+            style = htmltools.css(margin_bottom='8px')
+        ),
+        ui.card(
+            ui.row(
+                ui.column(6,
+                        ui.row(
+                            ui.column(6, ui.h2("Formulate ration:")),
+                            ui.column(6, ui.input_action_button("add_demo_diet", 
+                                                                "Add demo lactating diet", 
+                                                                class_='btn-info')),
+                        ),
+                        ui.br(),
+                        ui.div(
+                            {"id" : "userfeed_1" },
+                            ui.row(
+                                ui.column(6, ui.input_selectize("item_1" ,
+                                                                "Choose feeds to use in ration:",
+                                                                choices = {},
+                                                                multiple = False)),
+                                ui.column(3, ui.input_numeric('kg_1', 
+                                            label="Enter kg DM:", 
+                                            min=0, 
+                                            max=100, 
+                                            step = 0.2,
+                                            value=0)),
+                                ui.column(3, ui.input_numeric('perc_1',
+                                            label = '% DM:',
+                                            min = 0, 
+                                            max = 100,
+                                            step = 1, 
+                                            value = 0))             
+                            )
+                        ),
+                        ui.row(
+                            ui.column(4, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
+                            ui.column(4, ui.input_action_button('btn_load_user_selected_feeds', 'Populate with selected feeds')),
+                            ui.column(4, ui.input_action_button("btn_reset_feeds", "Reset ingredients list"))
+                        ),
+                ),
+                ui.column(6,
+                        ui.panel_well(
+                             ui.span( 
+                                    ui.h2("Model Outputs - Snapshot"),
+                                        ui.tooltip(                               
+                                            icon_svg("circle-info", margin_left='10px', height='1.8em'), 
+
+                                            ui.tags.li(ui.em("The model is executed each time an ingredient selection or kg DM value changes.")),
+                                            ui.tags.li(ui.em("The snapshot shows calculated diet proportions of key components and some predicted model outputs")),
+                                            ui.tags.li(ui.em("Different outputs shown for dry cows")),
+                                            placement = 'left',
+                                        ),
+                            style = 'display: inline-flex; align-items: center;'
+                            ),
+
+                           
+                            ui.output_data_frame('snapshot_diet_data_model'),
+                            ui.output_data_frame('model_snapshot')
+                        ),
+                        
+                )
+            ),
+            min_height='500px',
+            style = htmltools.css(__bs_card_spacer_y='0.5rem')
+        ),
     ]) 
 
 @module.server
@@ -143,51 +191,11 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
     @reactive.Calc
     def unique_fd_list():
         return get_unique_feed_list(user_selected_feed_library())
-
-    # set up UI with initial buttons
-    # @render.ui
-    # def item_input():
-    #     # Generate initial item input
-    #     itemInput = ui.div(
-    #         {"id" : "userfeed_1" },
-    #         ui.row(
-    #             ui.column(6, ui.input_selectize("item_1" ,
-    #                                              "Choose feeds to use in ration:",
-    #                                             choices = unique_fd_list(), # leave blank until feed library is loaded
-    #                                             multiple = False)),
-    #             ui.column(3, ui.input_numeric('kg_1', 
-    #                          label="Enter kg DM:", 
-    #                          min=0, 
-    #                          max=100, 
-    #                          step = 0.2,
-    #                          value=0)),
-    #             ui.column(3, ui.input_numeric('perc_1',
-    #                         label = '% DM:',
-    #                         min = 0, 
-    #                         max = 100,
-    #                         step = 1, 
-    #                         value = 0))             
-    #         )
-    #     )
-
-    #     return itemInput
-
-    # setup initial UI 
     
     
     @reactive.effect
     def _():
         ui.update_selectize('item_1', choices=unique_fd_list())
-
-    
-    # @reactive.effect
-    # async def _():
-    #     # disable initial perc_1
-        
-    #     await asyncio.sleep(1)
-    #     await session.send_custom_message("toggleUIHandler", {
-    #             "UIObjectId": session.ns("perc_1"), "action" : "disable"
-    #         })
 
 
 
@@ -309,7 +317,7 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
     def predicted_DMI():
         # Dt_NDF = NASEM_out()["diet_info"].loc['Diet','Fd_NDF'].copy()
         # IF model has been executed, then use the user-input selection
-        eqn_selection = validate_equation_selections(equation_selection())
+        eqn_DMI = validate_equation_selections({'DMIn_eqn' : input.DMIn_eqn()})
         
         if get_diet_total_intake() > 0:
             req(NASEM_out())
@@ -317,7 +325,7 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
 
             pred_DMI = calculate_DMI_prediction(
                 animal_input=animal_input_dict().copy(),
-                DMIn_eqn= eqn_selection['DMIn_eqn'],
+                DMIn_eqn= eqn_DMI['DMIn_eqn'],
                 model_output=NASEM_out(),
                 coeff_dict= nd.coeff_dict
             )
@@ -327,11 +335,11 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
             # use equation that does not use diet:
             pred_DMI = calculate_DMI_prediction(
                 animal_input=animal_input_dict().copy(),
-                DMIn_eqn= eqn_selection['DMIn_eqn'],
+                DMIn_eqn= eqn_DMI['DMIn_eqn'],
                 model_output=None,
                 coeff_dict= nd.coeff_dict
             )
-            return str(f"{pred_DMI} kg DM/d (using 'cow factors only' until diet is entered)")
+            return str(f"{pred_DMI} kg DM/d (using 'animal factors only' until diet is entered)")
 
     @render.text
     def diet_total_intake():
