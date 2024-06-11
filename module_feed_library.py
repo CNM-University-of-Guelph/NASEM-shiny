@@ -4,6 +4,7 @@ from shiny import Inputs, Outputs, Session, module, render, ui, module, reactive
 # from ipydatagrid import DataGrid
 from faicons import icon_svg
 import io
+import htmltools
 
 from utils import get_teaching_feeds, rename_df_cols_Fd_to_feed, pad_cols_UI_df
 
@@ -25,8 +26,6 @@ def feed_library_ui():
                             ui.tags.li("Select columns to view using View Settings"),
                             ui.tags.li("Expand the table by hovering over bottom right corner and clicking button."),
                             placement = 'right',
-                            class_="custom-tooltip"
-                            # options={'max-width': '300px'}
                             ),
                             ui.span(
                                 ui.output_ui('set_usr_session_library'),
@@ -64,10 +63,8 @@ def feed_library_ui():
             ),
             ui.nav_panel(
                 ui.h6('Upload custom feed library'),
-                # ui.column(4, ui.input_action_button('btn_feed_lib_upload', 'Upload custom feed library', class_='btn-primary'))
                 ui.br(),
                 ui.card(
-                    {"style": "width:60%;margin: 0 auto"},
                     ui.markdown(
                         """
                         ### Instructions
@@ -93,9 +90,8 @@ def feed_library_ui():
                             """
                         ),
                     ),
-
+                style= htmltools.css(width='60%', margin='0 auto')
                 )
-            
             ),
             ui.nav_spacer(),
         ),
