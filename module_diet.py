@@ -309,17 +309,16 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
     def predicted_DMI():
         # Dt_NDF = NASEM_out()["diet_info"].loc['Diet','Fd_NDF'].copy()
         # IF model has been executed, then use the user-input selection
+        eqn_selection = validate_equation_selections(equation_selection())
+        
         if get_diet_total_intake() > 0:
             req(NASEM_out())
-            Dt_NDF = NASEM_out().get_value("Dt_NDF") 
-
-            eqn_selection = validate_equation_selections(equation_selection())
-
             # This doesn't have a button to execute - changes each time the animal inputs change
+
             pred_DMI = calculate_DMI_prediction(
                 animal_input=animal_input_dict().copy(),
                 DMIn_eqn= eqn_selection['DMIn_eqn'],
-                diet_NDF = Dt_NDF,
+                model_output=NASEM_out(),
                 coeff_dict= nd.coeff_dict
             )
             
@@ -328,8 +327,8 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
             # use equation that does not use diet:
             pred_DMI = calculate_DMI_prediction(
                 animal_input=animal_input_dict().copy(),
-                DMIn_eqn= 8,
-                diet_NDF = 0,
+                DMIn_eqn= eqn_selection['DMIn_eqn'],
+                model_output=None,
                 coeff_dict= nd.coeff_dict
             )
             return str(f"{pred_DMI} kg DM/d (using 'cow factors only' until diet is entered)")

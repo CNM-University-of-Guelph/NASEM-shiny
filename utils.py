@@ -185,7 +185,8 @@ def validate_equation_selections(equation_selection: dict) -> dict:
 def calculate_DMI_prediction(
         animal_input: dict,
         DMIn_eqn: int,
-        diet_NDF: float,
+        model_output: nd.ModelOutput,
+        # diet_NDF: float,
         coeff_dict: dict
         ):
     '''
@@ -197,31 +198,46 @@ def calculate_DMI_prediction(
     DMI = 0
     animal_input = animal_input.copy()
 
-    # Calculate additional physiology values
-    animal_input['An_PrePartDay'] = animal_input['An_GestDay'] - animal_input['An_GestLength']
-    animal_input['An_PrePartWk'] = animal_input['An_PrePartDay'] / 7
-
-
     # Predict DMI for lactating cow - also use this equation if 0 is selected for model (i.e. user input)
-    if DMIn_eqn in [0,8]: 
-        Trg_NEmilk_Milk = nd.calculate_Trg_NEmilk_Milk(
-            animal_input['Trg_MilkTPp'], 
-            animal_input['Trg_MilkFatp'], 
-            animal_input['Trg_MilkLacp']
-            )
-        # print("using DMIn_eqn: 8")
-        DMI = nd.calculate_Dt_DMIn_Lact1(
-            animal_input['Trg_MilkProd'], 
-            animal_input['An_BW'], 
-            animal_input['An_BCS'],
-            animal_input['An_LactDay'], 
-            animal_input['An_Parity_rl'], 
-            Trg_NEmilk_Milk)
+    if DMIn_eqn in [0,8,11] or model_output is None: 
+        #  no model outputs needed:
+        if DMIn_eqn in [0,8]:
+            Trg_NEmilk_Milk = nd.calculate_Trg_NEmilk_Milk(
+                animal_input['Trg_MilkTPp'], 
+                animal_input['Trg_MilkFatp'], 
+                animal_input['Trg_MilkLacp']
+                )
+            # print("using DMIn_eqn: 8")
+            DMI = nd.calculate_Dt_DMIn_Lact1(
+                animal_input['Trg_MilkProd'], 
+                animal_input['An_BW'], 
+                animal_input['An_BCS'],
+                animal_input['An_LactDay'], 
+                animal_input['An_Parity_rl'], 
+                Trg_NEmilk_Milk)
+            
+        elif DMIn_eqn == 11:
+            DMI = nd.calculate_Dt_DMIn_DryCow2(
+                animal_input['An_BW'], 
+                animal_input['An_GestDay'], 
+                animal_input['An_GestLength'] 
+                ) 
         
-    # elif DMIn_eqn == 9:
+    elif DMIn_eqn == 9:
+        DMI = nd.calculate_Dt_DMIn_Lact2(
+            model_output.get_value('Dt_ForNDF'),
+            model_output.get_value('Dt_ADF'),
+            model_output.get_value('Dt_NDF'),
+            model_output.get_value('Dt_ForDNDF48_ForNDF'),
+            model_output.get_value('Trg_MilkProd')
+        )
         
     elif DMIn_eqn == 10:      
-        Kb_LateGest_DMIn = nd.calculate_Kb_LateGest_DMIn(diet_NDF)
+        # Calculate additional physiology values
+        animal_input['An_PrePartDay'] = animal_input['An_GestDay'] - animal_input['An_GestLength']
+        animal_input['An_PrePartWk'] = animal_input['An_PrePartDay'] / 7
+
+        Kb_LateGest_DMIn = nd.calculate_Kb_LateGest_DMIn(model_output.get_value('Dt_NDF'))
         An_PrePartWklim = nd.calculate_An_PrePartWklim(
             animal_input['An_PrePartWk']
         )
@@ -251,13 +267,6 @@ def calculate_DMI_prediction(
                 animal_input['An_BW'], 
                 Dt_DMIn_BW_LateGest_i
                 )
-            
-    elif DMIn_eqn == 11:
-        DMI = nd.calculate_Dt_DMIn_DryCow2(
-            animal_input['An_BW'], 
-            animal_input['An_GestDay'], 
-            animal_input['An_GestLength'] 
-            ) 
     
         
     else:
@@ -375,10 +384,5 @@ def get_vars_as_df(vars_return: list,
             
     return df
 
-# Example usage:
-# Assuming 'vars_return' is predefined and 'output.get_value' is an existing function that you can call.
-# vars_return = ['Trg_MEuse', 'An_MEmUse', 'An_MEgain', 'Gest_MEuse', ...]
-# dataframe = create_dataframe_from_vars(vars_return)
-# print(dataframe)
 
 
