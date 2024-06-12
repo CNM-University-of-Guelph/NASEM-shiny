@@ -112,7 +112,7 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
 
 
     #######################################################
-    # Feed Library
+    # Feed Library - handle usr session
     #######################################################
     # set up feed library so that it can change based on user inputs
     # for now there is a bool for 'teaching' where the table is filtered
@@ -134,9 +134,9 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
             session_library.set(feed_library_initial)
             return ui.TagList
         
-    @reactive.effect
-    def _():
-        print(session_library.get())
+    # @reactive.effect
+    # def _():
+    #     print(session_library.get())
 
     @reactive.Calc
     def user_selected_feed_library():

@@ -118,7 +118,7 @@ def server(input, output, session):
     # Animal inputs
     #######################################################
     nav_diet_ns = session.ns('nav_diet')
-    animal_input_dict, animal_input_reactives, equation_selection, usr_session_lib = animal_inputs_server(
+    animal_input_dict, animal_input_reactives, equation_selection, usr_session_lib, session_upload_ModelOuput = animal_inputs_server(
         'nav_inputs', 
         input[nav_diet_ns("DMI")]
         )   
@@ -150,18 +150,19 @@ def server(input, output, session):
         
         # modify input.DMIn_eqn() to be 0 for model
         modified_equation_selection = equation_selection().copy()
-
-        # force 'targets' when running model:
+        # force 'target' DMI when running model:
         modified_equation_selection['DMIn_eqn'] = 0
 
-        # Force it to use target (user input) MY for energy and protein requirements, etc
-        modified_equation_selection['mProd_eqn'] = 0 
+        # Force it to use predictions for mProt_eqn - the target protein equations are not well tested 
+        modified_equation_selection['mPrt_eqn'] = 1
+        
+        # modified_equation_selection['mProd_eqn'] = 1 Defaults to 'component based'
 
-        modified_equation_selection['mPrt_eqn'] = 0
-        modified_equation_selection['mFat_eqn'] = 0
-        modified_equation_selection['MiN_eqn'] = 1
-        modified_equation_selection['NonMilkCP_ClfLiq']  = 0
-        modified_equation_selection['RumDevDisc_Clf'] = 0
+        # 
+        # modified_equation_selection['mFat_eqn'] = 0
+        # modified_equation_selection['MiN_eqn'] = 1
+        # modified_equation_selection['NonMilkCP_ClfLiq']  = 0
+        # modified_equation_selection['RumDevDisc_Clf'] = 0
     
         model_output = nd.execute_model(
             user_diet(), 
@@ -182,10 +183,11 @@ def server(input, output, session):
             'nav_diet',                
             NASEM_out = NASEM_out, 
             animal_input_dict = animal_input_dict, 
-            equation_selection = equation_selection,
+            # equation_selection = equation_selection,
             animal_input_reactives = animal_input_reactives,
             user_selected_feed_library = user_selected_feed_library,
-            user_selected_feeds = user_selected_feeds
+            user_selected_feeds = user_selected_feeds,
+            session_upload_ModOut = session_upload_ModelOuput
         )
     ) 
     #######################################################

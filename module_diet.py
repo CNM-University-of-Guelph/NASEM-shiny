@@ -47,6 +47,7 @@ def insert_new_ingredient(current_iter, feed_choices, feed_selected, kg_selected
 
 
 def remove_ingredient(current_iter):
+    print(f'removing UI: userfeed_{current_iter}')
     ui.remove_ui(selector="div#userfeed_" + str(current_iter))
 
 @module.ui
@@ -104,7 +105,7 @@ def diet_ui():
             ui.row(
                 ui.column(6,
                         ui.row(
-                            ui.column(6, ui.h2("Formulate ration:")),
+                            ui.column(6, ui.h2("Formulate diet:")),
                             ui.column(6, ui.input_action_button("add_demo_diet", 
                                                                 "Add demo lactating diet", 
                                                                 class_='btn-info')),
@@ -168,10 +169,11 @@ def diet_ui():
 def diet_server(input: Inputs, output: Outputs, session: Session, 
                 NASEM_out, 
                 animal_input_dict, 
-                equation_selection,
+                # equation_selection,
                 animal_input_reactives,
                 user_selected_feed_library,
-                user_selected_feeds):
+                user_selected_feeds,
+                session_upload_ModOut):
     
     #######################################################
     # Feed Inputs
@@ -205,6 +207,7 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
         This is executed by the reactive event below, and keeps track of new UI 
         created so that the feed name and kg can be used meaningfully in app.
         '''
+        reset_flag.set(False)
         current_iter =  str(len(user_feeds()) + 1)
 
         # copy, append and re-set items and percentages, to keep track of inputs
@@ -244,8 +247,8 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
         for i, feed in enumerate(feed_list):
             if i == 0:
                 ui.update_selectize(id = 'item_1', choices = unique_fd_list(), selected = feed)
-                ui.update_numeric(id = 'kg_1', value = 0)
-                ui.update_numeric(id = 'perc_1', value = 0)
+                ui.update_numeric(id = 'kg_1', value = 0, min=0)
+                ui.update_numeric(id = 'perc_1', value = 0, min=0)
             else:
                 feed_selected.set(feed) # type: ignore
                 kg_selected.set(0)
@@ -257,7 +260,8 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
         kg_selected.set(0)
         perc_selected.set(0)
 
-
+    # starts as True because first row is never removed. is set to False for iterate new ingredient
+    reset_flag = reactive.value(True)
 
     @reactive.Effect
     @reactive.event(input.btn_reset_feeds)
@@ -279,13 +283,14 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
 
         # Update initial UI elements:
         ui.update_selectize(id = 'item_1', choices=unique_fd_list())
-        ui.update_numeric(id = 'kg_1', value = 0)
+        ui.update_numeric(id = 'kg_1', value = 0, min=0)
 
         # add demo button back:
-        if input.add_demo_diet() > 0 or input.add_assignment_diet() > 0:
+        if input.add_demo_diet() > 0:
             await session.send_custom_message("toggleUIHandler", {
                     "UIObjectId": session.ns("add_demo_diet"), "action" : "enable"
                 })
+        reset_flag.set(True)
 
 
     @reactive.Calc
@@ -297,8 +302,13 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
         items = [getattr(input, x) for x in user_feeds()]
         kg = [getattr(input, x) for x in user_kgs()]
 
-        tmp_user_diet = pd.DataFrame({'Feedstuff': [str(x()) for x in items],
-                                      'kg_user': [float(x()) for x in kg]})
+        # Safely convert items to strings, handling None types
+        feedstuff = [str(x()) if x() is not None else '' for x in items]
+        # Safely convert kg to floats, handling None types
+        kg_user = [float(x()) if x() is not None else 0.0 for x in kg]
+
+        tmp_user_diet = pd.DataFrame({'Feedstuff': feedstuff, 
+                                      'kg_user': kg_user})
 
         tmp_user_diet['Feedstuff'] = tmp_user_diet['Feedstuff'].str.strip()
         tmp_user_diet['Index'] = tmp_user_diet['Feedstuff']
@@ -358,7 +368,7 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
     @reactive.event(input.add_demo_diet)
     async def _():
         ui.update_selectize(id='item_1', choices=unique_fd_list(), selected="Canola meal")
-        ui.update_numeric(id='kg_1', value=2.5)
+        ui.update_numeric(id='kg_1', value=2.5, min=0)
 
         demo_dict = {
             'Corn silage, typical': 7,
@@ -451,12 +461,12 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
         for kg_id, perc_id in zip(user_kgs(), user_percs()):
             kg_value = getattr(input, kg_id)()
 
-            if total_intake > 0:
+            if total_intake > 0 and kg_value is not None:
                 perc_value = (kg_value / total_intake) * 100
                 perc_value = float(f"{perc_value:.3g}") # 3 significant figures
             else:
                 perc_value = 0
-            ui.update_numeric(id=perc_id, value=perc_value)
+            ui.update_numeric(id=perc_id, value=perc_value, min=0)
 
     @reactive.effect
     async def _():
@@ -466,6 +476,82 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
             await session.send_custom_message("disableUIList", {
                     "UIObjectIds": perc_IDs
                 })
+            
+    ########################################
+    # reset diet and reload from usr session
+    ########################################
+   
+    
+    # @reactive.effect
+    # @reactive.event(session_upload_ModOut )
+    # def _():
+    #     # get number of UI elements
+    #     current_iter =  len(user_feeds())+1
+        
+    #     # remove UI elements
+    #     [remove_ingredient(i) for i in range(2,current_iter)]
+
+    #     # reset reactive values to store user selections
+    #     user_feeds.set(['item_1'])
+    #     user_kgs.set(['kg_1'])
+    #     user_percs.set(['perc_1'])
+
+    #     # Update initial UI elements:
+    #     ui.update_selectize(id = 'item_1', choices=unique_fd_list())
+    #     ui.update_numeric(id = 'kg_1', value = 0, min=0)
+
+    #     reset_flag.set(True)
+
+
+        
+
+    @reactive.effect
+    @reactive.event(session_upload_ModOut)
+    def _():
+        '''If usr uploads pickle session file, replace diet from previous session. '''
+
+        if reset_flag() == False:
+            m = ui.modal(
+                ui.p('Feeds already entered in Diet. Please reset before uploading .NDsession.'),
+                title='Diet warning',
+                easy_close=True,
+            )
+            ui.modal_show(m)
+
+        elif session_upload_ModOut() is not None and isinstance(session_upload_ModOut(), nd.ModelOutput):
+
+
+            # # disable demo diet:
+
+
+
+            # # re-populate diet
+            user_diet = session_upload_ModOut().get_value('user_diet')
+            print(user_diet)
+
+            # Handle the first entry manually
+            first_entry = user_diet.iloc[0]
+            ui.update_selectize(id='item_1', choices=unique_fd_list(), selected=first_entry['Feedstuff'])
+            ui.update_numeric(id='kg_1', value=first_entry['kg_user'], min=0)
+
+            print(f'test: {user_feeds()}')
+            # Iterate over the remaining entries
+            for index, row in user_diet.iloc[1:].iterrows():
+                print(user_feeds())
+                feed_selected.set(row['Feedstuff'])
+                kg_selected.set(row['kg_user'])
+                perc_selected.set(0)
+                iterate_new_ingredient()
+            print('done')
+
+            # reset helpers before finishing
+            feed_selected.set(None)
+            kg_selected.set(0)
+            perc_selected.set(0)
+            
+        else:
+            #not sure if this is possible
+            print('no .NDsession diet')
 
 
 
