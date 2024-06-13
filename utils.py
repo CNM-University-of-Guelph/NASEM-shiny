@@ -7,10 +7,10 @@ from pathlib import Path
 
 # load data required
 app_dir = Path(__file__).parent
-var_desc = pd.read_csv(app_dir / "variable_descriptions.csv").query("Description != 'Duplicate'")
+var_desc = pd.read_csv(app_dir / "www/variable_descriptions.csv").query("Description != 'Duplicate'")
 
 # Load global resources
-feed_library_default = pd.read_csv(app_dir / 'NASEM_feed_library.csv').sort_values("Fd_Name")
+feed_library_default = pd.read_csv(app_dir / 'www/FeedLibrary/NASEM_feed_library.csv').sort_values("Fd_Name")
 
 # Display results, temporary
 def display_diet_values(model_output = nd.ModelOutput, is_snapshot = False):

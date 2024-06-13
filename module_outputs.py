@@ -7,82 +7,94 @@ import io
 import pickle
 from datetime import datetime
 
-from utils import display_diet_values, get_vars_as_df, validate_equation_selections, prepare_df_render
+from utils import display_diet_values, get_vars_as_df, get_clean_vars, prepare_df_render
 from generate_report import generate_report
 
 
 @module.ui
 def outputs_ui():
     return ([ 
-        # ui.navset_tab( 
-            # ui.nav_panel(
-            #     "Outputs",
-                ui.panel_title("NASEM Model Outputs"),
-                ui.row(
-                    ui.column(3, ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes."))),
-                    ui.column(2, ui.download_button("btn_download_report", "Download Report", class_='btn-warning'), offset=1),
-                    ui.column(3, ui.download_button("btn_pkl_download", "Download .NDsession file", class_='btn-warning'))
+        ui.panel_title("NASEM Model Outputs"),
+        ui.row(
+            ui.column(3, ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes."))),
+            ui.column(2, ui.download_button("btn_download_report", "Download Report", class_='btn-warning'), offset=1),
+            ui.column(3, ui.download_button("btn_pkl_download", "Download .NDsession file", class_='btn-warning'))
+        ),
+        ui.navset_card_tab(
+            ui.nav_panel(
+                'Model Evaluation',
+                ui.div(
+                    {"class": "left-align-container" },
+                    ui.h5('Milk production estimates:'),
+                    ui.output_data_frame('key_model_data_milk',),
+                    ui.br(),
+                    ui.h5('Milk production allowed (kg/d) from available NE or MP:'),
+                    ui.output_data_frame('key_model_data_allowable_milk'),
+                    ui.br(),
+                    ui.h5('Metabolisable energy balance:'),
+                    ui.output_data_frame('key_model_data_ME'),
+                    ui.br(),
+                    ui.h5('Metabolisable protein balance:'),
+                    ui.output_data_frame('key_model_data_MP'),
+                    ui.br(),
+                )
+                
+            ),
+            ui.nav_panel(
+                'Diet Analysis',
+                ui.h5('Diet summary:'),
+                ui.output_data_frame('diet_summary_model'),
+                ui.br(),
+                ui.h5('NEL:'),
+                ui.output_data_frame('key_model_data_NEL'),
+                ui.br(),
+                ui.h5('DCAD:'),
+                ui.output_data_frame('key_model_data_DCAD'),
+                ui.br(),
+                ui.h5("Ration ingredients:"),
+                ui.output_data_frame('user_diet'),
+            ),
+            ui.nav_panel(
+                'Vitamins and Minerals',
+                ui.h6('Macro Minerals'),
+                ui.output_data_frame('macro_minerals'),
+                ui.br(),
+                ui.h6("Micro Minerals"),
+                ui.output_data_frame('micro_minerals')
+            ),
+            ui.nav_panel(
+                "Energy - teaching",
+                ui.output_data_frame('key_model_data_energy_teaching')
+            ),
+            ui.nav_panel(
+                'Advanced',
+                ui.br(),
+                ui.h4('extended output'),
+                ui.output_data_frame('diet_info'),
+                ui.h4("Confirm Model inputs:"),
+                ui.output_data_frame('animal_input_table_comparison'),
+                ui.p("Equation Selections:"),
+                ui.output_data_frame('equation_selection_table'),
+            ),
+            ui.nav_panel(
+                'Search Output',
+                ui.card(
+                    ui.card_header('Search ModelOutput:'),
+                    ui.span(
+                        ui.input_text('ModOut_search', label='Search term:', value='Mlk', placeholder=True), 
+                        style='margin:0 auto'),
+                    ui.output_data_frame('ModOut_search_return'),
+                    full_screen=True
                 ),
-                ui.navset_card_tab(
-                    ui.nav_panel(
-                        'Model Evaluation',
-                        ui.div(
-                            {"class": "left-align-container" },
-                            ui.h5('Milk production estimates:'),
-                            ui.output_data_frame('key_model_data_milk',),
-                            ui.br(),
-                            ui.h5('Milk production allowed (kg/d) from available NE or MP:'),
-                            ui.output_data_frame('key_model_data_allowable_milk'),
-                            ui.br(),
-                            ui.h5('Metabolisable energy balance:'),
-                            ui.output_data_frame('key_model_data_ME'),
-                            ui.br(),
-                            ui.h5('Metabolisable protein balance:'),
-                            ui.output_data_frame('key_model_data_MP'),
-                            ui.br(),
-                        )
-                      
-                    ),
-                    ui.nav_panel(
-                        'Diet Analysis',
-                        ui.h5('Diet summary:'),
-                        ui.output_data_frame('diet_summary_model'),
-                        ui.br(),
-                        ui.h5('NEL:'),
-                        ui.output_data_frame('key_model_data_NEL'),
-                        ui.br(),
-                        ui.h5('DCAD:'),
-                        ui.output_data_frame('key_model_data_DCAD'),
-                        ui.br(),
-                        ui.h5("Ration ingredients:"),
-                        ui.output_data_frame('user_diet'),
-                    ),
-                    ui.nav_panel(
-                        'Vitamins and Minerals',
-                        ui.h6('Macro Minerals'),
-                        ui.output_data_frame('macro_minerals'),
-                        ui.br(),
-                        ui.h6("Micro Minerals"),
-                        ui.output_data_frame('micro_minerals')
-                    ),
-                    ui.nav_panel(
-                        "Energy - teaching",
-                        ui.output_data_frame('key_model_data_energy_teaching')
-                    ),
-                    ui.nav_panel(
-                        'Advanced',
-                        ui.br(),
-                        ui.h4('extended output'),
-                        ui.output_data_frame('diet_info'),
-                        ui.h4("Confirm Model inputs:"),
-                        ui.output_data_frame('animal_input_table_comparison'),
-                        ui.p("Equation Selections:"),
-                        ui.output_data_frame('equation_selection_table'),
-                    )
-                ),
-            # )
-        # )
+                ui.card(
+                    ui.card_header("Show all model output?"),
+                    ui.span(ui.input_switch("show_all_output", label='Show all model outputs?'),style='margin:0 auto'),
+                    ui.output_data_frame('ModOut_all'),
+                    full_screen=True
+                )
 
+            ),
+        ),
     ]) 
 
 @module.server
@@ -258,34 +270,36 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
             pickle.dump(output_dict, buf)
             yield buf.getvalue()
 
-
-    @reactive.Calc
-    def df_model_snapshot():
-        vars_return = ['Mlk_Prod_comp', 'MlkFat_Milk_p', 'MlkNP_Milk_p', 'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow', 'An_RDPbal_g', 'Du_MiCP_g']
-        new_var_names = {
-            'Mlk_Prod_comp': 'Milk Production (kg/d)',
-            'MlkFat_Milk_p': 'Milk Fat %',
-            'MlkNP_Milk_p': 'Milk Protein %',
-            'Mlk_Prod_MPalow': 'MP Allowable Milk Production (kg/d)',
-            'Mlk_Prod_NEalow': 'NE Allowable Milk Production (kg/d)',
-            'An_RDPbal_g': 'Animal RDP Balance (g)',
-            'Du_MiCP_g': 'Duodenal Microbial CP (g)'
-        }
-        df_out = get_vars_as_df(vars_return, NASEM_out()).assign(
-            Variable=lambda df: df['Model Variable'].map(new_var_names)
-        )
-        return df_out
-
-     
+    ################################
+    # Model Search
+    ################################
     @render.data_frame
-    def model_snapshot():
-        return df_model_snapshot()
-
-    @reactive.Calc
-    def df_model_snapshot_drycow():
-        vars_return = ['An_MEIn', 'Trg_MEuse', 'An_MEbal', 'An_MPIn_g', 'An_MPuse_g_Trg', 'An_MPBal_g_Trg', 'An_RDPIn_g', 'Du_MiCP_g', 'An_RDPbal_g', 'An_DCADmeq']
-        return get_vars_as_df(vars_return, NASEM_out())
-
+    def ModOut_search_return():
+        req(NASEM_out())
+        if len(input.ModOut_search()) == 0:
+            return pd.DataFrame({})
+        else:
+            df = NASEM_out().search(input.ModOut_search())
+            if df.empty:
+                return pd.DataFrame({})
+            else:
+                return render.DataGrid(df, summary=False, filters=True)
+        
     @render.data_frame
-    def model_snapshot_drycow():
-        return df_model_snapshot_drycow()
+    def ModOut_all():
+        req(NASEM_out())
+        
+        if input.show_all_output():
+             # Function to filter the dictionary to keep only numerical values
+            def filter_dict(data):
+                return {k: v for k, v in data.items() if isinstance(v, (int, float))}
+
+            # Filter the dictionary
+            filtered_data = get_clean_vars(filter_dict(NASEM_out().export_to_dict()))
+
+
+            # Convert the filtered dictionary to a DataFrame
+            df = pd.DataFrame.from_dict(filtered_data, orient="index", columns=['Value']).reset_index(names="Name")
+            return render.DataGrid(df, summary=False, filters=True)
+
+    
