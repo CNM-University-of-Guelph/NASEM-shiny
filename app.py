@@ -33,10 +33,15 @@ from module_diet import diet_ui, diet_server
 ################################################################################
 
 app_ui = ui.page_navbar(
+
     ui.nav_panel(
         'Welcome',
         # shinyswatch.theme_picker_ui('cerulean'),
-        
+        ui.tags.script("""
+        document.getElementById('logo').onclick = function() {
+            Shiny.setInputValue('show_img_modal', Math.random());
+        }
+    """),
         ui.panel_title("Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)"),
         
         # NOTE: using include_js() and include_css() fails to load both.
@@ -59,12 +64,24 @@ app_ui = ui.page_navbar(
                     href = 'https://nap.nationalacademies.org/resource/25806/Installation_Instructions_NASEM_Dairy8.pdf'),
                     target = "_blank"
                 ),
-            ui.p("The latest version of the underlying code can be viewed ", 
-                 ui.a('on GitHub.',
-                       href = 'https://github.com/CNM-University-of-Guelph/NASEM-Model-Python',
-                       target = '_blank')
+            
+            ui.p(
+                "The source code for the latest python implementation of the model can be viewed ", 
+                ui.a('on GitHub',
+                        href = 'https://github.com/CNM-University-of-Guelph/NASEM-Model-Python',
+                        target = '_blank'
+                    ),    
+                icon_svg("github", margin_left='3px', height='1.2em'),
                 ),
-        x.ui.card_image('./absc_logo.png', height='120px', width = '300px', fill=False)
+
+            ui.p(
+                "The source code for this Shiny app (and instructions for running on local computer) can be viewed ", 
+                ui.a('on GitHub',
+                       href = 'https://github.com/CNM-University-of-Guelph/NASEM-shiny',
+                       target = '_blank'),
+                icon_svg("github", margin_left='3px', height='1.2em'),       
+                ),
+            ui.tags.img(src="absc_logo.png", style="height: 120px; width: auto;")
         )
         ), 
 
@@ -85,6 +102,7 @@ app_ui = ui.page_navbar(
             ), 
     ui.nav_spacer(), 
     ui.nav_control(ui.input_dark_mode()), 
+
     sidebar=
         ui.sidebar(
             ui.tooltip(
@@ -99,11 +117,15 @@ app_ui = ui.page_navbar(
             id = 'main_sidebar'
             ),
 
-    title= "NASEM for python",
+    # title= "NASEM for python",
+    title = ui.span(
+        ui.tags.img(src="logo2.webp", style="height: 40px; width: auto;"), 
+        style = 'display: inline-flex;',
+        id = 'logo'),
     # window_title= "NASEM dairy",
     id='navbar_id',
     inverse = False,
-    fillable=False
+    fillable=False,
 
 )
 
@@ -112,6 +134,16 @@ app_ui = ui.page_navbar(
 # Server
 
 def server(input, output, session):
+    @reactive.effect
+    @reactive.event(input.show_img_modal)
+    def show_img_modal():
+        m = ui.modal(
+            ui.tags.img(src="logo.webp", style="width: 100%;"),
+            ui.em("This app courtesy of Dave Innes, Braeden Fieguth and John Cant, University of Guelph."),
+            easyClose=True,
+            size='l'
+        )
+        ui.modal_show(m)
     # shinyswatch.theme_picker_server()
 
      #######################################################
@@ -123,7 +155,6 @@ def server(input, output, session):
         input[nav_diet_ns("DMI")]
         )   
     
-
     
     #######################################################
     # Feed library
@@ -135,7 +166,6 @@ def server(input, output, session):
         session_upload_library = usr_session_lib
         )
         
-    
 
     #######################################################################
     # Model execution
@@ -153,16 +183,10 @@ def server(input, output, session):
         # force 'target' DMI when running model:
         modified_equation_selection['DMIn_eqn'] = 0
 
-        # Force it to use predictions for mProt_eqn - the target protein equations are not well tested 
+        # Force it to use predictions for mPrt_eqn - the target protein equations are not well tested 
         modified_equation_selection['mPrt_eqn'] = 1
-        
+        modified_equation_selection['mFat_eqn'] = 1
         # modified_equation_selection['mProd_eqn'] = 1 Defaults to 'component based'
-
-        # 
-        # modified_equation_selection['mFat_eqn'] = 0
-        # modified_equation_selection['MiN_eqn'] = 1
-        # modified_equation_selection['NonMilkCP_ClfLiq']  = 0
-        # modified_equation_selection['RumDevDisc_Clf'] = 0
     
         model_output = nd.execute_model(
             user_diet(), 
