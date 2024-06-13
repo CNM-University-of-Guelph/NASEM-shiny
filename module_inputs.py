@@ -17,8 +17,8 @@ def animal_inputs_ui():
                     ui.tags.li("Select each tab to enter inputs for the model"),
                     ui.tags.li("These values represent the animal and the target milk production"),
                     ui.tags.li("These initial values help the model calculate 'requirements' for nutrients"),
-                    ui.tags.li("The output will also predict milk production, milk fat and milk protein based on other factors, including the diet"),
-                    ui.tags.li("Normally these numbers would represent the average value for a group of animals."),
+                    ui.tags.li("The model will also predict milk production (kg/d), milk fat (%) and milk protein (%) based on other factors (including the diet)"),
+                    # ui.tags.li("Normally these numbers would represent the average value for a group of animals."),
                     
                     style = htmltools.css(max_width='750px', margin='1rem auto')
                 ),

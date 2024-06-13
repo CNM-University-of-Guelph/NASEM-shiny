@@ -77,10 +77,18 @@ def diet_ui():
 
                 ui.layout_columns(
                     ui.span(
-                        ui.input_numeric("DMI", ui.span("Target dry matter intake (kg/d):",
-                                                         class_ = "callout-title2-black"), 
-                                                         25, 
-                                                         min=0),
+                        ui.input_numeric(
+                            "DMI", 
+                            ui.span(
+                                ui.span("Target dry matter intake (kg/d):", class_ = "callout-title2-black"),
+                                ui.tooltip(                               
+                                    icon_svg("circle-info", margin_left='10px', height='1em'), 
+                                    ui.em("This DM intake will be used throughout all model calculations. Predictions to left should guide what is entered here."),
+                                    placement = 'left',
+                                    ),
+                            style = 'display: inline-flex; align-items: center;'),
+                        25, 
+                        min=0),
                         class_ = "callout-inner callout-tip",
                         style=htmltools.css(padding_bottom='0px')
                     ),
@@ -102,8 +110,10 @@ def diet_ui():
             style = htmltools.css(margin_bottom='8px')
         ),
         ui.card(
-            ui.row(
-                ui.column(6,
+            # ui.row(
+            ui.layout_columns(
+                # ui.column(6,
+                ui.div(
                         ui.row(
                             ui.column(6, ui.h2("Formulate diet:")),
                             ui.column(6, ui.input_action_button("add_demo_diet", 
@@ -132,13 +142,14 @@ def diet_ui():
                                             value = 0))             
                             )
                         ),
-                        ui.row(
-                            ui.column(4, ui.input_action_button("add_button", "Add another feed", class_='btn-success')),
-                            ui.column(4, ui.input_action_button('btn_load_user_selected_feeds', 'Populate with selected feeds')),
-                            ui.column(4, ui.input_action_button("btn_reset_feeds", "Reset ingredients list"))
+                        ui.layout_column_wrap(
+                            ui.input_action_button("add_button", "Add another feed", class_='btn-success'),
+                            ui.input_action_button('btn_load_user_selected_feeds', 'Add feeds from sidebar', class_='btn-warning'),
+                            ui.input_action_button("btn_reset_feeds", "Reset feeds", class_ = 'btn-danger'),
                         ),
                 ),
-                ui.column(6,
+                # ui.column(6,
+                    ui.div(
                         ui.panel_well(
                              ui.span( 
                                     ui.h2("Model Outputs - Snapshot"),
@@ -158,10 +169,11 @@ def diet_ui():
                             ui.output_data_frame('model_snapshot')
                         ),
                         
-                )
+                ),
+                col_widths=(6,6)
             ),
             min_height='500px',
-            style = htmltools.css(__bs_card_spacer_y='0.5rem')
+            style = htmltools.css(__bs_card_spacer_y='0.5rem'),
         ),
     ]) 
 
@@ -411,20 +423,11 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
             vars_return = ['Mlk_Prod_comp','MlkFat_Milk_p', 'MlkNP_Milk_p', 
                            'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow', 'An_RDPbal_g', 
                            'Du_MiCP_g']
-                                
-            new_var_names = {
-                'Mlk_Prod_comp': 'Milk Production (kg/d)',
-                'MlkFat_Milk_p': 'Milk Fat %',
-                'MlkNP_Milk_p': 'Milk Protein %',
-                'Mlk_Prod_MPalow': 'MP Allowable Milk Production (kg/d)',
-                'Mlk_Prod_NEalow': 'NE Allowable Milk Production (kg/d)',
-                'An_RDPbal_g': 'Animal RDP Balance (g)',
-                'Du_MiCP_g': 'Duodenal Microbial CP (g) '
-            }
 
-            df_lac_snapshot = get_vars_as_df(vars_return, NASEM_out()).assign(
-                Variable = lambda df: df['Model Variable'].map(new_var_names)
-            )
+            df_lac_snapshot = (
+                get_vars_as_df(vars_return, NASEM_out())
+                .drop(columns='Model Variable')
+                .reindex(columns=['Description', 'Value']))
             return df_lac_snapshot
                
         elif animal_input_reactives()['An_StatePhys']() == 'Dry Cow':
@@ -432,7 +435,11 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
                            'An_MPuse_g_Trg', 'An_MPBal_g_Trg','An_RDPIn_g', 
                            'Du_MiCP_g','An_RDPbal_g', 'An_DCADmeq']
             
-            df_dry_snapshot = get_vars_as_df(vars_return, NASEM_out())
+            df_dry_snapshot = (
+                get_vars_as_df(vars_return, NASEM_out())
+                .drop(columns='Model Variable')
+                .reindex(columns=['Description', 'Value'])
+                )
             return df_dry_snapshot
         
         else:
@@ -441,7 +448,7 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
 
     @render.data_frame
     def model_snapshot():
-        return prepare_df_render(df_model_snapshot(), 10, 50, cols_longer=['Description'])
+        return prepare_df_render(df_model_snapshot(), 10, 90, cols_longer=['Description'])
 
 
     @render.data_frame
