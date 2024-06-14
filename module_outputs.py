@@ -295,7 +295,10 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
                 return {k: v for k, v in data.items() if isinstance(v, (int, float))}
 
             # Filter the dictionary
-            filtered_data = get_clean_vars(filter_dict(NASEM_out().export_to_dict()))
+            filtered_dict = filter_dict(NASEM_out().export_to_dict())
+    
+            filtered_data = {var: get_clean_vars(var, NASEM_out()) for var in filtered_dict}
+            
 
 
             # Convert the filtered dictionary to a DataFrame

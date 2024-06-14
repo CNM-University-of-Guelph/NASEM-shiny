@@ -139,7 +139,7 @@ def server(input, output, session):
     def show_img_modal():
         m = ui.modal(
             ui.tags.img(src="logo.webp", style="width: 100%;"),
-            ui.em("This app courtesy of Dave Innes, Braeden Fieguth and John Cant, University of Guelph."),
+            ui.em("Dave Innes, Braeden Fieguth and John Cant, University of Guelph."),
             easyClose=True,
             size='l'
         )
