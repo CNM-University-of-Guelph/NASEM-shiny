@@ -1,0 +1,220 @@
+---
+title: "Modern Publishing Tools for Modern Science"
+subtitle: "An open-source web app of the 2021 Nutrient Requirements of Dairy Cattle"
+author: "Dave J. Innes, Braeden G. Fieguth & John P. Cant"
+institute: "Centre for Nutrition Modelling, Department of Animal Biosciences, University of Guelph, Canada"
+incremental: true
+format: 
+  html: 
+    toc: false
+  revealjs: 
+    output-file: ADSA_presentation-revealjs.html
+    theme: simple
+  pptx: 
+    output-file: ADSA_presentation-powerpoint.pptx
+    reference-doc: DI_template.pptx
+---
+
+::: {.content-visible when-format="html" unless-format="revealjs"}
+::: callout-note
+This presentation was presented by Dave Innes at ADSA June 2024, West Palm Beach, Florida. Part of this presentation was to demonstrate that the same 'Quarto' file (`.qmd`) can be rendered into multiple formats. Use the links under 'Other Formats' (right-hand side menu) to view the presentation in a RevealJS (`.html` that will open in web browser) or download the Powerpoint (`.pptx`) file (because I had to for the conference!).
+
+The source code for this file is available here: ____
+:::
+:::
+
+# Interesting Intro slide
+
+
+## Intro to Quarto
+
+
+-   Unified authoring framework
+-   Flat text files (based on Pandoc markdown)
+-   Easy to read and write
+-   Can also execute code directly (supports R, Python, Julia, Observable)
+-   Encourages reproducible analysis
+
+
+![](media/quarto_get_started.png){width="270" height="150"}
+
+## Render to many formats
+
+
+-   Articles & Reports
+-   Dashboards
+-   Websites
+-   Books
+-   Presentations (RevealJS \[html\], Beamer \[LaTeX/PDF\] or PowerPoint as \[pptx\])
+
+
+## The source code of this presentation...
+![Source code - a .qmd file](media/presentation_source.png){height='500'}
+
+
+## ...rendered to multiple formats
+
+Update with newer version ![The same base quarto file with multiple formats rendered at same time.](media/format_comparison.png){height='600'}
+
+
+## See for yourself...
+
+QR code
+
+## Interactivity
+
+-   add interactive app
+-   screenshot for PowerPoint
+
+## Advanced Web Applications with Shiny
+- More advanced than Quarto 
+- Originally only available in R, but now Python too!
+- Great for simple interactive dashboards...
+- ... and is scalable as complex software
+
+
+# Why develop a Shiny version of NASEM 2021 Model?
+
+## NASEM in Python
+```{python}
+#| echo: false
+import nasem_dairy as nd
+import pandas as pd
+# use package dir to always use /data folder regardless of where this is executed from
+from importlib.resources import files
+
+path_to_package_data = files("nasem_dairy.data")
+
+# Read_csv to load required data into env
+user_diet_in, animal_input_in, equation_selection_in = nd.read_csv_input(
+  path_to_package_data.joinpath("input.csv"))
+
+# Load feed library
+feed_library_in = pd.read_csv(
+  path_to_package_data.joinpath("NASEM_feed_library.csv"))
+```
+
+::: {.content-visible when-format="html" unless-format="revealjs"}
+- As simple as:
+```{python }
+#| warning: false
+import nasem_dairy as nd
+
+# Inputs loaded from CSV files
+## RUN MODEL 
+output = nd.execute_model(
+    user_diet = user_diet_in, 
+    animal_input = animal_input_in, 
+    equation_selection = equation_selection_in, 
+    feed_library_df = feed_library_in)
+
+output
+```
+:::
+
+
+::: {.content-visible when-format="revealjs"}
+```{python }
+#| warning: false
+#| code-overflow: scroll
+#| output-location: slide
+import nasem_dairy as nd
+
+# Inputs loaded from CSV files
+## RUN MODEL 
+output = nd.execute_model(
+    user_diet = user_diet_in, 
+    animal_input = animal_input_in, 
+    equation_selection = equation_selection_in, 
+    feed_library_df = feed_library_in)
+
+output
+```
+:::
+
+## Open-source, tracked and collaborative
+[Our group's GitHub page](https://github.com/CNM-University-of-Guelph)
+
+
+## Fourth year Dairy Cattle Nutrition class
+- 45 undergraduate students
+- Mixed background: ~20% had dairy farm experience
+- Mostly pre-veterinary degree
+
+**pics*
+
+## How to teach ration balancing?
+- Challenges:
+    - Want to teach latest model (NASEM 2021)
+    - Excel sheet used in the past
+    - Software with book:
+       - Complicated for begginers
+       - Only works on Windows
+    - Commercial/industry software:
+      - Expensive
+      - Hard to access
+      - Even more complex 
+
+## So we built our own!
+- Web based app 
+- Works on all computers (and mobile phones)
+- Simplified user experience
+
+*QR Code & Link*
+
+## Video Walk Through
+video
+
+
+## Assignment 1 - early semester
+-   Pre-loaded scenarios with a clear error
+-   Demonstrations in workshops
+-   Assignment sheet with steps and screen recordings Objective:
+    -   Get the feel of adding/removing ingredients
+    -   Find meaningful outputs in the app
+    -   Fix a basic problem
+
+## Example Video
+- How to set up a simulation & load
+
+## Assignment 2 - mid semester
+- Introduce Dry vs Lactating Cow
+- Reading farm forage analyses
+- Adding new ingredients 
+- Formulating full diets
+
+## Case Study Assignment
+-  Visit farm, take feed samples, formulate new rations
+
+## Initial feedback
+- Early versions couldn't save sessions
+- Student's needed multiple ways to learn it - videos, step-by-step instructions, classroom demo
+- The app is simplified, but the content is still hard
+- Students suprised how hard it was to formulate a ration for a very high producing dairy herd
+  - (It's a weakness of the model, not the students!)
+
+## How to use & contribute?
+- Open Source - NASEM model & the Shiny App
+- GitHub - log 'Issues' as a user - even if no experience with code
+- Read the docs - running on own computer or re-deploying custom versions is relatively simple
+
+## Conclusions
+- Quarto is an example of how future publishing can look
+- Shiny has potential to modernise teaching and reserearch communication
+- We need to encourage our societies and organising commities to allow these tools to be used in meetings
+- Collectively sharing resources via an open-source platform will accellerate model improvement
+  - feedback wanted
+
+
+
+## Columns
+
+::: columns
+::: {.column width="40%"}
+contents...
+:::
+
+::: {.column width="60%"}
+-   text
+:::
+:::

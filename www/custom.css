@@ -1,0 +1,79 @@
+/* Override the main window padding to be smaller to save space on each tab */
+:root {
+    --bslib-spacer: 0.5rem !important;
+}
+
+/* This is an alternative to using js disable. Makes a numeric output look like a disabled form. */
+.form-control-disabled {
+    /* background-color: #d8fefe;   */
+    /* color: #6c757d;  A muted text color */
+    cursor: not-allowed;  /* Change cursor to indicate non-interactive */
+    opacity: 0.85;  
+    pointer-events: none;  /* Disable all pointer events */
+}
+
+/* Common callout styles */
+.callout {
+    padding: 0.7rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    border-width: 1px;
+    border-style: solid;
+}
+
+/* For inside another callout, smaller margins, etc */
+.callout-inner {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    /* margin-bottom: 1rem; */
+    border-width: 1px;
+    border-style: solid;
+}
+
+.callout-title {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 0.5rem;
+}
+
+.callout-title2-black {
+    font-weight: bold;
+    color: black;
+    margin-bottom: 0.5rem;
+}
+
+/* Note callout */
+.callout-note {
+    background-color: #e7f3fe;
+    border-color: #b3d4fc;
+    color: #084298;
+}
+
+/* Tip callout */
+.callout-tip {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+/* Important callout */
+.callout-important {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+/* Caution callout */
+.callout-caution {
+    background-color: #fff8e1;
+    border-color: #ffecb5;
+    color: #8a6d3b;
+}
+
+/* Warning callout */
+.callout-warning {
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+    color: #842029;
+}
+
