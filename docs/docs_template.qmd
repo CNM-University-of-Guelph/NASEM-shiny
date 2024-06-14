@@ -1,0 +1,66 @@
+---
+title: "Your Presentation Title"
+author: "Your Name"
+date: "2024-06-11"
+format:
+  html:
+    toc: true
+    # reference-doc: ./dev/Presentation2.pptx
+---
+
+## Title
+
+Title
+
+## QR code
+
+
+## Intro publishing tools from code
+
+:::: {.columns}
+
+::: {.column width="40%"}
+contents...
+:::
+
+::: {.column width="60%"}
+- Many users of R and Python
+- Reproducible
+- Can be open-sourced
+- Easily transferable e.g. analysis -> website -> powerpoint
+- accesible - no proprietry software needed
+- largely browser based
+- simple to host
+:::
+
+::::
+
+## Examples - quarto website & shiny
+
+- shiny (python and R)
+- quarto (many languages + markdown) -> to multiple formats
+- I could have interactive graphs in my presentation, but have resorted to screen recordings to show you
+- Let's push our societies and organising commities to allow and encourage these tools
+
+## Perfect opportunity for teaching
+- we use in research already
+
+- have been developing code for nutrient requirements of dairy cattle (Braeden)
+- at same time, I was asked to teach the 4th year dairy nutrition course at Guelph
+- Problems:
+    - software with book is complicated for begginers
+    - only works on windows
+    - commercial/industry software are hard to access and even more complicated
+
+
+## The app
+- how to use
+- updates based on student feedback
+
+## How we taught with it
+- example assignment
+- load scenarios
+
+
+
+

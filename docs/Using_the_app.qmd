@@ -1,0 +1,10 @@
+---
+title: "Using the app"
+resources:
+  - "media/screen_recording_reencoded.mp4"
+---
+
+{{< video src="media/screen_recording_reencoded.mp4" type="video/mp4">}}
+
+
+
