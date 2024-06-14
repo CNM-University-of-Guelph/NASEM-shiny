@@ -9,6 +9,8 @@ from pathlib import Path
 import shinyswatch
 # import pdb #like browser()
 
+from version import __version__
+
 from faicons import icon_svg
 
 # Grid Table, has edits and row/column/cell selection - see: https://github.com/bloomberg/ipydatagrid/blob/main/examples/Selections.ipynb
@@ -19,8 +21,6 @@ from faicons import icon_svg
 import nasem_dairy as nd
 
 from utils import (feed_library_default)
-
-
 # modules
 from module_feed_library import feed_library_ui, feed_library_server
 from module_inputs import animal_inputs_ui, animal_inputs_server
@@ -101,6 +101,7 @@ app_ui = ui.page_navbar(
             outputs_ui('nav_outputs')
             ), 
     ui.nav_spacer(), 
+    ui.nav_control(f"version: {__version__}"),
     ui.nav_control(ui.input_dark_mode()), 
 
     sidebar=
