@@ -265,12 +265,18 @@ Note
 <h2 class="anchored" data-anchor-id="rendered-to-multiple-formats">Rendered to multiple formats</h2>
 <p><img src="media/format_comparison.png" height="600"></p>
 </section>
-<section id="interactivity" class="level2 page-columns page-full">
+<section id="view-this-presentation-in-other-formats" class="level2">
+<h2 class="anchored" data-anchor-id="view-this-presentation-in-other-formats">View this presentation in other formats:</h2>
+<p><a href="https://cnm-university-of-guelph.github.io/NASEM-shiny/ADSA_presentation.html" class="uri">https://cnm-university-of-guelph.github.io/NASEM-shiny/ADSA_presentation.html</a></p>
+<p><img src="media/qrcode_cnm-university-of-guelph-presentation.png" class="img-fluid"></p>
+</section>
+<section id="interactivity" class="level2 smaller page-columns page-full">
 <h2 class="anchored" data-anchor-id="interactivity">Interactivity</h2>
 <div class="column-screen-inset">
 <pre class="shinylive-python" data-engine="python"><code>#| standalone: true
-#| viewerHeight: 800
+#| viewerHeight: 500
 #| components: [editor, viewer]
+#| code-overflow: scroll
 
 ## file: app.py
 from shiny import reactive, req
@@ -435,6 +441,7 @@ def plot_dairy_repro_timeline(
 <h1>Why develop a Shiny version of NASEM 2021 Model?</h1>
 <section id="nasem-in-python" class="level2 smaller">
 <h2 class="anchored" data-anchor-id="nasem-in-python">NASEM in Python</h2>
+<p>Thanks to Braeden Fieguth!</p>
 <div class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nasem_dairy <span class="im">as</span> nd</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -645,34 +652,26 @@ def plot_dairy_repro_timeline(
 </figure>
 </div>
 </section>
-<section id="assignment-1---early-semester" class="level2">
-<h2 class="anchored" data-anchor-id="assignment-1---early-semester">Assignment 1 - early semester</h2>
+<section id="assignments" class="level2">
+<h2 class="anchored" data-anchor-id="assignments">Assignments</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Early Semester</strong></p>
 <ul class="incremental">
 <li>Assignment sheet with steps and screen recordings</li>
 <li>Demonstrations in workshops</li>
 <li>Pre-loaded scenarios with a clear mistake</li>
-<li>Objective:
-<ul class="incremental">
-<li>Get the feel of adding/removing ingredients</li>
-<li>Find meaningful outputs in the app</li>
-<li>Fix a basic problem</li>
-</ul></li>
 </ul>
-</section>
-<section id="example-video" class="level2">
-<h2 class="anchored" data-anchor-id="example-video">Example Video</h2>
-<ul class="incremental">
-<li>How to set up a simulation &amp; load</li>
-</ul>
-</section>
-<section id="assignment-2---mid-semester" class="level2">
-<h2 class="anchored" data-anchor-id="assignment-2---mid-semester">Assignment 2 - mid semester</h2>
+</div><div class="column" style="width:50%;">
+<p><strong>Mid Semester</strong></p>
 <ul class="incremental">
 <li>Introduce Dry vs Lactating Cow</li>
 <li>Read and interpret farm forage analyses</li>
-<li>Adding new ingredients to app</li>
+<li>Adding forages as new ingredients</li>
 <li>Formulating full diets</li>
 </ul>
+</div>
+</div>
 </section>
 <section id="case-study-assignment" class="level2">
 <h2 class="anchored" data-anchor-id="case-study-assignment">Case Study Assignment</h2>
@@ -683,20 +682,11 @@ def plot_dairy_repro_timeline(
 <ul class="incremental">
 <li>Early versions couldn’t save sessions</li>
 <li>Student’s needed multiple ways to learn it - videos, step-by-step instructions, classroom demo</li>
-<li>The app is simplified, but the content was still difficult</li>
-<li>Students surprised how hard it was to formulate a ration for a very high producing dairy herd
-<ul class="incremental">
-<li>(It’s a limitation of the model, not the students!)</li>
-</ul></li>
+<li>They appreciated the user experience and not having to install anything</li>
 </ul>
 </section>
 <section id="how-to-use-contribute" class="level2">
 <h2 class="anchored" data-anchor-id="how-to-use-contribute">How to use &amp; contribute?</h2>
-<ul class="incremental">
-<li>Open Source - NASEM model &amp; the Shiny App</li>
-<li>GitHub - log ‘Issues’ as a user - even if no experience with code</li>
-<li>Read the docs - running on own computer or re-deploying custom versions is relatively simple</li>
-</ul>
 <p><img src="media/github-Issues.png" class="img-fluid"></p>
 </section>
 <section id="conclusions" class="level2">
@@ -710,6 +700,10 @@ def plot_dairy_repro_timeline(
 <li>feedback wanted</li>
 </ul></li>
 </ul>
+</section>
+<section id="thank-you" class="level2">
+<h2 class="anchored" data-anchor-id="thank-you">Thank you!</h2>
+<p><img src="media/shiny-5-diet.png" class="img-fluid"></p>
 
 
 </section>
