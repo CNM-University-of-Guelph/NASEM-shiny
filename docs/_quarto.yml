@@ -18,6 +18,8 @@ format:
     theme: cosmo
     css: css/styles.css
     toc: true
+    link-external-icon: true
+    link-external-newwindow: true
 
 
 
