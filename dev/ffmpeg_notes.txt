@@ -1,0 +1,3 @@
+Terminal tool to re-encode videos for smaller size:
+
+ffmpeg -i screen_recording_old.mp4 -c:v libx264 -preset slow -crf 22 -c:a screen_recording_reencoded.mp4

@@ -1,0 +1,25 @@
+project:
+  type: website
+
+website:
+  title: "NASEM Shiny Docs"
+
+  navbar:
+    left:
+      - href: index.qmd
+        text: Getting Started
+      - Using_the_app.qmd
+      - Developer_Notes.qmd
+      - href: ADSA_presentation.qmd
+        text: ADSA Presentation
+
+format:
+  html:
+    theme: cosmo
+    css: css/styles.css
+    toc: true
+    link-external-icon: true
+    link-external-newwindow: true
+
+
+

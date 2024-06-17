@@ -1,0 +1,420 @@
+---
+title: "Modern Publishing Tools for Modern Science"
+subtitle: "An open-source web app of the 2021 Nutrient Requirements of Dairy Cattle"
+author: "Dave J. Innes, Braeden G. Fieguth & John P. Cant"
+institute: "Centre for Nutrition Modelling, Department of Animal Biosciences, University of Guelph, Canada"
+incremental: true
+format: 
+  html: 
+    toc: false
+    link-external-icon: true
+    link-external-newwindow: true
+  revealjs: 
+    output-file: ADSA_presentation-revealjs.html
+    theme: [simple, css/styles.scss]
+  pptx: 
+    output-file: ADSA_presentation-powerpoint.pptx
+    reference-doc: DI_template.pptx
+filters:
+  - shinylive
+---
+
+::: {.content-visible when-format="html" unless-format="revealjs"}
+::: callout-note
+This was presented by Dave Innes at ADSA June 2024, West Palm Beach, Florida. Part of this presentation was to demonstrate that the same 'Quarto' file (`.qmd`) can be rendered into multiple formats. Use the links under 'Other Formats' (right-hand side menu) to view the presentation in a RevealJS (`.html` that will open in web browser) or download the Powerpoint (`.pptx`) file (because I had to for the conference!).
+
+The source code is available here: <https://github.com/CNM-University-of-Guelph/NASEM-shiny/tree/main/docs>
+:::
+:::
+
+# 
+
+![](media/future_dairy_nutrition.webp)
+
+
+## Intro to Quarto
+
+-   Unified authoring framework
+-   Flat text files (based on Pandoc markdown)
+-   Easy to read and write
+-   Can also execute code directly (supports R, Python, Julia, Observable)
+-   Encourages reproducible analysis
+
+![](media/quarto_languages.png)
+
+## Render to many formats
+
+| **Category**      | **Formats**                                                                                                                                                                |
+|------------------|------------------------------------------------------|
+| **Documents**     | HTML, PDF, MS Word, OpenOffice, ePub                                                                                                                                       |
+| **Presentations** | Reveal.js, PowerPoint, Beamer                                                                                                                                              |
+| **Markdown**      | GitHub, CommonMark, Hugo, Docusaurus                                                                                                                                       |
+| **Wikis**         | MediaWiki, DokuWiki, ZimWiki, Jira Wiki, XWiki                                                                                                                             |
+| **More**          | JATS, Jupyter, ConTeXt, RTF, reST, AsciiDoc, Org-Mode, Muse, Texinfo, Groff Man Page, Groff Manuscript, Haddock, OPML, Textile, DocBook, InDesign, TEI Simple, FictionBook |
+
+## The source code of this presentation
+
+![Visual editor for a .qmd file](media/visual-editor.png){height="500"}
+
+## Rendered to multiple formats
+
+![](media/format_comparison.png){height="600"}
+
+## Interactivity
+
+::: column-screen-inset
+::: {.content-visible when-format="html"}
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+
+## file: app.py
+from shiny import reactive, req
+from shiny.express import input, render, ui
+from shinywidgets import output_widget, render_widget
+
+from functions import plot_dairy_repro_timeline
+
+ui.input_numeric('days_dry', 'Dry period (d)', 60, min = 1)
+ui.input_numeric('days_VWP', 'Voluntary wait period (VWP, d)', 60, min = 1)
+ui.input_numeric('days_gest', 'Gestation length (d)', 280, min = 1)
+ui.input_numeric('days_open', 'Days open (calving-to-conception)', 85, min = 1)
+   
+@reactive.Calc
+def calc_plot():
+        return plot_dairy_repro_timeline(
+            VWP_d=input.days_VWP(),
+            calving_to_conception_DIM=input.days_open(),
+            gestation_length_d=input.days_gest(),
+            dry_period_length_d=input.days_dry())
+
+@render_widget
+def plot():
+    return calc_plot()['plot']
+    
+@render.text
+def lactation_length():
+    return calc_plot()['lac_length']
+
+@render.text
+def calve_interval():
+    return calc_plot()['calving_interval']
+
+## file: functions.py
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+
+
+def plot_dairy_repro_timeline(
+        VWP_d = 60,
+        dry_period_length_d = 60,
+        gestation_length_d = 280,
+        # calving_interval = 365,
+        calving_to_conception_DIM = 85
+        ):
+    
+    breeding_period_d = calving_to_conception_DIM  - VWP_d
+
+    breeding_period_start_DIM = calving_to_conception_DIM - breeding_period_d
+
+    gestation_end_DIM = calving_to_conception_DIM  + gestation_length_d #365
+
+    lactation_length_d = gestation_end_DIM - dry_period_length_d #305
+
+
+    if gestation_end_DIM < 500:
+        xmax = 500
+    else:
+        xmax = gestation_end_DIM + 10
+    
+    df_data = [
+        {
+            'x_start': 0,
+            'x_end': lactation_length_d,
+            'y': 'Lactation'
+        },
+        {
+            'x_start': lactation_length_d,
+            'x_end': gestation_end_DIM,
+            'y': 'Dry period'
+        },
+        {
+            'x_start': breeding_period_start_DIM,
+            'x_end': calving_to_conception_DIM,
+            'y': 'Breeding period'
+        },
+        {
+            'x_start': 0,
+            'x_end': VWP_d,
+            'y': 'VWP'
+        },
+        {
+            'x_start': calving_to_conception_DIM ,
+            'x_end': gestation_end_DIM,
+            'y': 'Gestation period'
+        },
+                {
+            'x_start': 0,
+            'x_end': calving_to_conception_DIM,
+            'y': 'Days open'
+        },
+    ]
+
+
+    plot_data = pd.DataFrame(df_data).assign(
+        Days = lambda df: df.x_end - df.x_start,
+        Days_2 = lambda df: df.Days.astype('string') + ' d'
+    )
+    
+    fig = (
+        px.bar(
+            plot_data, 
+            base = "x_start",
+            x = "Days",
+            y = "y",
+            color = 'y',
+            orientation = 'h',
+            text = "Days_2",
+            category_orders = {'y':[
+                'VWP',
+                'Breeding period',
+                'Days open',
+                'Gestation period',
+                'Dry period',
+                'Lactation'
+                ]},
+            color_continuous_scale='viridis', color_discrete_sequence=px.colors.qualitative.Set1,
+            height = 400
+        )
+        .update_layout(
+            showlegend=False,
+            xaxis = dict(
+                tickmode = 'array',
+                tickvals = [0, VWP_d, calving_to_conception_DIM, lactation_length_d, gestation_end_DIM]
+                ),
+            margin=dict(l=5, r=5, t=5, b=5),
+            )
+        .update_traces(
+            width=0.7, 
+            textposition = 'inside'
+            )
+        .update_xaxes(range = [0,xmax], title = 'Days In Milk')
+        .update_yaxes(title='')
+    )
+
+    fig.update_layout(font=dict(family='Arial', size=14, color='black'))
+    
+    plot_background_color = '#F4F4F4'  
+    fig.update_layout(plot_bgcolor=plot_background_color)
+
+    str_lac_length = 'Lactation length (d): ' + str(lactation_length_d)
+    print(str_lac_length)
+
+    print('Current breeding period length (d): ' + str(breeding_period_d))
+    print('Start breeding by (DIM): ' + str(breeding_period_start_DIM))
+
+    str_calving_interval = 'Calving interval (d): ' + str(gestation_end_DIM)
+    print(str_calving_interval)
+
+    return {
+        'plot':fig,
+        'lac_length': str_lac_length,
+        'calving_interval': str_calving_interval
+        }
+
+
+```
+:::
+:::
+
+# Why develop a Shiny version of NASEM 2021 Model?
+
+::: {.smaller}
+## NASEM in Python 
+```{python}
+#| echo: false
+import nasem_dairy as nd
+import pandas as pd
+# use package dir to always use /data folder regardless of where this is executed from
+from importlib.resources import files
+
+path_to_package_data = files("nasem_dairy.data")
+
+# Read_csv to load required data into env
+user_diet_in, animal_input_in, equation_selection_in = nd.read_csv_input(
+  path_to_package_data.joinpath("input.csv"))
+
+# Load feed library
+feed_library_in = pd.read_csv(
+  path_to_package_data.joinpath("NASEM_feed_library.csv"))
+```
+
+
+::: {.content-visible when-format="html" unless-format="revealjs"}
+
+```{python }
+#| warning: false
+import nasem_dairy as nd
+
+# Inputs loaded from CSV files
+## RUN MODEL 
+output = nd.execute_model(
+    user_diet = user_diet_in, 
+    animal_input = animal_input_in, 
+    equation_selection = equation_selection_in, 
+    feed_library_df = feed_library_in)
+
+output
+```
+:::
+
+::: {.content-visible when-format="revealjs"}
+```{python }
+#| warning: false
+#| code-overflow: scroll
+#| output-location: slide
+import nasem_dairy as nd
+
+# Inputs loaded from CSV files
+## RUN MODEL 
+output = nd.execute_model(
+    user_diet = user_diet_in, 
+    animal_input = animal_input_in, 
+    equation_selection = equation_selection_in, 
+    feed_library_df = feed_library_in)
+
+output
+```
+:::
+
+:::
+
+## Open-source, tracked and collaborative
+
+<https://github.com/CNM-University-of-Guelph>
+
+![](media/github-CNM.png)
+
+## Fourth year Dairy Cattle Nutrition class
+
+-   45 undergraduate students
+-   Mixed background: \~20% had dairy farm experience
+-   Mostly pre-veterinary degree
+
+![](media/students_feed.jpeg)
+
+
+## How to teach ration balancing?
+
+-   Challenges:
+    -   Want to teach latest model (NASEM 2021)
+    -   Excel sheet used in the past
+    -   Software with book:
+        -   Complicated for beginners
+        -   Only works on Windows
+    -   Commercial/industry software:
+        -   Expensive
+        -   Hard to access
+        -   Even more complex
+
+## Solution? We built our own!
+
+-   Web based app
+-   Works on all computers (and mobile phones)
+-   Simplified user experience
+
+<https://dave-innes-uog.shinyapps.io/nasem_shiny/>
+
+![](media/qrcode_dave-innes-uog.shinyapps.io.png)
+
+----
+
+![Welcome](media/shiny-welcome.png)
+
+---
+
+![Inputs](media/shiny-inputs.png)
+
+----
+
+![Feed Library](media/shiny-2-feedlib.png)
+
+----
+
+![Feed Library - viewer settings](media/shiny-3-feedlib.png)
+
+----
+
+![Upload custom feed library](media/shiny-4-customfeedlib.png)
+
+----
+
+![Diet Input](media/shiny-5-diet.png)
+
+----
+
+![Diet Input - sidebar](media/shiny-6-diet.png)
+
+----
+
+![Built-in demo diet](media/shiny-7-demodiet.png)
+
+----
+
+![Outputs](media/shiny-8-outputs.png)
+
+----
+
+![Advanced - search all model outputs](media/shiny-9-outputs.png)
+
+
+## Assignment 1 - early semester
+
+-   Assignment sheet with steps and screen recordings
+-   Demonstrations in workshops
+-   Pre-loaded scenarios with a clear mistake
+-   Objective:
+    -   Get the feel of adding/removing ingredients
+    -   Find meaningful outputs in the app
+    -   Fix a basic problem
+
+## Example Video
+
+-   How to set up a simulation & load
+
+## Assignment 2 - mid semester
+
+-   Introduce Dry vs Lactating Cow
+-   Read and interpret farm forage analyses
+-   Adding new ingredients to app
+-   Formulating full diets
+
+## Case Study Assignment
+
+![](media/students_on_farm.jpeg)
+
+## Initial feedback
+
+-   Early versions couldn't save sessions
+-   Student's needed multiple ways to learn it - videos, step-by-step instructions, classroom demo
+-   The app is simplified, but the content was still difficult
+-   Students surprised how hard it was to formulate a ration for a very high producing dairy herd
+    -   (It's a limitation of the model, not the students!)
+
+## How to use & contribute?
+
+-   Open Source - NASEM model & the Shiny App
+-   GitHub - log 'Issues' as a user - even if no experience with code
+-   Read the docs - running on own computer or re-deploying custom versions is relatively simple
+
+![](media/github-Issues.png)
+
+## Conclusions
+
+-   Quarto is an example of how future publishing can look
+-   Shiny has potential to modernise teaching and research communication
+-   We need to encourage our societies and organising committees to allow these tools to be used in meetings
+-   Collectively sharing resources via an open-source platform will accelerate model improvement
+    -   feedback wanted

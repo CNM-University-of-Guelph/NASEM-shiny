@@ -1,0 +1,376 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+**__pycache__
+
+# PyCharm
+.idea/
+
+# RStudio project files
+**.Rproj.user/
+**.Rproj.user*
+**.Rproj
+**.Rhistory
+
+# MacOS
+.DS_Store
+
+.vscode/launch.json
+.vscode/settings.json
+rsconnect-python/NASEM_shiny.json
+rsconnect-python/NASEM_shiny.json
+dev.html
+
+/.luarc.json
+deploy_instructions.txt
+NASEM_feed_library teaching - student assignment version.xlsx
+NASEM_feed_library teaching.csv
+NASEM_feed_library teaching.xls
+NASEM_feed_library teaching.xlsx
+pattys_library.csv
+dev/dev nasem execute.py
+dev/NRC_2021_Program_Use_Tutorial.pdf.pdf
+dev/import pickle.py
+dev/NASEM_simulation-2024-05-30 (1).NDsession
+dev/NASEM_simulation-2024-05-30.NDsession
+docs/_site/about.html
+docs/_site/ADSA_presentation-powerpoint.pptx
+docs/_site/ADSA_presentation-revealjs.html
+docs/_site/ADSA_presentation.html
+docs/_site/ADSA_presentation.pdf
+docs/_site/ADSA_Presentation.qmd
+docs/_site/Developer_Notes.html
+docs/_site/docs_template.html
+docs/_site/Help_Video.html
+docs/_site/index.html
+docs/_site/search.json
+docs/_site/styles.css
+docs/_site/Using_the_app.html
+docs/_site/css/styles.css
+docs/_site/media/absc_logo.png
+docs/_site/media/format_comparison.png
+docs/_site/media/presentation_source.png
+docs/_site/media/quarto_get_started.png
+docs/_site/media/quarto_logo.png
+docs/_site/media/screen_recording_old.mp4
+docs/_site/media/screen_recording_optimized.mp4
+docs/_site/media/screen_recording_reencoded.mp4
+docs/_site/site_libs/bootstrap/bootstrap-icons.css
+docs/_site/site_libs/bootstrap/bootstrap-icons.woff
+docs/_site/site_libs/bootstrap/bootstrap.min.css
+docs/_site/site_libs/bootstrap/bootstrap.min.js
+docs/_site/site_libs/clipboard/clipboard.min.js
+docs/_site/site_libs/quarto-contrib/fontawesome6-0.1.0/all.css
+docs/_site/site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css
+docs/_site/site_libs/quarto-contrib/fontawesome6-0.1.0/1e21o67/FontAwesome6Brands-Regular-400.ttf
+docs/_site/site_libs/quarto-contrib/fontawesome6-0.1.0/1e21o67/FontAwesome6Brands-Regular-400.woff2
+docs/_site/site_libs/quarto-contrib/fontawesome6-0.1.0/1e21o67/FontAwesome6Free-Regular-400.ttf
+docs/_site/site_libs/quarto-contrib/fontawesome6-0.1.0/1e21o67/FontAwesome6Free-Regular-400.woff2
+docs/_site/site_libs/quarto-contrib/fontawesome6-0.1.0/1e21o67/FontAwesome6Free-Solid-900.ttf
+docs/_site/site_libs/quarto-contrib/fontawesome6-0.1.0/1e21o67/FontAwesome6Free-Solid-900.woff2
+docs/_site/site_libs/quarto-contrib/fontawesome6-0.1.0/30yblb/FontAwesome6Free-Regular-400.woff2
+docs/_site/site_libs/quarto-contrib/videojs/video-js.css
+docs/_site/site_libs/quarto-contrib/videojs/video.min.js
+docs/_site/site_libs/quarto-html/anchor.min.js
+docs/_site/site_libs/quarto-html/light-border.css
+docs/_site/site_libs/quarto-html/popper.min.js
+docs/_site/site_libs/quarto-html/quarto-html.min.css
+docs/_site/site_libs/quarto-html/quarto-syntax-highlighting.css
+docs/_site/site_libs/quarto-html/quarto.js
+docs/_site/site_libs/quarto-html/tabby.min.js
+docs/_site/site_libs/quarto-html/tippy.css
+docs/_site/site_libs/quarto-html/tippy.umd.min.js
+docs/_site/site_libs/quarto-nav/headroom.min.js
+docs/_site/site_libs/quarto-nav/quarto-nav.js
+docs/_site/site_libs/quarto-search/autocomplete.umd.js
+docs/_site/site_libs/quarto-search/fuse.min.js
+docs/_site/site_libs/quarto-search/quarto-search.js
+docs/_site/site_libs/revealjs/plugin/highlight/highlight.esm.js
+docs/_site/site_libs/revealjs/plugin/highlight/highlight.js
+docs/_site/site_libs/revealjs/plugin/highlight/monokai.css
+docs/_site/site_libs/revealjs/plugin/highlight/plugin.js
+docs/_site/site_libs/revealjs/plugin/highlight/zenburn.css
+docs/_site/site_libs/revealjs/plugin/markdown/markdown.esm.js
+docs/_site/site_libs/revealjs/plugin/markdown/markdown.js
+docs/_site/site_libs/revealjs/plugin/markdown/plugin.js
+docs/_site/site_libs/revealjs/plugin/math/katex.js
+docs/_site/site_libs/revealjs/plugin/math/math.esm.js
+docs/_site/site_libs/revealjs/plugin/math/math.js
+docs/_site/site_libs/revealjs/plugin/math/mathjax2.js
+docs/_site/site_libs/revealjs/plugin/math/mathjax3.js
+docs/_site/site_libs/revealjs/plugin/math/plugin.js
+docs/_site/site_libs/revealjs/plugin/notes/notes.esm.js
+docs/_site/site_libs/revealjs/plugin/notes/notes.js
+docs/_site/site_libs/revealjs/plugin/notes/plugin.js
+docs/_site/site_libs/revealjs/plugin/notes/speaker-view.html
+docs/_site/site_libs/revealjs/plugin/pdf-export/pdfexport.js
+docs/_site/site_libs/revealjs/plugin/pdf-export/plugin.yml
+docs/_site/site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css
+docs/_site/site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js
+docs/_site/site_libs/revealjs/plugin/quarto-line-highlight/plugin.yml
+docs/_site/site_libs/revealjs/plugin/quarto-support/footer.css
+docs/_site/site_libs/revealjs/plugin/quarto-support/plugin.yml
+docs/_site/site_libs/revealjs/plugin/quarto-support/support.js
+docs/_site/site_libs/revealjs/plugin/reveal-menu/menu.css
+docs/_site/site_libs/revealjs/plugin/reveal-menu/menu.js
+docs/_site/site_libs/revealjs/plugin/reveal-menu/plugin.yml
+docs/_site/site_libs/revealjs/plugin/reveal-menu/quarto-menu.css
+docs/_site/site_libs/revealjs/plugin/reveal-menu/quarto-menu.js
+docs/_site/site_libs/revealjs/plugin/search/plugin.js
+docs/_site/site_libs/revealjs/plugin/search/search.esm.js
+docs/_site/site_libs/revealjs/plugin/search/search.js
+docs/_site/site_libs/revealjs/plugin/zoom/plugin.js
+docs/_site/site_libs/revealjs/plugin/zoom/zoom.esm.js
+docs/_site/site_libs/revealjs/plugin/zoom/zoom.js
+docs/media/absc_logo.png
+docs/media/format_comparison.png
+docs/media/github-CNM.png
+docs/media/presentation_source.png
+docs/media/quarto_get_started.png
+docs/media/quarto_logo.png
+docs/media/screen_recording_old.mp4
+docs/media/screen_recording_reencoded.mp4
+docs/media/DALL·E 2024-06-14 15.31.30 - A futuristic landscape depicting the creation of milk in the future. Imagine a high-tech laboratory setting with advanced bioreactors and fermenters, .webp
+docs/media/DALL·E 2024-06-14 15.31.33 - A futuristic agricultural landscape representing the future of information sharing and science communication. Imagine a vibrant rural scene with advan.webp
+docs/media/future_dairy_nutrition.webp
+docs/media/github-Issues.png
+docs/media/qrcode_dave-innes-uog.shinyapps.io.png
+docs/media/qrcode_github.com.png
+docs/media/quarto_languages.png
+docs/media/shiny-2-feedlib.png
+docs/media/shiny-3-feedlib.png
+docs/media/shiny-4-customfeedlib.png
+docs/media/shiny-5-diet.png
+docs/media/shiny-6-diet.png
+docs/media/shiny-7-demodiet.png
+docs/media/shiny-8-outputs.png
+docs/media/shiny-9-outputs.png
+docs/media/shiny-inputs.png
+docs/media/shiny-welcome.png
+docs/media/students_feed.jpeg
+docs/media/students_on_farm.jpeg
+docs/media/visual-editor.png
+docs/_site/shinylive-sw.js
+docs/_site/media/future_dairy_nutrition.webp
+docs/_site/media/github-CNM.png
+docs/_site/media/github-Issues.png
+docs/_site/media/qrcode_dave-innes-uog.shinyapps.io.png
+docs/_site/media/quarto_languages.png
+docs/_site/media/shiny-2-feedlib.png
+docs/_site/media/shiny-3-feedlib.png
+docs/_site/media/shiny-4-customfeedlib.png
+docs/_site/media/shiny-5-diet.png
+docs/_site/media/shiny-6-diet.png
+docs/_site/media/shiny-7-demodiet.png
+docs/_site/media/shiny-8-outputs.png
+docs/_site/media/shiny-9-outputs.png
+docs/_site/media/shiny-inputs.png
+docs/_site/media/shiny-welcome.png
+docs/_site/media/students_feed.jpeg
+docs/_site/media/students_on_farm.jpeg
+docs/_site/media/visual-editor.png
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive-sw.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/chunk-HW2MHHPP.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/Editor.css
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/Editor.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/load-shinylive-sw.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/lzstring-worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide-worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/run-python-blocks.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/shinylive.css
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/shinylive.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/style-resets.css
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/anyio-4.1.0-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/appdirs-1.4.4-py2.py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/asgiref-3.7.2-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/asttokens-2.4.1-py2.py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/decorator-5.1.1-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/distutils-1.0.0.zip
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/exceptiongroup-1.1.3-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/executing-2.0.1-py2.py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/htmltools-0.5.2-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/idna-3.6-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/ipython-8.18.1-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/ipywidgets-8.0.6-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/jedi-0.19.0-py2.py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/Jinja2-3.1.2-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/jupyter_core-5.5.0-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/jupyterlab_widgets-3.0.9-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/linkify_it_py-2.0.2-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/markdown_it_py-3.0.0-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/MarkupSafe-2.1.3-cp311-cp311-emscripten_3_1_46_wasm32.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/matplotlib_inline-0.1.6-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/mdit_py_plugins-0.4.0-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/mdurl-0.1.2-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/micropip-0.5.0-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/numpy-1.26.4-cp311-cp311-emscripten_3_1_46_wasm32.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/openssl-1.1.1n.zip
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/packaging-23.1-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/pandas-1.5.3-cp311-cp311-emscripten_3_1_46_wasm32.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/parso-0.8.3-py2.py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/platformdirs-4.0.0-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/plotly-5.20.0-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/prompt_toolkit-3.0.41-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/pure_eval-0.2.2-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/Pygments-2.16.1-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/pyodide-lock.json
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/pyodide.asm.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/pyodide.asm.wasm
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/python_dateutil-2.8.2-py2.py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/python_multipart-0.0.6-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/python_stdlib.zip
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/pytz-2023.3-py2.py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/shiny-0.10.2-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/shinywidgets-0.3.2-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/six-1.16.0-py2.py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/sniffio-1.3.0-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/ssl-1.0.0.zip
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/stack_data-0.6.3-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/starlette-0.32.0.post1-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/tenacity-8.2.3-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/traitlets-5.14.0-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/typing_extensions-4.7.1-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/uc_micro_py-1.0.2-py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyodide/wcwidth-0.2.12-py2.py3-none-any.whl
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/PYRIGHT_LICENSE.txt
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/PYRIGHT_README.txt
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-locale-101-c121083e2a7a54d431db.worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-locale-131-ab4e388ba76ce41a9bbe.worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-locale-162-52858c93d4cbe348333a.worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-locale-244-93121a06520a592814db.worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-locale-372-2f2f20ca0313ae5dd1d6.worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-locale-416-213af665ac61b39bb90a.worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-locale-753-025cc0f8d4b408b3f912.worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-locale-846-49df54db2b702b64a1c6.worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-main-9de05813f9fe07eabc93.worker.js
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-main-9de05813f9fe07eabc93.worker.js.LICENSE.txt
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/pyright-main-9de05813f9fe07eabc93.worker.js.map
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/README.md
+docs/_site/site_libs/quarto-contrib/shinylive-0.4.1/shinylive/pyright/typeshed.en.json
+docs/_site/site_libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css
