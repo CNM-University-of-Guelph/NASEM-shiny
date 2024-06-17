@@ -60,14 +60,22 @@ The source code is available here: <https://github.com/CNM-University-of-Guelph/
 
 ![](media/format_comparison.png){height="600"}
 
+## View this presentation in other formats:
+
+<https://cnm-university-of-guelph.github.io/NASEM-shiny/ADSA_presentation.html>
+
+![](media/qrcode_cnm-university-of-guelph-presentation.png)
+
+::: {.smaller}
 ## Interactivity
 
 ::: column-screen-inset
 ::: {.content-visible when-format="html"}
 ```{shinylive-python}
 #| standalone: true
-#| viewerHeight: 800
+#| viewerHeight: 500
 #| components: [editor, viewer]
+#| code-overflow: scroll
 
 ## file: app.py
 from shiny import reactive, req
@@ -228,11 +236,13 @@ def plot_dairy_repro_timeline(
 ```
 :::
 :::
+:::
 
 # Why develop a Shiny version of NASEM 2021 Model?
 
 ::: {.smaller}
 ## NASEM in Python 
+Thanks to Braeden Fieguth!
 ```{python}
 #| echo: false
 import nasem_dairy as nd
@@ -250,6 +260,7 @@ user_diet_in, animal_input_in, equation_selection_in = nd.read_csv_input(
 feed_library_in = pd.read_csv(
   path_to_package_data.joinpath("NASEM_feed_library.csv"))
 ```
+
 
 
 ::: {.content-visible when-format="html" unless-format="revealjs"}
@@ -370,26 +381,31 @@ output
 ![Advanced - search all model outputs](media/shiny-9-outputs.png)
 
 
-## Assignment 1 - early semester
+## Assignments
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**Early Semester**
 
 -   Assignment sheet with steps and screen recordings
 -   Demonstrations in workshops
 -   Pre-loaded scenarios with a clear mistake
--   Objective:
-    -   Get the feel of adding/removing ingredients
-    -   Find meaningful outputs in the app
-    -   Fix a basic problem
 
-## Example Video
+:::
 
--   How to set up a simulation & load
-
-## Assignment 2 - mid semester
+::: {.column width="50%"}
+**Mid Semester**
 
 -   Introduce Dry vs Lactating Cow
 -   Read and interpret farm forage analyses
--   Adding new ingredients to app
+-   Adding forages as new ingredients 
 -   Formulating full diets
+:::
+
+::::
+ 
+ 
 
 ## Case Study Assignment
 
@@ -399,15 +415,10 @@ output
 
 -   Early versions couldn't save sessions
 -   Student's needed multiple ways to learn it - videos, step-by-step instructions, classroom demo
--   The app is simplified, but the content was still difficult
--   Students surprised how hard it was to formulate a ration for a very high producing dairy herd
-    -   (It's a limitation of the model, not the students!)
+-   They appreciated the user experience and not having to install anything
+
 
 ## How to use & contribute?
-
--   Open Source - NASEM model & the Shiny App
--   GitHub - log 'Issues' as a user - even if no experience with code
--   Read the docs - running on own computer or re-deploying custom versions is relatively simple
 
 ![](media/github-Issues.png)
 
@@ -418,3 +429,6 @@ output
 -   We need to encourage our societies and organising committees to allow these tools to be used in meetings
 -   Collectively sharing resources via an open-source platform will accelerate model improvement
     -   feedback wanted
+
+## Thank you!
+![](media/shiny-5-diet.png)

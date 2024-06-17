@@ -4,7 +4,12 @@ resources:
   - "media/screen_recording_reencoded.mp4"
 ---
 
+## Video
 {{< video src="media/screen_recording_reencoded.mp4" type="video/mp4">}}
+
+
+## Example Assignment
+
 
 
 
