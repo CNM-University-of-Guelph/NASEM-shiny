@@ -379,16 +379,17 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
     @reactive.Effect
     @reactive.event(input.add_demo_diet)
     async def _():
-        ui.update_selectize(id='item_1', choices=unique_fd_list(), selected="Canola meal")
-        ui.update_numeric(id='kg_1', value=2.5, min=0)
+        ui.update_selectize(id='item_1', choices=unique_fd_list(), selected="Corn silage, typical")
+        ui.update_numeric(id='kg_1', value=9, min=0)
 
         demo_dict = {
-            'Corn silage, typical': 7,
-            'Triticale silage, mid-maturity': 6.5,
-            'Corn grain HM, fine grind': 7,
-            'Wheat straw': 1.2,
-            'Urea': 0.32,
-            'VitTM Premix, generic': 0.5,
+            'Wheat straw': 1,
+            'Corn grain HM, fine grind': 5,
+            'Triticale silage, mid-maturity': 6.4,
+            'Calcium phosphate (di)': 0.2,
+            'Sodium bicarbonate': 0.2,
+            'Soybean meal, expellers': 3,
+            'Urea': 0.15,
         }
 
         for feed, kg in demo_dict.items():

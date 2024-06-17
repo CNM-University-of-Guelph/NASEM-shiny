@@ -62,20 +62,20 @@ def outputs_ui():
                 ui.h6("Micro Minerals"),
                 ui.output_data_frame('micro_minerals')
             ),
-            ui.nav_panel(
-                "Energy - teaching",
-                ui.output_data_frame('key_model_data_energy_teaching')
-            ),
-            ui.nav_panel(
-                'Advanced',
-                ui.br(),
-                ui.h4('extended output'),
-                ui.output_data_frame('diet_info'),
-                ui.h4("Confirm Model inputs:"),
-                ui.output_data_frame('animal_input_table_comparison'),
-                ui.p("Equation Selections:"),
-                ui.output_data_frame('equation_selection_table'),
-            ),
+            # ui.nav_panel(
+            #     "Energy - teaching",
+            #     ui.output_data_frame('key_model_data_energy_teaching')
+            # ),
+            # ui.nav_panel(
+            #     'Advanced',
+            #     ui.br(),
+            #     ui.h4('extended output'),
+            #     ui.output_data_frame('diet_info'),
+            #     ui.h4("Confirm Model inputs:"),
+            #     ui.output_data_frame('animal_input_table_comparison'),
+            #     ui.p("Equation Selections:"),
+            #     ui.output_data_frame('equation_selection_table'),
+            # ),
             ui.nav_panel(
                 'Search Output',
                 ui.card(
