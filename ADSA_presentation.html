@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Dave J. Innes, Braeden G. Fieguth &amp; John P. Cant">
+
+<title>NASEM Shiny Docs - Modern Publishing Tools for Modern Science</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<meta name="shinylive:serviceworker_dir" content=".">
+<script src="site_libs/quarto-contrib/shinylive-0.4.1/shinylive/load-shinylive-sw.js" type="module"></script>
+<script src="site_libs/quarto-contrib/shinylive-0.4.1/shinylive/run-python-blocks.js" type="module"></script>
+<link href="site_libs/quarto-contrib/shinylive-0.4.1/shinylive/shinylive.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">NASEM Shiny Docs</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html" rel="" target="">
+ <span class="menu-text">Getting Started</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Using_the_app.html" rel="" target="">
+ <span class="menu-text">Using the app</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Developer_Notes.html" rel="" target="">
+ <span class="menu-text">Developer Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./ADSA_presentation.html" rel="" target="" aria-current="page">
+ <span class="menu-text">ADSA Presentation</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="ADSA_presentation-revealjs.html"><i class="bi bi-file-slides"></i>RevealJS</a></li><li><a href="ADSA_presentation-powerpoint.pptx"><i class="bi bi-file-slides"></i>Powerpoint</a></li></ul></div></div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Modern Publishing Tools for Modern Science</h1>
+<p class="subtitle lead">An open-source web app of the 2021 Nutrient Requirements of Dairy Cattle</p>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Dave J. Innes, Braeden G. Fieguth &amp; John P. Cant </p>
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Centre for Nutrition Modelling, Department of Animal Biosciences, University of Guelph, Canada
+          </p>
+      </div>
+    </div>
+
+<div class="quarto-title-meta">
+
+      
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This was presented by Dave Innes at ADSA June 2024, West Palm Beach, Florida. Part of this presentation was to demonstrate that the same ‘Quarto’ file (<code>.qmd</code>) can be rendered into multiple formats. Use the links under ‘Other Formats’ (right-hand side menu) to view the presentation in a RevealJS (<code>.html</code> that will open in web browser) or download the Powerpoint (<code>.pptx</code>) file (because I had to for the conference!).</p>
+<p>The source code is available here: <a href="https://github.com/CNM-University-of-Guelph/NASEM-shiny/tree/main/docs" class="uri">https://github.com/CNM-University-of-Guelph/NASEM-shiny/tree/main/docs</a></p>
+</div>
+</div>
+<section id="section" class="level1 page-columns page-full">
+<h1></h1>
+<p><img src="media/future_dairy_nutrition.webp" class="img-fluid"></p>
+<section id="intro-to-quarto" class="level2">
+<h2 class="anchored" data-anchor-id="intro-to-quarto">Intro to Quarto</h2>
+<ul class="incremental">
+<li>Unified authoring framework</li>
+<li>Flat text files (based on Pandoc markdown)</li>
+<li>Easy to read and write</li>
+<li>Can also execute code directly (supports R, Python, Julia, Observable)</li>
+<li>Encourages reproducible analysis</li>
+</ul>
+<p><img src="media/quarto_languages.png" class="img-fluid"></p>
+</section>
+<section id="render-to-many-formats" class="level2">
+<h2 class="anchored" data-anchor-id="render-to-many-formats">Render to many formats</h2>
+<table class="table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 75%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Category</strong></th>
+<th><strong>Formats</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Documents</strong></td>
+<td>HTML, PDF, MS Word, OpenOffice, ePub</td>
+</tr>
+<tr class="even">
+<td><strong>Presentations</strong></td>
+<td>Reveal.js, PowerPoint, Beamer</td>
+</tr>
+<tr class="odd">
+<td><strong>Markdown</strong></td>
+<td>GitHub, CommonMark, Hugo, Docusaurus</td>
+</tr>
+<tr class="even">
+<td><strong>Wikis</strong></td>
+<td>MediaWiki, DokuWiki, ZimWiki, Jira Wiki, XWiki</td>
+</tr>
+<tr class="odd">
+<td><strong>More</strong></td>
+<td>JATS, Jupyter, ConTeXt, RTF, reST, AsciiDoc, Org-Mode, Muse, Texinfo, Groff Man Page, Groff Manuscript, Haddock, OPML, Textile, DocBook, InDesign, TEI Simple, FictionBook</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-source-code-of-this-presentation" class="level2">
+<h2 class="anchored" data-anchor-id="the-source-code-of-this-presentation">The source code of this presentation</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/visual-editor.png" height="500" class="figure-img"></p>
+<figcaption class="figure-caption">Visual editor for a .qmd file</figcaption>
+</figure>
+</div>
+</section>
+<section id="rendered-to-multiple-formats" class="level2">
+<h2 class="anchored" data-anchor-id="rendered-to-multiple-formats">Rendered to multiple formats</h2>
+<p><img src="media/format_comparison.png" height="600"></p>
+</section>
+<section id="interactivity" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="interactivity">Interactivity</h2>
+<div class="column-screen-inset">
+<pre class="shinylive-python" data-engine="python"><code>#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+
+## file: app.py
+from shiny import reactive, req
+from shiny.express import input, render, ui
+from shinywidgets import output_widget, render_widget
+
+from functions import plot_dairy_repro_timeline
+
+ui.input_numeric('days_dry', 'Dry period (d)', 60, min = 1)
+ui.input_numeric('days_VWP', 'Voluntary wait period (VWP, d)', 60, min = 1)
+ui.input_numeric('days_gest', 'Gestation length (d)', 280, min = 1)
+ui.input_numeric('days_open', 'Days open (calving-to-conception)', 85, min = 1)
+   
+@reactive.Calc
+def calc_plot():
+        return plot_dairy_repro_timeline(
+            VWP_d=input.days_VWP(),
+            calving_to_conception_DIM=input.days_open(),
+            gestation_length_d=input.days_gest(),
+            dry_period_length_d=input.days_dry())
+
+@render_widget
+def plot():
+    return calc_plot()['plot']
+    
+@render.text
+def lactation_length():
+    return calc_plot()['lac_length']
+
+@render.text
+def calve_interval():
+    return calc_plot()['calving_interval']
+
+## file: functions.py
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+
+
+def plot_dairy_repro_timeline(
+        VWP_d = 60,
+        dry_period_length_d = 60,
+        gestation_length_d = 280,
+        # calving_interval = 365,
+        calving_to_conception_DIM = 85
+        ):
+    
+    breeding_period_d = calving_to_conception_DIM  - VWP_d
+
+    breeding_period_start_DIM = calving_to_conception_DIM - breeding_period_d
+
+    gestation_end_DIM = calving_to_conception_DIM  + gestation_length_d #365
+
+    lactation_length_d = gestation_end_DIM - dry_period_length_d #305
+
+
+    if gestation_end_DIM &lt; 500:
+        xmax = 500
+    else:
+        xmax = gestation_end_DIM + 10
+    
+    df_data = [
+        {
+            'x_start': 0,
+            'x_end': lactation_length_d,
+            'y': 'Lactation'
+        },
+        {
+            'x_start': lactation_length_d,
+            'x_end': gestation_end_DIM,
+            'y': 'Dry period'
+        },
+        {
+            'x_start': breeding_period_start_DIM,
+            'x_end': calving_to_conception_DIM,
+            'y': 'Breeding period'
+        },
+        {
+            'x_start': 0,
+            'x_end': VWP_d,
+            'y': 'VWP'
+        },
+        {
+            'x_start': calving_to_conception_DIM ,
+            'x_end': gestation_end_DIM,
+            'y': 'Gestation period'
+        },
+                {
+            'x_start': 0,
+            'x_end': calving_to_conception_DIM,
+            'y': 'Days open'
+        },
+    ]
+
+
+    plot_data = pd.DataFrame(df_data).assign(
+        Days = lambda df: df.x_end - df.x_start,
+        Days_2 = lambda df: df.Days.astype('string') + ' d'
+    )
+    
+    fig = (
+        px.bar(
+            plot_data, 
+            base = "x_start",
+            x = "Days",
+            y = "y",
+            color = 'y',
+            orientation = 'h',
+            text = "Days_2",
+            category_orders = {'y':[
+                'VWP',
+                'Breeding period',
+                'Days open',
+                'Gestation period',
+                'Dry period',
+                'Lactation'
+                ]},
+            color_continuous_scale='viridis', color_discrete_sequence=px.colors.qualitative.Set1,
+            height = 400
+        )
+        .update_layout(
+            showlegend=False,
+            xaxis = dict(
+                tickmode = 'array',
+                tickvals = [0, VWP_d, calving_to_conception_DIM, lactation_length_d, gestation_end_DIM]
+                ),
+            margin=dict(l=5, r=5, t=5, b=5),
+            )
+        .update_traces(
+            width=0.7, 
+            textposition = 'inside'
+            )
+        .update_xaxes(range = [0,xmax], title = 'Days In Milk')
+        .update_yaxes(title='')
+    )
+
+    fig.update_layout(font=dict(family='Arial', size=14, color='black'))
+    
+    plot_background_color = '#F4F4F4'  
+    fig.update_layout(plot_bgcolor=plot_background_color)
+
+    str_lac_length = 'Lactation length (d): ' + str(lactation_length_d)
+    print(str_lac_length)
+
+    print('Current breeding period length (d): ' + str(breeding_period_d))
+    print('Start breeding by (DIM): ' + str(breeding_period_start_DIM))
+
+    str_calving_interval = 'Calving interval (d): ' + str(gestation_end_DIM)
+    print(str_calving_interval)
+
+    return {
+        'plot':fig,
+        'lac_length': str_lac_length,
+        'calving_interval': str_calving_interval
+        }
+
+</code></pre>
+</div>
+</section>
+</section>
+<section id="why-develop-a-shiny-version-of-nasem-2021-model" class="level1">
+<h1>Why develop a Shiny version of NASEM 2021 Model?</h1>
+<section id="nasem-in-python" class="level2 smaller">
+<h2 class="anchored" data-anchor-id="nasem-in-python">NASEM in Python</h2>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nasem_dairy <span class="im">as</span> nd</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Inputs loaded from CSV files</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">## RUN MODEL </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> nd.execute_model(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    user_diet <span class="op">=</span> user_diet_in, </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    animal_input <span class="op">=</span> animal_input_in, </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    equation_selection <span class="op">=</span> equation_selection_in, </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    feed_library_df <span class="op">=</span> feed_library_in)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>output</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+
+        <div>
+            <h2 class="anchored">Model Output Snapshot</h2>
+            
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Description</th>
+<th data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Milk production kg (Mlk_Prod_comp)</td>
+<td>35.569</td>
+</tr>
+<tr class="even">
+<td>Milk fat g/g (MlkFat_Milk)</td>
+<td>0.053</td>
+</tr>
+<tr class="odd">
+<td>Milk protein g/g (MlkNP_Milk)</td>
+<td>0.042</td>
+</tr>
+<tr class="even">
+<td>Milk Production - MP allowable kg (Mlk_Prod_MPalow)</td>
+<td>35.906</td>
+</tr>
+<tr class="odd">
+<td>Milk Production - NE allowable kg (Mlk_Prod_NEalow)</td>
+<td>31.498</td>
+</tr>
+<tr class="even">
+<td>Animal ME intake Mcal/d (An_MEIn)</td>
+<td>60.273</td>
+</tr>
+<tr class="odd">
+<td>Target ME use Mcal/d (Trg_MEuse)</td>
+<td>52.195</td>
+</tr>
+<tr class="even">
+<td>Animal MP intake g/d (An_MPIn_g)</td>
+<td>2565.214</td>
+</tr>
+<tr class="odd">
+<td>Animal MP use g/d (An_MPuse_g_Trg)</td>
+<td>1989.985</td>
+</tr>
+<tr class="even">
+<td>Animal RDP intake g/d (An_RDPIn_g)</td>
+<td>3556.058</td>
+</tr>
+<tr class="odd">
+<td>Diet DCAD meq (An_DCADmeq)</td>
+<td>96.453</td>
+</tr>
+</tbody>
+</table>
+
+
+            <hr>
+            
+        <details>
+            <summary><strong>Click this drop-down for ModelOutput description</strong></summary>
+            <p>This is a <code>ModelOutput</code> object returned by <code>nd.execute_model()</code>.</p>
+            <p>Each of the following categories can be called directly as methods, for example, if the name of my object is <code>output</code>, I would call <code>output.Production</code> to see the contents of Production.</p>
+            <p>The following list shows which dictionaries are within each category:</p>
+            <ul>
+        <li><b>Inputs:</b> user_diet, animal_input, equation_selection, coeff_dict, infusion_input, MP_NP_efficiency_input, mPrt_coeff, f_Imb</li><li><b>Intakes:</b> diet_info, infusion_data, diet_data, An_data, energy, protein, AA, FA, rumen_digestable, water</li><li><b>Requirements:</b> energy, protein, vitamin, mineral, mineral_requirements</li><li><b>Production:</b> milk, body_composition, gestation, MiCP</li><li><b>Excretion:</b> fecal, urinary, gaseous, scurf</li><li><b>Digestibility:</b> rumen, TT</li><li><b>Efficiencies:</b> energy, protein, mineral</li><li><b>Miscellaneous:</b> misc, post_execute_calcs</li>
+            </ul>
+            <div>
+                <p>These outputs can be accessed by name, e.g., <code>output.Production['milk']['Mlk_Prod']</code>.</p>
+                <p>There is also a <code>.search()</code> method which takes a string and will return a dataframe of all outputs with that string (case insensitive), e.g., <code>output.search('Mlk')</code>.</p>
+                <p>An individual output can be retrieved directly by providing its exact name to the <code>.get_value()</code> method, e.g., <code>output.get_value('Mlk_Prod')</code>.</p>
+            </div>
+        </details>
+        
+        </div>
+        
+</div>
+</div>
+</section>
+<section id="open-source-tracked-and-collaborative" class="level2">
+<h2 class="anchored" data-anchor-id="open-source-tracked-and-collaborative">Open-source, tracked and collaborative</h2>
+<p><a href="https://github.com/CNM-University-of-Guelph" class="uri">https://github.com/CNM-University-of-Guelph</a></p>
+<p><img src="media/github-CNM.png" class="img-fluid"></p>
+</section>
+<section id="fourth-year-dairy-cattle-nutrition-class" class="level2">
+<h2 class="anchored" data-anchor-id="fourth-year-dairy-cattle-nutrition-class">Fourth year Dairy Cattle Nutrition class</h2>
+<ul class="incremental">
+<li>45 undergraduate students</li>
+<li>Mixed background: ~20% had dairy farm experience</li>
+<li>Mostly pre-veterinary degree</li>
+</ul>
+<p><img src="media/students_feed.jpeg" class="img-fluid"></p>
+</section>
+<section id="how-to-teach-ration-balancing" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-teach-ration-balancing">How to teach ration balancing?</h2>
+<ul class="incremental">
+<li>Challenges:
+<ul class="incremental">
+<li>Want to teach latest model (NASEM 2021)</li>
+<li>Excel sheet used in the past</li>
+<li>Software with book:
+<ul class="incremental">
+<li>Complicated for beginners</li>
+<li>Only works on Windows</li>
+</ul></li>
+<li>Commercial/industry software:
+<ul class="incremental">
+<li>Expensive</li>
+<li>Hard to access</li>
+<li>Even more complex</li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="solution-we-built-our-own" class="level2">
+<h2 class="anchored" data-anchor-id="solution-we-built-our-own">Solution? We built our own!</h2>
+<ul class="incremental">
+<li>Web based app</li>
+<li>Works on all computers (and mobile phones)</li>
+<li>Simplified user experience</li>
+</ul>
+<p><a href="https://dave-innes-uog.shinyapps.io/nasem_shiny/" class="uri">https://dave-innes-uog.shinyapps.io/nasem_shiny/</a></p>
+<p><img src="media/qrcode_dave-innes-uog.shinyapps.io.png" class="img-fluid"></p>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-welcome.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Welcome</figcaption>
+</figure>
+</div>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-inputs.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Inputs</figcaption>
+</figure>
+</div>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-2-feedlib.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Feed Library</figcaption>
+</figure>
+</div>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-3-feedlib.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Feed Library - viewer settings</figcaption>
+</figure>
+</div>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-4-customfeedlib.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Upload custom feed library</figcaption>
+</figure>
+</div>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-5-diet.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Diet Input</figcaption>
+</figure>
+</div>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-6-diet.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Diet Input - sidebar</figcaption>
+</figure>
+</div>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-7-demodiet.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Built-in demo diet</figcaption>
+</figure>
+</div>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-8-outputs.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Outputs</figcaption>
+</figure>
+</div>
+<hr>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="media/shiny-9-outputs.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Advanced - search all model outputs</figcaption>
+</figure>
+</div>
+</section>
+<section id="assignment-1---early-semester" class="level2">
+<h2 class="anchored" data-anchor-id="assignment-1---early-semester">Assignment 1 - early semester</h2>
+<ul class="incremental">
+<li>Assignment sheet with steps and screen recordings</li>
+<li>Demonstrations in workshops</li>
+<li>Pre-loaded scenarios with a clear mistake</li>
+<li>Objective:
+<ul class="incremental">
+<li>Get the feel of adding/removing ingredients</li>
+<li>Find meaningful outputs in the app</li>
+<li>Fix a basic problem</li>
+</ul></li>
+</ul>
+</section>
+<section id="example-video" class="level2">
+<h2 class="anchored" data-anchor-id="example-video">Example Video</h2>
+<ul class="incremental">
+<li>How to set up a simulation &amp; load</li>
+</ul>
+</section>
+<section id="assignment-2---mid-semester" class="level2">
+<h2 class="anchored" data-anchor-id="assignment-2---mid-semester">Assignment 2 - mid semester</h2>
+<ul class="incremental">
+<li>Introduce Dry vs Lactating Cow</li>
+<li>Read and interpret farm forage analyses</li>
+<li>Adding new ingredients to app</li>
+<li>Formulating full diets</li>
+</ul>
+</section>
+<section id="case-study-assignment" class="level2">
+<h2 class="anchored" data-anchor-id="case-study-assignment">Case Study Assignment</h2>
+<p><img src="media/students_on_farm.jpeg" class="img-fluid"></p>
+</section>
+<section id="initial-feedback" class="level2">
+<h2 class="anchored" data-anchor-id="initial-feedback">Initial feedback</h2>
+<ul class="incremental">
+<li>Early versions couldn’t save sessions</li>
+<li>Student’s needed multiple ways to learn it - videos, step-by-step instructions, classroom demo</li>
+<li>The app is simplified, but the content was still difficult</li>
+<li>Students surprised how hard it was to formulate a ration for a very high producing dairy herd
+<ul class="incremental">
+<li>(It’s a limitation of the model, not the students!)</li>
+</ul></li>
+</ul>
+</section>
+<section id="how-to-use-contribute" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-use-contribute">How to use &amp; contribute?</h2>
+<ul class="incremental">
+<li>Open Source - NASEM model &amp; the Shiny App</li>
+<li>GitHub - log ‘Issues’ as a user - even if no experience with code</li>
+<li>Read the docs - running on own computer or re-deploying custom versions is relatively simple</li>
+</ul>
+<p><img src="media/github-Issues.png" class="img-fluid"></p>
+</section>
+<section id="conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="conclusions">Conclusions</h2>
+<ul class="incremental">
+<li>Quarto is an example of how future publishing can look</li>
+<li>Shiny has potential to modernise teaching and research communication</li>
+<li>We need to encourage our societies and organising committees to allow these tools to be used in meetings</li>
+<li>Collectively sharing resources via an open-source platform will accelerate model improvement
+<ul class="incremental">
+<li>feedback wanted</li>
+</ul></li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var filterRegex = new RegExp("https:\/\/CNM-University-of-Guelph\.github\.io\/NASEM-shiny\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          // default icon
+          link.classList.add("external");
+      }
+    }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

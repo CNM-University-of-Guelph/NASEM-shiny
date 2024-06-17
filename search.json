@@ -1,0 +1,303 @@
+[
+  {
+    "objectID": "ADSA_presentation.html",
+    "href": "ADSA_presentation.html",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "",
+    "text": "Note\n\n\n\nThis was presented by Dave Innes at ADSA June 2024, West Palm Beach, Florida. Part of this presentation was to demonstrate that the same ‘Quarto’ file (.qmd) can be rendered into multiple formats. Use the links under ‘Other Formats’ (right-hand side menu) to view the presentation in a RevealJS (.html that will open in web browser) or download the Powerpoint (.pptx) file (because I had to for the conference!).\nThe source code is available here: https://github.com/CNM-University-of-Guelph/NASEM-shiny/tree/main/docs"
+  },
+  {
+    "objectID": "ADSA_presentation.html#intro-to-quarto",
+    "href": "ADSA_presentation.html#intro-to-quarto",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Intro to Quarto",
+    "text": "Intro to Quarto\n\nUnified authoring framework\nFlat text files (based on Pandoc markdown)\nEasy to read and write\nCan also execute code directly (supports R, Python, Julia, Observable)\nEncourages reproducible analysis"
+  },
+  {
+    "objectID": "ADSA_presentation.html#render-to-many-formats",
+    "href": "ADSA_presentation.html#render-to-many-formats",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Render to many formats",
+    "text": "Render to many formats\n\n\n\n\n\n\n\nCategory\nFormats\n\n\n\n\nDocuments\nHTML, PDF, MS Word, OpenOffice, ePub\n\n\nPresentations\nReveal.js, PowerPoint, Beamer\n\n\nMarkdown\nGitHub, CommonMark, Hugo, Docusaurus\n\n\nWikis\nMediaWiki, DokuWiki, ZimWiki, Jira Wiki, XWiki\n\n\nMore\nJATS, Jupyter, ConTeXt, RTF, reST, AsciiDoc, Org-Mode, Muse, Texinfo, Groff Man Page, Groff Manuscript, Haddock, OPML, Textile, DocBook, InDesign, TEI Simple, FictionBook"
+  },
+  {
+    "objectID": "ADSA_presentation.html#the-source-code-of-this-presentation",
+    "href": "ADSA_presentation.html#the-source-code-of-this-presentation",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "The source code of this presentation",
+    "text": "The source code of this presentation\n\n\n\nVisual editor for a .qmd file"
+  },
+  {
+    "objectID": "ADSA_presentation.html#rendered-to-multiple-formats",
+    "href": "ADSA_presentation.html#rendered-to-multiple-formats",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Rendered to multiple formats",
+    "text": "Rendered to multiple formats"
+  },
+  {
+    "objectID": "ADSA_presentation.html#interactivity",
+    "href": "ADSA_presentation.html#interactivity",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Interactivity",
+    "text": "Interactivity\n\n#| standalone: true\n#| viewerHeight: 800\n#| components: [editor, viewer]\n\n## file: app.py\nfrom shiny import reactive, req\nfrom shiny.express import input, render, ui\nfrom shinywidgets import output_widget, render_widget\n\nfrom functions import plot_dairy_repro_timeline\n\nui.input_numeric('days_dry', 'Dry period (d)', 60, min = 1)\nui.input_numeric('days_VWP', 'Voluntary wait period (VWP, d)', 60, min = 1)\nui.input_numeric('days_gest', 'Gestation length (d)', 280, min = 1)\nui.input_numeric('days_open', 'Days open (calving-to-conception)', 85, min = 1)\n   \n@reactive.Calc\ndef calc_plot():\n        return plot_dairy_repro_timeline(\n            VWP_d=input.days_VWP(),\n            calving_to_conception_DIM=input.days_open(),\n            gestation_length_d=input.days_gest(),\n            dry_period_length_d=input.days_dry())\n\n@render_widget\ndef plot():\n    return calc_plot()['plot']\n    \n@render.text\ndef lactation_length():\n    return calc_plot()['lac_length']\n\n@render.text\ndef calve_interval():\n    return calc_plot()['calving_interval']\n\n## file: functions.py\nimport pandas as pd\nimport plotly.express as px\nimport plotly.graph_objects as go\n\n\ndef plot_dairy_repro_timeline(\n        VWP_d = 60,\n        dry_period_length_d = 60,\n        gestation_length_d = 280,\n        # calving_interval = 365,\n        calving_to_conception_DIM = 85\n        ):\n    \n    breeding_period_d = calving_to_conception_DIM  - VWP_d\n\n    breeding_period_start_DIM = calving_to_conception_DIM - breeding_period_d\n\n    gestation_end_DIM = calving_to_conception_DIM  + gestation_length_d #365\n\n    lactation_length_d = gestation_end_DIM - dry_period_length_d #305\n\n\n    if gestation_end_DIM &lt; 500:\n        xmax = 500\n    else:\n        xmax = gestation_end_DIM + 10\n    \n    df_data = [\n        {\n            'x_start': 0,\n            'x_end': lactation_length_d,\n            'y': 'Lactation'\n        },\n        {\n            'x_start': lactation_length_d,\n            'x_end': gestation_end_DIM,\n            'y': 'Dry period'\n        },\n        {\n            'x_start': breeding_period_start_DIM,\n            'x_end': calving_to_conception_DIM,\n            'y': 'Breeding period'\n        },\n        {\n            'x_start': 0,\n            'x_end': VWP_d,\n            'y': 'VWP'\n        },\n        {\n            'x_start': calving_to_conception_DIM ,\n            'x_end': gestation_end_DIM,\n            'y': 'Gestation period'\n        },\n                {\n            'x_start': 0,\n            'x_end': calving_to_conception_DIM,\n            'y': 'Days open'\n        },\n    ]\n\n\n    plot_data = pd.DataFrame(df_data).assign(\n        Days = lambda df: df.x_end - df.x_start,\n        Days_2 = lambda df: df.Days.astype('string') + ' d'\n    )\n    \n    fig = (\n        px.bar(\n            plot_data, \n            base = \"x_start\",\n            x = \"Days\",\n            y = \"y\",\n            color = 'y',\n            orientation = 'h',\n            text = \"Days_2\",\n            category_orders = {'y':[\n                'VWP',\n                'Breeding period',\n                'Days open',\n                'Gestation period',\n                'Dry period',\n                'Lactation'\n                ]},\n            color_continuous_scale='viridis', color_discrete_sequence=px.colors.qualitative.Set1,\n            height = 400\n        )\n        .update_layout(\n            showlegend=False,\n            xaxis = dict(\n                tickmode = 'array',\n                tickvals = [0, VWP_d, calving_to_conception_DIM, lactation_length_d, gestation_end_DIM]\n                ),\n            margin=dict(l=5, r=5, t=5, b=5),\n            )\n        .update_traces(\n            width=0.7, \n            textposition = 'inside'\n            )\n        .update_xaxes(range = [0,xmax], title = 'Days In Milk')\n        .update_yaxes(title='')\n    )\n\n    fig.update_layout(font=dict(family='Arial', size=14, color='black'))\n    \n    plot_background_color = '#F4F4F4'  \n    fig.update_layout(plot_bgcolor=plot_background_color)\n\n    str_lac_length = 'Lactation length (d): ' + str(lactation_length_d)\n    print(str_lac_length)\n\n    print('Current breeding period length (d): ' + str(breeding_period_d))\n    print('Start breeding by (DIM): ' + str(breeding_period_start_DIM))\n\n    str_calving_interval = 'Calving interval (d): ' + str(gestation_end_DIM)\n    print(str_calving_interval)\n\n    return {\n        'plot':fig,\n        'lac_length': str_lac_length,\n        'calving_interval': str_calving_interval\n        }"
+  },
+  {
+    "objectID": "ADSA_presentation.html#nasem-in-python",
+    "href": "ADSA_presentation.html#nasem-in-python",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "NASEM in Python",
+    "text": "NASEM in Python\n\nimport nasem_dairy as nd\n\n# Inputs loaded from CSV files\n## RUN MODEL \noutput = nd.execute_model(\n    user_diet = user_diet_in, \n    animal_input = animal_input_in, \n    equation_selection = equation_selection_in, \n    feed_library_df = feed_library_in)\n\noutput\n\n\n        \n            Model Output Snapshot\n            \n\n\n\nDescription\nValue\n\n\n\n\nMilk production kg (Mlk_Prod_comp)\n35.569\n\n\nMilk fat g/g (MlkFat_Milk)\n0.053\n\n\nMilk protein g/g (MlkNP_Milk)\n0.042\n\n\nMilk Production - MP allowable kg (Mlk_Prod_MPalow)\n35.906\n\n\nMilk Production - NE allowable kg (Mlk_Prod_NEalow)\n31.498\n\n\nAnimal ME intake Mcal/d (An_MEIn)\n60.273\n\n\nTarget ME use Mcal/d (Trg_MEuse)\n52.195\n\n\nAnimal MP intake g/d (An_MPIn_g)\n2565.214\n\n\nAnimal MP use g/d (An_MPuse_g_Trg)\n1989.985\n\n\nAnimal RDP intake g/d (An_RDPIn_g)\n3556.058\n\n\nDiet DCAD meq (An_DCADmeq)\n96.453\n\n\n\n\n\n            \n            \n        \n            Click this drop-down for ModelOutput description\n            This is a ModelOutput object returned by nd.execute_model().\n            Each of the following categories can be called directly as methods, for example, if the name of my object is output, I would call output.Production to see the contents of Production.\n            The following list shows which dictionaries are within each category:\n            \n        Inputs: user_diet, animal_input, equation_selection, coeff_dict, infusion_input, MP_NP_efficiency_input, mPrt_coeff, f_ImbIntakes: diet_info, infusion_data, diet_data, An_data, energy, protein, AA, FA, rumen_digestable, waterRequirements: energy, protein, vitamin, mineral, mineral_requirementsProduction: milk, body_composition, gestation, MiCPExcretion: fecal, urinary, gaseous, scurfDigestibility: rumen, TTEfficiencies: energy, protein, mineralMiscellaneous: misc, post_execute_calcs\n            \n            \n                These outputs can be accessed by name, e.g., output.Production['milk']['Mlk_Prod'].\n                There is also a .search() method which takes a string and will return a dataframe of all outputs with that string (case insensitive), e.g., output.search('Mlk').\n                An individual output can be retrieved directly by providing its exact name to the .get_value() method, e.g., output.get_value('Mlk_Prod')."
+  },
+  {
+    "objectID": "ADSA_presentation.html#open-source-tracked-and-collaborative",
+    "href": "ADSA_presentation.html#open-source-tracked-and-collaborative",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Open-source, tracked and collaborative",
+    "text": "Open-source, tracked and collaborative\nhttps://github.com/CNM-University-of-Guelph"
+  },
+  {
+    "objectID": "ADSA_presentation.html#fourth-year-dairy-cattle-nutrition-class",
+    "href": "ADSA_presentation.html#fourth-year-dairy-cattle-nutrition-class",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Fourth year Dairy Cattle Nutrition class",
+    "text": "Fourth year Dairy Cattle Nutrition class\n\n45 undergraduate students\nMixed background: ~20% had dairy farm experience\nMostly pre-veterinary degree"
+  },
+  {
+    "objectID": "ADSA_presentation.html#how-to-teach-ration-balancing",
+    "href": "ADSA_presentation.html#how-to-teach-ration-balancing",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "How to teach ration balancing?",
+    "text": "How to teach ration balancing?\n\nChallenges:\n\nWant to teach latest model (NASEM 2021)\nExcel sheet used in the past\nSoftware with book:\n\nComplicated for beginners\nOnly works on Windows\n\nCommercial/industry software:\n\nExpensive\nHard to access\nEven more complex"
+  },
+  {
+    "objectID": "ADSA_presentation.html#solution-we-built-our-own",
+    "href": "ADSA_presentation.html#solution-we-built-our-own",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Solution? We built our own!",
+    "text": "Solution? We built our own!\n\nWeb based app\nWorks on all computers (and mobile phones)\nSimplified user experience\n\nhttps://dave-innes-uog.shinyapps.io/nasem_shiny/\n\n\n\n\n\nWelcome\n\n\n\n\n\n\nInputs\n\n\n\n\n\n\nFeed Library\n\n\n\n\n\n\nFeed Library - viewer settings\n\n\n\n\n\n\nUpload custom feed library\n\n\n\n\n\n\nDiet Input\n\n\n\n\n\n\nDiet Input - sidebar\n\n\n\n\n\n\nBuilt-in demo diet\n\n\n\n\n\n\nOutputs\n\n\n\n\n\n\nAdvanced - search all model outputs"
+  },
+  {
+    "objectID": "ADSA_presentation.html#assignment-1---early-semester",
+    "href": "ADSA_presentation.html#assignment-1---early-semester",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Assignment 1 - early semester",
+    "text": "Assignment 1 - early semester\n\nAssignment sheet with steps and screen recordings\nDemonstrations in workshops\nPre-loaded scenarios with a clear mistake\nObjective:\n\nGet the feel of adding/removing ingredients\nFind meaningful outputs in the app\nFix a basic problem"
+  },
+  {
+    "objectID": "ADSA_presentation.html#example-video",
+    "href": "ADSA_presentation.html#example-video",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Example Video",
+    "text": "Example Video\n\nHow to set up a simulation & load"
+  },
+  {
+    "objectID": "ADSA_presentation.html#assignment-2---mid-semester",
+    "href": "ADSA_presentation.html#assignment-2---mid-semester",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Assignment 2 - mid semester",
+    "text": "Assignment 2 - mid semester\n\nIntroduce Dry vs Lactating Cow\nRead and interpret farm forage analyses\nAdding new ingredients to app\nFormulating full diets"
+  },
+  {
+    "objectID": "ADSA_presentation.html#case-study-assignment",
+    "href": "ADSA_presentation.html#case-study-assignment",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Case Study Assignment",
+    "text": "Case Study Assignment"
+  },
+  {
+    "objectID": "ADSA_presentation.html#initial-feedback",
+    "href": "ADSA_presentation.html#initial-feedback",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Initial feedback",
+    "text": "Initial feedback\n\nEarly versions couldn’t save sessions\nStudent’s needed multiple ways to learn it - videos, step-by-step instructions, classroom demo\nThe app is simplified, but the content was still difficult\nStudents surprised how hard it was to formulate a ration for a very high producing dairy herd\n\n(It’s a limitation of the model, not the students!)"
+  },
+  {
+    "objectID": "ADSA_presentation.html#how-to-use-contribute",
+    "href": "ADSA_presentation.html#how-to-use-contribute",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "How to use & contribute?",
+    "text": "How to use & contribute?\n\nOpen Source - NASEM model & the Shiny App\nGitHub - log ‘Issues’ as a user - even if no experience with code\nRead the docs - running on own computer or re-deploying custom versions is relatively simple"
+  },
+  {
+    "objectID": "ADSA_presentation.html#conclusions",
+    "href": "ADSA_presentation.html#conclusions",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Conclusions",
+    "text": "Conclusions\n\nQuarto is an example of how future publishing can look\nShiny has potential to modernise teaching and research communication\nWe need to encourage our societies and organising committees to allow these tools to be used in meetings\nCollectively sharing resources via an open-source platform will accelerate model improvement\n\nfeedback wanted"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#intro-to-quarto",
+    "href": "ADSA_presentation-revealjs.html#intro-to-quarto",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Intro to Quarto",
+    "text": "Intro to Quarto\n\nUnified authoring framework\nFlat text files (based on Pandoc markdown)\nEasy to read and write\nCan also execute code directly (supports R, Python, Julia, Observable)\nEncourages reproducible analysis"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#render-to-many-formats",
+    "href": "ADSA_presentation-revealjs.html#render-to-many-formats",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Render to many formats",
+    "text": "Render to many formats\n\n\n\n\n\n\n\nCategory\nFormats\n\n\n\n\nDocuments\nHTML, PDF, MS Word, OpenOffice, ePub\n\n\nPresentations\nReveal.js, PowerPoint, Beamer\n\n\nMarkdown\nGitHub, CommonMark, Hugo, Docusaurus\n\n\nWikis\nMediaWiki, DokuWiki, ZimWiki, Jira Wiki, XWiki\n\n\nMore\nJATS, Jupyter, ConTeXt, RTF, reST, AsciiDoc, Org-Mode, Muse, Texinfo, Groff Man Page, Groff Manuscript, Haddock, OPML, Textile, DocBook, InDesign, TEI Simple, FictionBook"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#the-source-code-of-this-presentation",
+    "href": "ADSA_presentation-revealjs.html#the-source-code-of-this-presentation",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "The source code of this presentation",
+    "text": "The source code of this presentation\n\n\n\nVisual editor for a .qmd file"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#rendered-to-multiple-formats",
+    "href": "ADSA_presentation-revealjs.html#rendered-to-multiple-formats",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Rendered to multiple formats",
+    "text": "Rendered to multiple formats"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#interactivity",
+    "href": "ADSA_presentation-revealjs.html#interactivity",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Interactivity",
+    "text": "Interactivity\n\n#| standalone: true\n#| viewerHeight: 800\n#| components: [editor, viewer]\n\n## file: app.py\nfrom shiny import reactive, req\nfrom shiny.express import input, render, ui\nfrom shinywidgets import output_widget, render_widget\n\nfrom functions import plot_dairy_repro_timeline\n\nui.input_numeric('days_dry', 'Dry period (d)', 60, min = 1)\nui.input_numeric('days_VWP', 'Voluntary wait period (VWP, d)', 60, min = 1)\nui.input_numeric('days_gest', 'Gestation length (d)', 280, min = 1)\nui.input_numeric('days_open', 'Days open (calving-to-conception)', 85, min = 1)\n   \n@reactive.Calc\ndef calc_plot():\n        return plot_dairy_repro_timeline(\n            VWP_d=input.days_VWP(),\n            calving_to_conception_DIM=input.days_open(),\n            gestation_length_d=input.days_gest(),\n            dry_period_length_d=input.days_dry())\n\n@render_widget\ndef plot():\n    return calc_plot()['plot']\n    \n@render.text\ndef lactation_length():\n    return calc_plot()['lac_length']\n\n@render.text\ndef calve_interval():\n    return calc_plot()['calving_interval']\n\n## file: functions.py\nimport pandas as pd\nimport plotly.express as px\nimport plotly.graph_objects as go\n\n\ndef plot_dairy_repro_timeline(\n        VWP_d = 60,\n        dry_period_length_d = 60,\n        gestation_length_d = 280,\n        # calving_interval = 365,\n        calving_to_conception_DIM = 85\n        ):\n    \n    breeding_period_d = calving_to_conception_DIM  - VWP_d\n\n    breeding_period_start_DIM = calving_to_conception_DIM - breeding_period_d\n\n    gestation_end_DIM = calving_to_conception_DIM  + gestation_length_d #365\n\n    lactation_length_d = gestation_end_DIM - dry_period_length_d #305\n\n\n    if gestation_end_DIM &lt; 500:\n        xmax = 500\n    else:\n        xmax = gestation_end_DIM + 10\n    \n    df_data = [\n        {\n            'x_start': 0,\n            'x_end': lactation_length_d,\n            'y': 'Lactation'\n        },\n        {\n            'x_start': lactation_length_d,\n            'x_end': gestation_end_DIM,\n            'y': 'Dry period'\n        },\n        {\n            'x_start': breeding_period_start_DIM,\n            'x_end': calving_to_conception_DIM,\n            'y': 'Breeding period'\n        },\n        {\n            'x_start': 0,\n            'x_end': VWP_d,\n            'y': 'VWP'\n        },\n        {\n            'x_start': calving_to_conception_DIM ,\n            'x_end': gestation_end_DIM,\n            'y': 'Gestation period'\n        },\n                {\n            'x_start': 0,\n            'x_end': calving_to_conception_DIM,\n            'y': 'Days open'\n        },\n    ]\n\n\n    plot_data = pd.DataFrame(df_data).assign(\n        Days = lambda df: df.x_end - df.x_start,\n        Days_2 = lambda df: df.Days.astype('string') + ' d'\n    )\n    \n    fig = (\n        px.bar(\n            plot_data, \n            base = \"x_start\",\n            x = \"Days\",\n            y = \"y\",\n            color = 'y',\n            orientation = 'h',\n            text = \"Days_2\",\n            category_orders = {'y':[\n                'VWP',\n                'Breeding period',\n                'Days open',\n                'Gestation period',\n                'Dry period',\n                'Lactation'\n                ]},\n            color_continuous_scale='viridis', color_discrete_sequence=px.colors.qualitative.Set1,\n            height = 400\n        )\n        .update_layout(\n            showlegend=False,\n            xaxis = dict(\n                tickmode = 'array',\n                tickvals = [0, VWP_d, calving_to_conception_DIM, lactation_length_d, gestation_end_DIM]\n                ),\n            margin=dict(l=5, r=5, t=5, b=5),\n            )\n        .update_traces(\n            width=0.7, \n            textposition = 'inside'\n            )\n        .update_xaxes(range = [0,xmax], title = 'Days In Milk')\n        .update_yaxes(title='')\n    )\n\n    fig.update_layout(font=dict(family='Arial', size=14, color='black'))\n    \n    plot_background_color = '#F4F4F4'  \n    fig.update_layout(plot_bgcolor=plot_background_color)\n\n    str_lac_length = 'Lactation length (d): ' + str(lactation_length_d)\n    print(str_lac_length)\n\n    print('Current breeding period length (d): ' + str(breeding_period_d))\n    print('Start breeding by (DIM): ' + str(breeding_period_start_DIM))\n\n    str_calving_interval = 'Calving interval (d): ' + str(gestation_end_DIM)\n    print(str_calving_interval)\n\n    return {\n        'plot':fig,\n        'lac_length': str_lac_length,\n        'calving_interval': str_calving_interval\n        }"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#nasem-in-python",
+    "href": "ADSA_presentation-revealjs.html#nasem-in-python",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "NASEM in Python",
+    "text": "NASEM in Python\n\n\n\n        \n            Model Output Snapshot\n            \n\n\n\nDescription\nValue\n\n\n\n\nMilk production kg (Mlk_Prod_comp)\n35.569\n\n\nMilk fat g/g (MlkFat_Milk)\n0.053\n\n\nMilk protein g/g (MlkNP_Milk)\n0.042\n\n\nMilk Production - MP allowable kg (Mlk_Prod_MPalow)\n35.906\n\n\nMilk Production - NE allowable kg (Mlk_Prod_NEalow)\n31.498\n\n\nAnimal ME intake Mcal/d (An_MEIn)\n60.273\n\n\nTarget ME use Mcal/d (Trg_MEuse)\n52.195\n\n\nAnimal MP intake g/d (An_MPIn_g)\n2565.214\n\n\nAnimal MP use g/d (An_MPuse_g_Trg)\n1989.985\n\n\nAnimal RDP intake g/d (An_RDPIn_g)\n3556.058\n\n\nDiet DCAD meq (An_DCADmeq)\n96.453\n\n\n\n\n\n            \n            \n        \n            Click this drop-down for ModelOutput description\n            This is a ModelOutput object returned by nd.execute_model().\n            Each of the following categories can be called directly as methods, for example, if the name of my object is output, I would call output.Production to see the contents of Production.\n            The following list shows which dictionaries are within each category:\n            \n        Inputs: user_diet, animal_input, equation_selection, coeff_dict, infusion_input, MP_NP_efficiency_input, mPrt_coeff, f_ImbIntakes: diet_info, infusion_data, diet_data, An_data, energy, protein, AA, FA, rumen_digestable, waterRequirements: energy, protein, vitamin, mineral, mineral_requirementsProduction: milk, body_composition, gestation, MiCPExcretion: fecal, urinary, gaseous, scurfDigestibility: rumen, TTEfficiencies: energy, protein, mineralMiscellaneous: misc, post_execute_calcs\n            \n            \n                These outputs can be accessed by name, e.g., output.Production['milk']['Mlk_Prod'].\n                There is also a .search() method which takes a string and will return a dataframe of all outputs with that string (case insensitive), e.g., output.search('Mlk').\n                An individual output can be retrieved directly by providing its exact name to the .get_value() method, e.g., output.get_value('Mlk_Prod')."
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#open-source-tracked-and-collaborative",
+    "href": "ADSA_presentation-revealjs.html#open-source-tracked-and-collaborative",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Open-source, tracked and collaborative",
+    "text": "Open-source, tracked and collaborative\nhttps://github.com/CNM-University-of-Guelph"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#fourth-year-dairy-cattle-nutrition-class",
+    "href": "ADSA_presentation-revealjs.html#fourth-year-dairy-cattle-nutrition-class",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Fourth year Dairy Cattle Nutrition class",
+    "text": "Fourth year Dairy Cattle Nutrition class\n\n45 undergraduate students\nMixed background: ~20% had dairy farm experience\nMostly pre-veterinary degree"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#how-to-teach-ration-balancing",
+    "href": "ADSA_presentation-revealjs.html#how-to-teach-ration-balancing",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "How to teach ration balancing?",
+    "text": "How to teach ration balancing?\n\nChallenges:\n\nWant to teach latest model (NASEM 2021)\nExcel sheet used in the past\nSoftware with book:\n\nComplicated for beginners\nOnly works on Windows\n\nCommercial/industry software:\n\nExpensive\nHard to access\nEven more complex"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#solution-we-built-our-own",
+    "href": "ADSA_presentation-revealjs.html#solution-we-built-our-own",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Solution? We built our own!",
+    "text": "Solution? We built our own!\n\nWeb based app\nWorks on all computers (and mobile phones)\nSimplified user experience\n\nhttps://dave-innes-uog.shinyapps.io/nasem_shiny/"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#assignment-1---early-semester",
+    "href": "ADSA_presentation-revealjs.html#assignment-1---early-semester",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Assignment 1 - early semester",
+    "text": "Assignment 1 - early semester\n\nAssignment sheet with steps and screen recordings\nDemonstrations in workshops\nPre-loaded scenarios with a clear mistake\nObjective:\n\nGet the feel of adding/removing ingredients\nFind meaningful outputs in the app\nFix a basic problem"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#example-video",
+    "href": "ADSA_presentation-revealjs.html#example-video",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Example Video",
+    "text": "Example Video\n\nHow to set up a simulation & load"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#assignment-2---mid-semester",
+    "href": "ADSA_presentation-revealjs.html#assignment-2---mid-semester",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Assignment 2 - mid semester",
+    "text": "Assignment 2 - mid semester\n\nIntroduce Dry vs Lactating Cow\nRead and interpret farm forage analyses\nAdding new ingredients to app\nFormulating full diets"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#case-study-assignment",
+    "href": "ADSA_presentation-revealjs.html#case-study-assignment",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Case Study Assignment",
+    "text": "Case Study Assignment"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#initial-feedback",
+    "href": "ADSA_presentation-revealjs.html#initial-feedback",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Initial feedback",
+    "text": "Initial feedback\n\nEarly versions couldn’t save sessions\nStudent’s needed multiple ways to learn it - videos, step-by-step instructions, classroom demo\nThe app is simplified, but the content was still difficult\nStudents surprised how hard it was to formulate a ration for a very high producing dairy herd\n\n(It’s a limitation of the model, not the students!)"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#how-to-use-contribute",
+    "href": "ADSA_presentation-revealjs.html#how-to-use-contribute",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "How to use & contribute?",
+    "text": "How to use & contribute?\n\nOpen Source - NASEM model & the Shiny App\nGitHub - log ‘Issues’ as a user - even if no experience with code\nRead the docs - running on own computer or re-deploying custom versions is relatively simple"
+  },
+  {
+    "objectID": "ADSA_presentation-revealjs.html#conclusions",
+    "href": "ADSA_presentation-revealjs.html#conclusions",
+    "title": "Modern Publishing Tools for Modern Science",
+    "section": "Conclusions",
+    "text": "Conclusions\n\nQuarto is an example of how future publishing can look\nShiny has potential to modernise teaching and research communication\nWe need to encourage our societies and organising committees to allow these tools to be used in meetings\nCollectively sharing resources via an open-source platform will accelerate model improvement\n\nfeedback wanted"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)",
+    "section": "",
+    "text": "This is the documentation website for the NASEM Shiny web application.\nThis app is a simplified version of the model described in the 8th Edition of the Nutrient Requirements of Dairy Cattle book.\nThe current version of this app supports Lactating and Dry Cows and is being developed for teaching and research only. This software should not be used for on-farm or commercial decisions."
+  },
+  {
+    "objectID": "index.html#free-online-access",
+    "href": "index.html#free-online-access",
+    "title": "Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)",
+    "section": "Free online access",
+    "text": "Free online access\nThe current version of NASEM Shiny is hosted at: https://dave-innes-uog.shinyapps.io/nasem_shiny/\n\n\n\n\n\n\nAcknowledgements\n\n\n\nThe Shiny App and associated python implementation of the NASEM modle was developed by Dave Innes, Braeden Fieguth and John Cant, University of Guelph. The model was based on the original R code that is included with the book and online.\nThe source code for the latest Python implementation of the model can be viewed on GitHub."
+  },
+  {
+    "objectID": "index.html#running-locally",
+    "href": "index.html#running-locally",
+    "title": "Nutrient Requirements of Dairy Cattle - 8th Edition (NASEM 2021)",
+    "section": "Running locally",
+    "text": "Running locally\nThe shiny app can also be executed on a user’s computer. However, some knowledge of Python and VSCode is required.\n\n\nHow to Setup and Run the Shiny App Locally\n\n\nStep 1: Install Git\n\nOpen a terminal or command prompt.\nFor macOS, install Git using Homebrew:\nbrew install git\nFor Ubuntu/Debian-based Linux distributions, install Git using apt:\nsudo apt-get update\nsudo apt-get install git\nFor Windows, download and install the Git executable from git-scm.com.\n\n\n\nStep 2: Clone the Repository\n\nOpen your terminal or command prompt.\nNavigate to the directory where you want to clone the repository.\nRun the following command\ngit clone https://github.com/CNM-University-of-Guelph/NASEM-shiny.git\n\n\n\nStep 3: Set Up the Conda Environment\n\nNavigate into the cloned repository directory:\ncd NASEM-shiny\nCreate a new conda environment and install the required packages:\nconda create --name NASEM_env --file requirements.txt\nActivate the newly created environment:\nconda activate NASEM_env\n\n\n\nStep 4: Install VSCode Shiny Extension\n\nOpen Visual Studio Code (https://code.visualstudio.com/)\nGo to the Extensions view by clicking on the square icon on the sidebar or pressing Ctrl+Shift+X.\nSearch for “Shiny”.\nClick on the install button next to the extension.\n\n\n\nStep 5: Run the Shiny App Locally\n\nIn VSCode, open the folder containing the cloned Shiny for Python application.\nOpen app.py\nOpen a new terminal and ensure your conda environment is activated.\nPress the play  button at the top right corner of app.py to run the shiny app"
+  },
+  {
+    "objectID": "Developer_Notes.html",
+    "href": "Developer_Notes.html",
+    "title": "Developer Notes",
+    "section": "",
+    "text": "The source code for this Shiny App is available on our github , and you’ll find the code for this Quarto webpage under the /docs directory.\n\nbuilt using the Shiny framework\ngithub link\nlogging issues"
+  },
+  {
+    "objectID": "Developer_Notes.html#source-code",
+    "href": "Developer_Notes.html#source-code",
+    "title": "Developer Notes",
+    "section": "",
+    "text": "The source code for this Shiny App is available on our github , and you’ll find the code for this Quarto webpage under the /docs directory.\n\nbuilt using the Shiny framework\ngithub link\nlogging issues"
+  },
+  {
+    "objectID": "Developer_Notes.html#deployment",
+    "href": "Developer_Notes.html#deployment",
+    "title": "Developer Notes",
+    "section": "Deployment",
+    "text": "Deployment"
+  },
+  {
+    "objectID": "Developer_Notes.html#shiny-for-python-resources",
+    "href": "Developer_Notes.html#shiny-for-python-resources",
+    "title": "Developer Notes",
+    "section": "Shiny for python resources",
+    "text": "Shiny for python resources\n\nURLs"
+  },
+  {
+    "objectID": "Developer_Notes.html#quarto-resources",
+    "href": "Developer_Notes.html#quarto-resources",
+    "title": "Developer Notes",
+    "section": "Quarto resources",
+    "text": "Quarto resources"
+  }
+]
