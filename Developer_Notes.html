@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -116,9 +150,15 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#source-code" id="toc-source-code" class="nav-link active" data-scroll-target="#source-code">Source code</a></li>
+  <li><a href="#running-locally" id="toc-running-locally" class="nav-link" data-scroll-target="#running-locally">Running Locally</a>
+  <ul class="collapse">
+  <li><a href="#step-1-install-git" id="toc-step-1-install-git" class="nav-link" data-scroll-target="#step-1-install-git">Step 1: Install Git</a></li>
+  <li><a href="#step-2-clone-the-repository" id="toc-step-2-clone-the-repository" class="nav-link" data-scroll-target="#step-2-clone-the-repository">Step 2: Clone the Repository</a></li>
+  <li><a href="#step-3-set-up-the-conda-environment" id="toc-step-3-set-up-the-conda-environment" class="nav-link" data-scroll-target="#step-3-set-up-the-conda-environment">Step 3: Set Up the Conda Environment</a></li>
+  <li><a href="#step-4-install-vscode-shiny-extension" id="toc-step-4-install-vscode-shiny-extension" class="nav-link" data-scroll-target="#step-4-install-vscode-shiny-extension">Step 4: Install VSCode Shiny Extension</a></li>
+  <li><a href="#step-5-run-the-shiny-app-locally" id="toc-step-5-run-the-shiny-app-locally" class="nav-link" data-scroll-target="#step-5-run-the-shiny-app-locally">Step 5: Run the Shiny App Locally</a></li>
+  </ul></li>
   <li><a href="#deployment" id="toc-deployment" class="nav-link" data-scroll-target="#deployment">Deployment</a></li>
-  <li><a href="#shiny-for-python-resources" id="toc-shiny-for-python-resources" class="nav-link" data-scroll-target="#shiny-for-python-resources">Shiny for python resources</a></li>
-  <li><a href="#quarto-resources" id="toc-quarto-resources" class="nav-link" data-scroll-target="#quarto-resources">Quarto resources</a></li>
   </ul>
 </nav>
     </div>
@@ -145,28 +185,80 @@ ul.task-list li input[type="checkbox"] {
 <section id="source-code" class="level2">
 <h2 class="anchored" data-anchor-id="source-code">Source code</h2>
 <p>The source code for this Shiny App is available on <a href="https://github.com/CNM-University-of-Guelph/NASEM-shiny" target="_blank">our github <i class="fa-brands fa-github" aria-label="github"></i></a>, and you’ll find the code for this <a href="https://quarto.org/" target="_blank">Quarto</a> webpage under the <code>/docs</code> directory.</p>
-<ul>
-<li>built using the Shiny framework</li>
-<li>github link</li>
-<li>logging issues</li>
-</ul>
 </section>
+<section id="running-locally" class="level2">
+<h2 class="anchored" data-anchor-id="running-locally">Running Locally</h2>
+<p>The shiny app can also be executed on a user’s computer. However, some knowledge of Python and VSCode is required.</p>
+<details>
+<summary>
+<strong>How to Setup and Run the Shiny App Locally</strong>
+</summary>
+<section id="step-1-install-git" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-install-git">Step 1: Install Git</h3>
+<ol type="1">
+<li><p>Open a terminal or command prompt.</p></li>
+<li><p>For macOS, install Git using Homebrew:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>For Ubuntu/Debian-based Linux distributions, install Git using apt:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>For Windows, download and install the Git executable from <a href="https://git-scm.com">git-scm.com</a>.</p></li>
+</ol>
+</section>
+<section id="step-2-clone-the-repository" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-clone-the-repository">Step 2: Clone the Repository</h3>
+<ol type="1">
+<li><p>Open your terminal or command prompt.</p></li>
+<li><p>Navigate to the directory where you want to clone the repository.</p></li>
+<li><p>Run the following command</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/CNM-University-of-Guelph/NASEM-shiny.git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+<section id="step-3-set-up-the-conda-environment" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-set-up-the-conda-environment">Step 3: Set Up the Conda Environment</h3>
+<ol type="1">
+<li><p>Navigate into the cloned repository directory:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> NASEM-shiny</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Create a new conda environment and install the required packages:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> create <span class="at">--name</span> NASEM_env <span class="at">--file</span> requirements.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Activate the newly created environment:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate NASEM_env</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+<section id="step-4-install-vscode-shiny-extension" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-install-vscode-shiny-extension">Step 4: Install VSCode Shiny Extension</h3>
+<ol type="1">
+<li>Open Visual Studio Code (<a href="https://code.visualstudio.com/" target="_blank">https://code.visualstudio.com/</a>)</li>
+<li>Go to the Extensions view by clicking on the square icon on the sidebar or pressing <code>Ctrl+Shift+X</code>.</li>
+<li>Search for “Shiny”.</li>
+<li>Click on the install button next to the extension.</li>
+</ol>
+</section>
+<section id="step-5-run-the-shiny-app-locally" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-run-the-shiny-app-locally">Step 5: Run the Shiny App Locally</h3>
+<ol type="1">
+<li>In VSCode, open the folder containing the cloned Shiny for Python application.</li>
+<li>Open <code>app.py</code></li>
+<li>Open a new terminal and ensure your conda environment is activated.</li>
+<li>Press the play <i class="fa-solid fa-play" aria-label="play"></i> button at the top right corner of app.py to run the shiny app</li>
+</ol>
+</section></details>
+</section>
+
 <section id="deployment" class="level2">
 <h2 class="anchored" data-anchor-id="deployment">Deployment</h2>
+<p>Once you have a copy of the source code, there are various ways to deploy a Shiny App.</p>
+<section id="shinyapps.io" class="level4">
+<h4 class="anchored" data-anchor-id="shinyapps.io">shinyapps.io</h4>
+<p>The easiest is to use <a href="https://www.shinyapps.io/" class="uri">https://www.shinyapps.io/</a> which has a free account with a free tier. These instructions show how to use the <code>rsconnect-python</code> package to deploy with a few lines of code: <a href="https://shiny.posit.co/py/docs/deploy-cloud.html#shinyapps.io" class="uri">https://shiny.posit.co/py/docs/deploy-cloud.html#shinyapps.io</a>.</p>
+<p>Note that this uses the <code>requirements.txt</code> file to install the required packages when it builds the container for deployment.</p>
 </section>
-<section id="shiny-for-python-resources" class="level2">
-<h2 class="anchored" data-anchor-id="shiny-for-python-resources">Shiny for python resources</h2>
-<ul>
-<li>URLs</li>
-</ul>
-</section>
-<section id="quarto-resources" class="level2">
-<h2 class="anchored" data-anchor-id="quarto-resources">Quarto resources</h2>
-<ul>
-<li></li>
-</ul>
+<section id="self-hosted" class="level4">
+<h4 class="anchored" data-anchor-id="self-hosted">Self-hosted</h4>
+<p>It is also possible to host Shiny Apps on a linux server using the open source Shiny Server. This is useful if the Shiny Apps need to access a high powered computer, or if you prefer to host it locally on a private network so that data is not transmitted to an external server for analysis: <a href="https://shiny.posit.co/py/docs/deploy-on-prem.html#deploy-to-shiny-server-open-source" class="uri">https://shiny.posit.co/py/docs/deploy-on-prem.html#deploy-to-shiny-server-open-source</a></p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

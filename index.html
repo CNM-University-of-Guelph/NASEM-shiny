@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -73,8 +39,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
-<link href="site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -150,14 +114,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#free-online-access" id="toc-free-online-access" class="nav-link active" data-scroll-target="#free-online-access">Free online access</a></li>
-  <li><a href="#running-locally" id="toc-running-locally" class="nav-link" data-scroll-target="#running-locally">Running locally</a>
-  <ul class="collapse">
-  <li><a href="#step-1-install-git" id="toc-step-1-install-git" class="nav-link" data-scroll-target="#step-1-install-git">Step 1: Install Git</a></li>
-  <li><a href="#step-2-clone-the-repository" id="toc-step-2-clone-the-repository" class="nav-link" data-scroll-target="#step-2-clone-the-repository">Step 2: Clone the Repository</a></li>
-  <li><a href="#step-3-set-up-the-conda-environment" id="toc-step-3-set-up-the-conda-environment" class="nav-link" data-scroll-target="#step-3-set-up-the-conda-environment">Step 3: Set Up the Conda Environment</a></li>
-  <li><a href="#step-4-install-vscode-shiny-extension" id="toc-step-4-install-vscode-shiny-extension" class="nav-link" data-scroll-target="#step-4-install-vscode-shiny-extension">Step 4: Install VSCode Shiny Extension</a></li>
-  <li><a href="#step-5-run-the-shiny-app-locally" id="toc-step-5-run-the-shiny-app-locally" class="nav-link" data-scroll-target="#step-5-run-the-shiny-app-locally">Step 5: Run the Shiny App Locally</a></li>
-  </ul></li>
+  <li><a href="#running-locally" id="toc-running-locally" class="nav-link" data-scroll-target="#running-locally">Running locally</a></li>
   </ul>
 </nav>
     </div>
@@ -187,6 +144,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="free-online-access" class="level2">
 <h2 class="anchored" data-anchor-id="free-online-access">Free online access</h2>
 <p>The current version of NASEM Shiny is hosted at: <a href="https://dave-innes-uog.shinyapps.io/nasem_shiny/" target="_blank">https://dave-innes-uog.shinyapps.io/nasem_shiny/</a></p>
+<p>See <a href="Developer_notes.html">Developer Notes</a> for source code.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -197,7 +155,7 @@ Acknowledgements
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The Shiny App and associated python implementation of the NASEM modle was developed by Dave Innes, Braeden Fieguth and John Cant, University of Guelph. The model was based on the original R code that is included with the book <a href="https://nap.nationalacademies.org/resource/25806/Installation_Instructions_NASEM_Dairy8.pdf" target="_blank">and online</a>.</p>
+<p>The Shiny App and associated python implementation of the NASEM model was developed by Dave Innes, Braeden Fieguth and John Cant, University of Guelph. The model was based on the original R code that is included with the book <a href="https://nap.nationalacademies.org/resource/25806/Installation_Instructions_NASEM_Dairy8.pdf" target="_blank">and online</a>.</p>
 <p>The source code for the latest Python implementation of the model can be viewed <a href="https://github.com/CNM-University-of-Guelph/NASEM-Model-Python" target="_blank">on GitHub</a>.</p>
 <!-- Custom image inclusion; ensure the path is correct -->
 <p><img src="./media/absc_logo.png" class="img-fluid" width="240"></p>
@@ -206,65 +164,10 @@ Acknowledgements
 </section>
 <section id="running-locally" class="level2">
 <h2 class="anchored" data-anchor-id="running-locally">Running locally</h2>
-<p>The shiny app can also be executed on a user’s computer. However, some knowledge of Python and VSCode is required.</p>
-<details>
-<summary>
-<strong>How to Setup and Run the Shiny App Locally</strong>
-</summary>
-<section id="step-1-install-git" class="level3">
-<h3 class="anchored" data-anchor-id="step-1-install-git">Step 1: Install Git</h3>
-<ol type="1">
-<li><p>Open a terminal or command prompt.</p></li>
-<li><p>For macOS, install Git using Homebrew:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>For Ubuntu/Debian-based Linux distributions, install Git using apt:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>For Windows, download and install the Git executable from <a href="https://git-scm.com">git-scm.com</a>.</p></li>
-</ol>
-</section>
-<section id="step-2-clone-the-repository" class="level3">
-<h3 class="anchored" data-anchor-id="step-2-clone-the-repository">Step 2: Clone the Repository</h3>
-<ol type="1">
-<li><p>Open your terminal or command prompt.</p></li>
-<li><p>Navigate to the directory where you want to clone the repository.</p></li>
-<li><p>Run the following command</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/CNM-University-of-Guelph/NASEM-shiny.git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-</ol>
-</section>
-<section id="step-3-set-up-the-conda-environment" class="level3">
-<h3 class="anchored" data-anchor-id="step-3-set-up-the-conda-environment">Step 3: Set Up the Conda Environment</h3>
-<ol type="1">
-<li><p>Navigate into the cloned repository directory:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> NASEM-shiny</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Create a new conda environment and install the required packages:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> create <span class="at">--name</span> NASEM_env <span class="at">--file</span> requirements.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Activate the newly created environment:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate NASEM_env</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-</ol>
-</section>
-<section id="step-4-install-vscode-shiny-extension" class="level3">
-<h3 class="anchored" data-anchor-id="step-4-install-vscode-shiny-extension">Step 4: Install VSCode Shiny Extension</h3>
-<ol type="1">
-<li>Open Visual Studio Code (<a href="https://code.visualstudio.com/" target="_blank">https://code.visualstudio.com/</a>)</li>
-<li>Go to the Extensions view by clicking on the square icon on the sidebar or pressing <code>Ctrl+Shift+X</code>.</li>
-<li>Search for “Shiny”.</li>
-<li>Click on the install button next to the extension.</li>
-</ol>
-</section>
-<section id="step-5-run-the-shiny-app-locally" class="level3">
-<h3 class="anchored" data-anchor-id="step-5-run-the-shiny-app-locally">Step 5: Run the Shiny App Locally</h3>
-<ol type="1">
-<li>In VSCode, open the folder containing the cloned Shiny for Python application.</li>
-<li>Open <code>app.py</code></li>
-<li>Open a new terminal and ensure your conda environment is activated.</li>
-<li>Press the play <i class="fa-solid fa-play" aria-label="play"></i> button at the top right corner of app.py to run the shiny app</li>
-</ol>
-</section></details>
+<p>The shiny app can also be executed on a user’s computer. However, some knowledge of Python and VSCode is required. See <a href="Developer_notes.html">Developer Notes</a> for more details.</p>
 
 
 </section>
-
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
