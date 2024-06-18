@@ -1,40 +1,52 @@
 # NASEM 2021 Dairy Model - Shiny App
-This is the source code for a shiny app (using Shiny for Python) that imports the `nasem_dairy` package from https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
 
+This is the source code for a shiny app (using Shiny for Python) that
+imports the `nasem_dairy` package from
+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
 
-This is the documentation website for the **NASEM Shiny** web application.
+This is the documentation website for the **NASEM Shiny** web
+application.
 
-This app is a simplified version of the model described in the 8th Edition of the [Nutrient Requirements of Dairy Cattle book](https://www.nationalacademies.org/our-work/nutrient-requirements-of-dairy-cattle-8th-edition){target="_blank"}.
+This app is a simplified version of the model described in the 8th
+Edition of the <a
+href="https://www.nationalacademies.org/our-work/nutrient-requirements-of-dairy-cattle-8th-edition"
+target="_blank">Nutrient Requirements of Dairy Cattle book</a>.
 
-The current version of this app supports Lactating and Dry Cows and is being developed for teaching and research only. This software should not be used for on-farm or commercial decisions.
+The current version of this app supports Lactating and Dry Cows and is
+being developed for teaching and research only. This software should not
+be used for on-farm or commercial decisions.
 
 ## Free online access
 
-The current version of NASEM Shiny is hosted at: [https://dave-innes-uog.shinyapps.io/nasem_shiny/](https://dave-innes-uog.shinyapps.io/nasem_shiny/)
+The current version of NASEM Shiny is hosted at:
+<https://dave-innes-uog.shinyapps.io/nasem_shiny/>
 
-<div style="
-    padding: 1em;
-    margin: 1em 0;
-    border-left: 0.25em solid #28a745;
-    background-color: #f0f8ff;
-    border-radius: 0.25em;
-">
-<strong>Acknowledgements:</strong> 
-The Shiny App and associated python implementation of the NASEM model was developed by Dave Innes, Braeden Fieguth and John Cant, University of Guelph. The model was based on the original R code that is included with the book [and online](https://nap.nationalacademies.org/resource/25806/Installation_Instructions_NASEM_Dairy8.pdf).
+<div>
 
-The source code for the latest Python implementation of the model can be viewed [on GitHub](https://github.com/CNM-University-of-Guelph/NASEM-Model-Python).
+> **Acknowledgements:**
+>
+> The Shiny App and associated python implementation of the NASEM model
+> was developed by Dave Innes, Braeden Fieguth and John Cant, University
+> of Guelph. The model was based on the original R code that is included
+> with the book [and
+> online](https://nap.nationalacademies.org/resource/25806/Installation_Instructions_NASEM_Dairy8.pdf).
+>
+> The source code for the latest Python implementation of the model can
+> be viewed [on
+> GitHub](https://github.com/CNM-University-of-Guelph/NASEM-Model-Python).
+>
+> <img src="./docs/media/absc_logo.png" width="240" />
 
-![](docs/media/absc_logo.png){width="240"}
 </div>
-
-
 
 ## Running locally
 
-The shiny app can also be executed on a user's computer. However, some knowledge of Python and VSCode is required. 
+The shiny app can also be executed on a user’s computer. However, some
+knowledge of Python and VSCode is required.
 <details>
-
-<summary><strong>How to Setup and Run the Shiny App Locally</strong></summary>
+<summary>
+<strong>How to Setup and Run the Shiny App Locally</strong>
+</summary>
 
 ### Step 1: Install Git
 
@@ -53,7 +65,8 @@ The shiny app can also be executed on a user's computer. However, some knowledge
     sudo apt-get install git
     ```
 
-    For Windows, download and install the Git executable from [git-scm.com](https://git-scm.com).
+    For Windows, download and install the Git executable from
+    [git-scm.com](https://git-scm.com).
 
 ### Step 2: Clone the Repository
 
@@ -89,16 +102,20 @@ The shiny app can also be executed on a user's computer. However, some knowledge
 
 ### Step 4: Install VSCode Shiny Extension
 
-1.  Open Visual Studio Code ([https://code.visualstudio.com/](https://code.visualstudio.com/){target="_blank"})
-2.  Go to the Extensions view by clicking on the square icon on the sidebar or pressing `Ctrl+Shift+X`.
-3.  Search for "Shiny".
+1.  Open Visual Studio Code (<a href="https://code.visualstudio.com/"
+    target="_blank">https://code.visualstudio.com/</a>)
+2.  Go to the Extensions view by clicking on the square icon on the
+    sidebar or pressing `Ctrl+Shift+X`.
+3.  Search for “Shiny”.
 4.  Click on the install button next to the extension.
 
 ### Step 5: Run the Shiny App Locally
 
-1.  In VSCode, open the folder containing the cloned Shiny for Python application.
+1.  In VSCode, open the folder containing the cloned Shiny for Python
+    application.
 2.  Open `app.py`
 3.  Open a new terminal and ensure your conda environment is activated.
-4.  Press the play {{< fa play >}} button at the top right corner of app.py to run the shiny app
+4.  Press the play {{< fa play >}} button at the top right corner of
+    app.py to run the shiny app
 
 </details>
