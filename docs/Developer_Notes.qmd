@@ -2,20 +2,95 @@
 title: "Developer Notes"
 ---
 
+## Source code
 
-## Source code 
 The source code for this Shiny App is available on [our github {{< fa brands github >}}](https://github.com/CNM-University-of-Guelph/NASEM-shiny){target="_blank"}, and you'll find the code for this [Quarto](https://quarto.org/){target="_blank"} webpage under the `/docs` directory.
 
+## Running Locally
 
-- built using the Shiny framework
-- github link
-- logging issues
+The shiny app can also be executed on a user's computer. However, some knowledge of Python and VSCode is required. See [Developer Notes](Developer_notes.html) for more details.
+
+<details>
+
+<summary><strong>How to Setup and Run the Shiny App Locally</strong></summary>
+
+### Step 1: Install Git
+
+1.  Open a terminal or command prompt.
+
+2.  For macOS, install Git using Homebrew:
+
+    ``` bash
+    brew install git
+    ```
+
+    For Ubuntu/Debian-based Linux distributions, install Git using apt:
+
+    ``` bash
+    sudo apt-get update
+    sudo apt-get install git
+    ```
+
+    For Windows, download and install the Git executable from [git-scm.com](https://git-scm.com).
+
+### Step 2: Clone the Repository
+
+1.  Open your terminal or command prompt.
+
+2.  Navigate to the directory where you want to clone the repository.
+
+3.  Run the following command
+
+    ``` bash
+    git clone https://github.com/CNM-University-of-Guelph/NASEM-shiny.git
+    ```
+
+### Step 3: Set Up the Conda Environment
+
+1.  Navigate into the cloned repository directory:
+
+    ``` bash
+    cd NASEM-shiny
+    ```
+
+2.  Create a new conda environment and install the required packages:
+
+    ``` bash
+    conda create --name NASEM_env --file requirements.txt
+    ```
+
+3.  Activate the newly created environment:
+
+    ``` bash
+    conda activate NASEM_env
+    ```
+
+### Step 4: Install VSCode Shiny Extension
+
+1.  Open Visual Studio Code ([https://code.visualstudio.com/](https://code.visualstudio.com/){target="_blank"})
+2.  Go to the Extensions view by clicking on the square icon on the sidebar or pressing `Ctrl+Shift+X`.
+3.  Search for "Shiny".
+4.  Click on the install button next to the extension.
+
+### Step 5: Run the Shiny App Locally
+
+1.  In VSCode, open the folder containing the cloned Shiny for Python application.
+2.  Open `app.py`
+3.  Open a new terminal and ensure your conda environment is activated.
+4.  Press the play {{< fa play >}} button at the top right corner of app.py to run the shiny app
+
+</details>
+
 
 ## Deployment
+Once you have a copy of the source code, there are various ways to deploy a Shiny App. 
 
+#### shinyapps.io
+The easiest is to use <https://www.shinyapps.io/> which has a free account with a free tier. These instructions show how to use the `rsconnect-python` package to deploy with a few lines of code: <https://shiny.posit.co/py/docs/deploy-cloud.html#shinyapps.io>.
 
-## Shiny for python resources
- - URLs 
+Note that this uses the `requirements.txt` file to install the required packages when it builds the container for deployment.
 
-## Quarto resources
- - 
+#### Self-hosted
+It is also possible to host Shiny Apps on a linux server using the open source Shiny Server. This is useful if the Shiny Apps need to access a high powered computer, or if you prefer to host it locally on a private network so that data is not transmitted to an external server for analysis:
+<https://shiny.posit.co/py/docs/deploy-on-prem.html#deploy-to-shiny-server-open-source>
+

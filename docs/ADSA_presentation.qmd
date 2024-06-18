@@ -66,16 +66,17 @@ The source code is available here: <https://github.com/CNM-University-of-Guelph/
 
 ![](media/qrcode_cnm-university-of-guelph-presentation.png)
 
-::: {.smaller}
+
 ## Interactivity
 
 ::: column-screen-inset
 ::: {.content-visible when-format="html"}
 ```{shinylive-python}
 #| standalone: true
-#| viewerHeight: 500
+#| viewerHeight: 900
 #| components: [editor, viewer]
-#| code-overflow: scroll
+
+
 
 ## file: app.py
 from shiny import reactive, req
@@ -234,7 +235,6 @@ def plot_dairy_repro_timeline(
 
 
 ```
-:::
 :::
 :::
 
