@@ -10,19 +10,24 @@ The current version of this app supports Lactating and Dry Cows and is being dev
 
 ## Free online access
 
-The current version of NASEM Shiny is hosted at: [https://dave-innes-uog.shinyapps.io/nasem_shiny/](https://dave-innes-uog.shinyapps.io/nasem_shiny/){target="_blank"}
+The current version of NASEM Shiny is hosted at: [https://dave-innes-uog.shinyapps.io/nasem_shiny/](https://dave-innes-uog.shinyapps.io/nasem_shiny/)
 
-::: callout-tip
-## Acknowledgements
+<div style="
+    padding: 1em;
+    margin: 1em 0;
+    border-left: 0.25em solid #28a745;
+    background-color: #f0f8ff;
+    border-radius: 0.25em;
+">
+<strong>Acknowledgements:</strong> 
+The Shiny App and associated python implementation of the NASEM model was developed by Dave Innes, Braeden Fieguth and John Cant, University of Guelph. The model was based on the original R code that is included with the book [and online](https://nap.nationalacademies.org/resource/25806/Installation_Instructions_NASEM_Dairy8.pdf).
 
-The Shiny App and associated python implementation of the NASEM model was developed by Dave Innes, Braeden Fieguth and John Cant, University of Guelph. The model was based on the original R code that is included with the book [and online](https://nap.nationalacademies.org/resource/25806/Installation_Instructions_NASEM_Dairy8.pdf){target="_blank"}.
+The source code for the latest Python implementation of the model can be viewed [on GitHub](https://github.com/CNM-University-of-Guelph/NASEM-Model-Python).
 
-The source code for the latest Python implementation of the model can be viewed [on GitHub](https://github.com/CNM-University-of-Guelph/NASEM-Model-Python){target="_blank"}.
+![](docs/media/absc_logo.png){width="240"}
+</div>
 
-<!-- Custom image inclusion; ensure the path is correct -->
 
-![](/media/absc_logo.png){width="240"}
-:::
 
 ## Running locally
 
