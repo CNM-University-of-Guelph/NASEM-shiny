@@ -8,7 +8,7 @@ The source code for this Shiny App is available on [our github {{< fa brands git
 
 ## Running Locally
 
-The shiny app can also be executed on a user's computer. However, some knowledge of Python and VSCode is required. 
+The shiny app can also be executed on a user's computer. However, some knowledge of Python and VSCode is required.
 
 <details>
 
@@ -81,16 +81,61 @@ The shiny app can also be executed on a user's computer. However, some knowledge
 
 </details>
 
-
 ## Deployment
-Once you have a copy of the source code, there are various ways to deploy a Shiny App. 
+
+Once you have a copy of the source code, there are various ways to deploy a Shiny App.
 
 #### shinyapps.io
+
 The easiest is to use <https://www.shinyapps.io/> which has a free account with a free tier. These instructions show how to use the `rsconnect-python` package to deploy with a few lines of code: <https://shiny.posit.co/py/docs/deploy-cloud.html#shinyapps.io>.
 
 Note that this uses the `requirements.txt` file to install the required packages when it builds the container for deployment.
 
 #### Self-hosted
-It is also possible to host Shiny Apps on a linux server using the open source Shiny Server. This is useful if the Shiny Apps need to access a high powered computer, or if you prefer to host it locally on a private network so that data is not transmitted to an external server for analysis:
-<https://shiny.posit.co/py/docs/deploy-on-prem.html#deploy-to-shiny-server-open-source>
 
+It is also possible to host Shiny Apps on a linux server using the open source Shiny Server. This is useful if the Shiny Apps need to access a high powered computer, or if you prefer to host it locally on a private network so that data is not transmitted to an external server for analysis: <https://shiny.posit.co/py/docs/deploy-on-prem.html#deploy-to-shiny-server-open-source>
+
+## Shiny Resources
+
+The following links are useful resources for developing Shiny applications:
+
+-   Learn Shiny for Python:
+    -   <https://shiny.posit.co/py/docs/overview.html>
+-   Shinylive playground:
+    -   <https://shinylive.io/py/examples/>
+-   Shiny for Python cheatsheet:
+    -   <https://rstudio.github.io/cheatsheets/html/shiny-python.html>
+-   Shiny extension for VS Code:
+    -   <https://marketplace.visualstudio.com/items?itemName=posit.shiny>
+-   Shiny modules info (used in this app):
+    -   <https://shiny.posit.co/py/docs/modules.html>
+    -   <https://shiny.posit.co/py/docs/module-communication.html>
+-   A collection of R and Python packages for extending Shiny:
+    -   <https://github.com/nanxstats/awesome-shiny-extensions>
+
+# Quarto for documentation (this website)
+This documentation website is built with [Quarto](https://quarto.org/). 
+
+Each of the `.qmd` files can be modified, representing each page of this website. The website is rendered using the instructions provided in the `_quarto.yml` file. To preview the changes live while developing, run the following:
+
+1) Make sure Quarto and VS Code extension are installed:
+    - <https://quarto.org/docs/get-started/>
+
+2) In a new terminal, navigate to the `docs/` directory, e.g.:
+```bash
+cd docs
+```
+
+3) Preview changes:
+```bash
+quarto preview
+```
+4) After development, render the entire document. This will save the website in a directory called `_site`:
+```bash
+quarto render
+```
+
+:::{.callout-note}
+This website is published using the `quarto publish gh-pages` command, as in: <https://quarto.org/docs/publishing/github-pages.html#publish-command>.
+This will render the documents and commit and push it to a branch on GitHub called `gh-pages`. Our GitHub has been set to deploy a Pages website from the content of the `gh-pages` branch in our repository.
+:::
