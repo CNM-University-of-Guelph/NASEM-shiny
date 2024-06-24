@@ -97,7 +97,7 @@ It is also possible to host Shiny Apps on a linux server using the open source S
 
 ## Shiny Resources
 
-The following links are useful guidelines for developing Shiny applications:
+The following links are useful resources for developing Shiny applications:
 
 -   Learn Shiny for Python:
     -   <https://shiny.posit.co/py/docs/overview.html>
@@ -112,3 +112,30 @@ The following links are useful guidelines for developing Shiny applications:
     -   <https://shiny.posit.co/py/docs/module-communication.html>
 -   A collection of R and Python packages for extending Shiny:
     -   <https://github.com/nanxstats/awesome-shiny-extensions>
+
+# Quarto for documentation (this website)
+This documentation website is built with [Quarto](https://quarto.org/). 
+
+Each of the `.qmd` files can be modified, representing each page of this website. The website is rendered using the instructions provided in the `_quarto.yml` file. To preview the changes live while developing, run the following:
+
+1) Make sure Quarto and VS Code extension are installed:
+    - <https://quarto.org/docs/get-started/>
+
+2) In a new terminal, navigate to the `docs/` directory, e.g.:
+```bash
+cd docs
+```
+
+3) Preview changes:
+```bash
+quarto preview
+```
+4) After development, render the entire document. This will save the website in a directory called `_site`:
+```bash
+quarto render
+```
+
+:::{.callout-note}
+This website is published using the `quarto publish gh-pages` command, as in: <https://quarto.org/docs/publishing/github-pages.html#publish-command>.
+This will render the documents and commit and push it to a branch on GitHub called `gh-pages`. Our GitHub has been set to deploy a Pages website from the content of the `gh-pages` branch in our repository.
+:::
