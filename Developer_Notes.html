@@ -159,6 +159,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#step-5-run-the-shiny-app-locally" id="toc-step-5-run-the-shiny-app-locally" class="nav-link" data-scroll-target="#step-5-run-the-shiny-app-locally">Step 5: Run the Shiny App Locally</a></li>
   </ul></li>
   <li><a href="#deployment" id="toc-deployment" class="nav-link" data-scroll-target="#deployment">Deployment</a></li>
+  <li><a href="#shiny-resources" id="toc-shiny-resources" class="nav-link" data-scroll-target="#shiny-resources">Shiny Resources</a></li>
+  <li><a href="#quarto-for-documentation-this-website" id="toc-quarto-for-documentation-this-website" class="nav-link" data-scroll-target="#quarto-for-documentation-this-website">Quarto for documentation (this website)</a></li>
   </ul>
 </nav>
     </div>
@@ -256,9 +258,74 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="self-hosted" class="level4">
 <h4 class="anchored" data-anchor-id="self-hosted">Self-hosted</h4>
 <p>It is also possible to host Shiny Apps on a linux server using the open source Shiny Server. This is useful if the Shiny Apps need to access a high powered computer, or if you prefer to host it locally on a private network so that data is not transmitted to an external server for analysis: <a href="https://shiny.posit.co/py/docs/deploy-on-prem.html#deploy-to-shiny-server-open-source" class="uri">https://shiny.posit.co/py/docs/deploy-on-prem.html#deploy-to-shiny-server-open-source</a></p>
-
-
 </section>
+</section>
+<section id="shiny-resources" class="level2">
+<h2 class="anchored" data-anchor-id="shiny-resources">Shiny Resources</h2>
+<p>The following links are useful resources for developing Shiny applications:</p>
+<ul>
+<li>Learn Shiny for Python:
+<ul>
+<li><a href="https://shiny.posit.co/py/docs/overview.html" class="uri">https://shiny.posit.co/py/docs/overview.html</a></li>
+</ul></li>
+<li>Shinylive playground:
+<ul>
+<li><a href="https://shinylive.io/py/examples/" class="uri">https://shinylive.io/py/examples/</a></li>
+</ul></li>
+<li>Shiny for Python cheatsheet:
+<ul>
+<li><a href="https://rstudio.github.io/cheatsheets/html/shiny-python.html" class="uri">https://rstudio.github.io/cheatsheets/html/shiny-python.html</a></li>
+</ul></li>
+<li>Shiny extension for VS Code:
+<ul>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=posit.shiny" class="uri">https://marketplace.visualstudio.com/items?itemName=posit.shiny</a></li>
+</ul></li>
+<li>Shiny modules info (used in this app):
+<ul>
+<li><a href="https://shiny.posit.co/py/docs/modules.html" class="uri">https://shiny.posit.co/py/docs/modules.html</a></li>
+<li><a href="https://shiny.posit.co/py/docs/module-communication.html" class="uri">https://shiny.posit.co/py/docs/module-communication.html</a></li>
+</ul></li>
+<li>A collection of R and Python packages for extending Shiny:
+<ul>
+<li><a href="https://github.com/nanxstats/awesome-shiny-extensions" class="uri">https://github.com/nanxstats/awesome-shiny-extensions</a></li>
+</ul></li>
+</ul>
+</section>
+<section id="quarto-for-documentation-this-website" class="level1">
+<h1>Quarto for documentation (this website)</h1>
+<p>This documentation website is built with <a href="https://quarto.org/">Quarto</a>.</p>
+<p>Each of the <code>.qmd</code> files can be modified, representing each page of this website. The website is rendered using the instructions provided in the <code>_quarto.yml</code> file. To preview the changes live while developing, run the following:</p>
+<ol type="1">
+<li>Make sure Quarto and VS Code extension are installed:
+<ul>
+<li><a href="https://quarto.org/docs/get-started/" class="uri">https://quarto.org/docs/get-started/</a></li>
+</ul></li>
+<li>In a new terminal, navigate to the <code>docs/</code> directory, e.g.:</li>
+</ol>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> docs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="3" type="1">
+<li>Preview changes:</li>
+</ol>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> preview</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="4" type="1">
+<li>After development, render the entire document. This will save the website in a directory called <code>_site</code>:</li>
+</ol>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> render</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This website is published using the <code>quarto publish gh-pages</code> command, as in: <a href="https://quarto.org/docs/publishing/github-pages.html#publish-command" class="uri">https://quarto.org/docs/publishing/github-pages.html#publish-command</a>. This will render the documents and commit and push it to a branch on GitHub called <code>gh-pages</code>. Our GitHub has been set to deploy a Pages website from the content of the <code>gh-pages</code> branch in our repository.</p>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->

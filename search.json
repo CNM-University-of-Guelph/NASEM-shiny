@@ -306,5 +306,12 @@
     "title": "Developer Notes",
     "section": "Deployment",
     "text": "Deployment\nOnce you have a copy of the source code, there are various ways to deploy a Shiny App.\n\nshinyapps.io\nThe easiest is to use https://www.shinyapps.io/ which has a free account with a free tier. These instructions show how to use the rsconnect-python package to deploy with a few lines of code: https://shiny.posit.co/py/docs/deploy-cloud.html#shinyapps.io.\nNote that this uses the requirements.txt file to install the required packages when it builds the container for deployment.\n\n\nSelf-hosted\nIt is also possible to host Shiny Apps on a linux server using the open source Shiny Server. This is useful if the Shiny Apps need to access a high powered computer, or if you prefer to host it locally on a private network so that data is not transmitted to an external server for analysis: https://shiny.posit.co/py/docs/deploy-on-prem.html#deploy-to-shiny-server-open-source"
+  },
+  {
+    "objectID": "Developer_Notes.html#shiny-resources",
+    "href": "Developer_Notes.html#shiny-resources",
+    "title": "Developer Notes",
+    "section": "Shiny Resources",
+    "text": "Shiny Resources\nThe following links are useful resources for developing Shiny applications:\n\nLearn Shiny for Python:\n\nhttps://shiny.posit.co/py/docs/overview.html\n\nShinylive playground:\n\nhttps://shinylive.io/py/examples/\n\nShiny for Python cheatsheet:\n\nhttps://rstudio.github.io/cheatsheets/html/shiny-python.html\n\nShiny extension for VS Code:\n\nhttps://marketplace.visualstudio.com/items?itemName=posit.shiny\n\nShiny modules info (used in this app):\n\nhttps://shiny.posit.co/py/docs/modules.html\nhttps://shiny.posit.co/py/docs/module-communication.html\n\nA collection of R and Python packages for extending Shiny:\n\nhttps://github.com/nanxstats/awesome-shiny-extensions"
   }
 ]
