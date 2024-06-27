@@ -233,7 +233,7 @@ An_MPavail_Milk_Trg,Metabolizable protein available milk production
 Mlk_NP_MPalow_Trg_g,"Net protein in milk based on available metabolizable protein, g/d"
 Mlk_Prod_MPalow,"MP allowable milk production, kg/d"
 An_MEavail_Milk,"Metabolizable energy available for milk production, Mcal/d"
-Mlk_Prod_NEalow,"NE allowable milk production, Mcal/d"
+Mlk_Prod_NEalow,"NE allowable milk production, kg/d"
 MlkFat_Milk_p,"Milk fat content, %"
 Mlk_Fatemp_g,"Predicted milk fat, g"
 MlkNP_Milk_p,"Milk protein content, %"
