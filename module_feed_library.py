@@ -6,7 +6,7 @@ from faicons import icon_svg
 import io
 import htmltools
 
-from utils import get_teaching_feeds, rename_df_cols_Fd_to_feed, pad_cols_UI_df
+from utils import get_teaching_feeds, rename_df_cols_Fd_to_feed, pad_cols_UI_df, feed_library_default
 
 @module.ui
 def feed_library_ui():
@@ -372,7 +372,7 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
     def download_lib_default():
         # Use io.BytesIO to yield the csv content 
         with io.StringIO() as buf:  # Use io.StringIO for string data
-            user_selected_feed_library().to_csv(buf)
+            feed_library_default.to_csv(buf)
             # buf.write()
             yield buf.getvalue()
     
