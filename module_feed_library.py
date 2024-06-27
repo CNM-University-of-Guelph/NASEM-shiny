@@ -161,13 +161,15 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
                 
                 # Check if all column names are present
                 req_cols = session_library.get().columns
-                
-                if not all(col_name in df_in.columns for col_name in req_cols):
-                    print("Not all required columns are present in the uploaded feed library.")
+                missing_cols = [col for col in req_cols if col not in df_in.columns]
+
+                if missing_cols:
+                    missing_cols_str = ", ".join(missing_cols)
+                    print(f"The following required columns are missing: {missing_cols_str}")
                     m = ui.modal(
-                        ui.p('Not all required columns are present in the uploaded feed library. Reverting to default feed library.'),
+                        ui.p(f'Not all required columns are present in the uploaded feed library: {missing_cols_str}. Reverting to default feed library.'),
                         ui.p('Please download the default feed library to use as a template for adding new feeds.'),
-                        title = 'Upload failed',
+                        title='Upload failed',
                         easy_close=True,
                     )
                     ui.modal_show(m)
@@ -370,7 +372,7 @@ def feed_library_server(input: Inputs, output: Outputs, session: Session, feed_l
     def download_lib_default():
         # Use io.BytesIO to yield the csv content 
         with io.StringIO() as buf:  # Use io.StringIO for string data
-            df_feed_library().to_csv(buf)
+            user_selected_feed_library().to_csv(buf)
             # buf.write()
             yield buf.getvalue()
     
