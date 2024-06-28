@@ -535,7 +535,8 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
 
             # # re-populate diet
             user_diet = session_upload_ModOut().get_value('user_diet')
-            print(user_diet)
+            # strip white space from column names (seems to add spaces after Feedstuff when an ingredient is missing
+            user_diet.columns = user_diet.columns.str.strip()
 
             # Handle the first entry manually
             first_entry = user_diet.iloc[0]
