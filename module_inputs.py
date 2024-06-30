@@ -411,7 +411,7 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
         pkl_session_upload()
         return ui.div(
             {"class": "callout callout-tip", "role": "alert" },
-            ui.div("Sesson Restored", class_ = "callout-title"),
+            ui.div("Session Restored", class_ = "callout-title"),
             ui.markdown(
                 f"""
                 - .NDsession loaded from:  {pkl_session_upload()['SaveTime']}
