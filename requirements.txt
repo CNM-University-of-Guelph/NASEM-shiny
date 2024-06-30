@@ -5,4 +5,4 @@ pandas==2.0.3
 pytz==2023.3.post1
 shiny==0.10.1
 shinyswatch==0.6.1
-nasem_dairy @ git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python@shiny-integration
+nasem_dairy @ git+https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
