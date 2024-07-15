@@ -185,7 +185,7 @@ def server(input, output, session):
         modified_equation_selection['DMIn_eqn'] = 0
 
         # Force it to use predictions for mPrt_eqn - the target protein equations are not well tested 
-        modified_equation_selection['mPrt_eqn'] = 1
+        # modified_equation_selection['mPrt_eqn'] = 1
         modified_equation_selection['mFat_eqn'] = 1
         # modified_equation_selection['mProd_eqn'] = 1 Defaults to 'component based'
     
