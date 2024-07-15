@@ -222,19 +222,20 @@ def animal_inputs_ui():
 
                         ui.input_radio_buttons(
                             "mPrt_eqn", 
-                            ("Milk Protein equations and coefficients to use."
-                             "NRC is NRC2021", 
+                            ("Milk Protein equations and AA coefficients to use."
+                             "Target TP will use target TP for protein equations and NRC coefficients in AA equations.",
+                             "Predict TP with NRC equations and coefficients (NRC 2021)", 
                              "VT1 coefficients from Dec. 20, 2020 - Virginia Tech (no Phe, Thr, Trp, or Val)",
                              "VT2 coefficients from April, 2022 solutions after further data cleaning - Virginia Tech (no Arg, Phe, Trp, or Val)"
                              ), 
-                            choices = {0: "NRC", 1: "VT1", 2: "VT2"},
-                            selected = 0),
+                            choices = {0: "Target TP", 1: "Predicted: NRC", 2: "Predicted: VT1", 3: "Predicted: VT2"},
+                            selected = 1),
 
                         ui.input_radio_buttons("mFat_eqn", "Milk Fat prediction equation", 
                                                choices = {0: "Trg_MilkFatp", 1: "Predicted milk fat production"}, 
                                                selected = 1),
 
-                        ui.input_radio_buttons("MiN_eqn", "MiN equation", 
+                        ui.input_radio_buttons("MiN_eqn", "Microbial Nitrogen (MiN) equation to use.", 
                                                choices={1: "NRC (2021)", 2: "Hanigan (2021)", 3: "White (2017)"}, selected=1),
                      
                         ui.input_radio_buttons(
