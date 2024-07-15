@@ -202,11 +202,17 @@ def calculate_DMI_prediction(
     if DMIn_eqn in [0,8,11] or model_output is None: 
         #  If dry cow eqn:
         if DMIn_eqn == 11:
+            Dt_DMIn_DryCow_AdjGest = nd.calculate_Dt_DMIn_DryCow_AdjGest(
+                animal_input["An_GestDay"], 
+                animal_input["An_GestLength"],
+                animal_input["An_BW"]
+            )
+
             DMI = nd.calculate_Dt_DMIn_DryCow2(
                 animal_input['An_BW'], 
-                animal_input['An_GestDay'], 
-                animal_input['An_GestLength'] 
-                ) 
+                Dt_DMIn_DryCow_AdjGest
+            )
+
         # This allows for if user has 9 selected, but model_output is none. Returns what it can.
         else:
             Trg_NEmilk_Milk = nd.calculate_Trg_NEmilk_Milk(
@@ -214,14 +220,19 @@ def calculate_DMI_prediction(
                 animal_input['Trg_MilkFatp'], 
                 animal_input['Trg_MilkLacp']
                 )
+            
+            Trg_NEmilkOut = nd.calculate_Trg_NEmilkOut(
+                Trg_NEmilk_Milk, animal_input['Trg_MilkProd']
+                )
+            
             # print("using DMIn_eqn: 8")
             DMI = nd.calculate_Dt_DMIn_Lact1(
-                animal_input['Trg_MilkProd'], 
                 animal_input['An_BW'], 
-                animal_input['An_BCS'],
+                animal_input['An_BCS'], 
                 animal_input['An_LactDay'], 
                 animal_input['An_Parity_rl'], 
-                Trg_NEmilk_Milk)
+                Trg_NEmilkOut
+                )
         
     elif DMIn_eqn == 9:
         DMI = nd.calculate_Dt_DMIn_Lact2(
