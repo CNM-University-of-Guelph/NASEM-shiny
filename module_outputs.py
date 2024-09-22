@@ -217,14 +217,16 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
      
     @render.data_frame
     def macro_minerals():
-        df = NASEM_out().report_minerals()['macro_minerals'].round(3)
+        # df = NASEM_out().report_minerals()['macro_minerals'].round(3)
+        df = NASEM_out().get_report('table7_1').round(3)
         return prepare_df_render(df, cols_longer=None, use_DataTable=False)
 
 
      
     @render.data_frame
     def micro_minerals():
-        df = NASEM_out().report_minerals()['micro_minerals'].round(3)
+        # df = NASEM_out().report_minerals()['micro_minerals'].round(3)
+        df = NASEM_out().get_report('table7_2').round(3)
         return prepare_df_render(df, cols_longer=None, use_DataTable=False)
 
     @render.download(filename=lambda: f"NASEM_report-{date.today().isoformat()}.html")

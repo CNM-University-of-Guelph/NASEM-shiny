@@ -179,17 +179,16 @@ def server(input, output, session):
         # Require that diet has > 0 kg before proceeding
         req( diet_total_intake() > 0)  
         
-        # modify input.DMIn_eqn() to be 0 for model
+        # modify input.DMIn_eqn() to be 0 for model, force 'target' DMI when running model
         modified_equation_selection = equation_selection().copy()
-        # force 'target' DMI when running model:
         modified_equation_selection['DMIn_eqn'] = 0
 
-        # Force it to use predictions for mPrt_eqn - the target protein equations are not well tested 
-        # modified_equation_selection['mPrt_eqn'] = 1
-        modified_equation_selection['mFat_eqn'] = 1
+        # modified_equation_selection['mPrt_eqn'] = 1 # predicted
+        # modified_equation_selection['mFat_eqn'] = 1
+
         # modified_equation_selection['mProd_eqn'] = 1 Defaults to 'component based'
     
-        model_output = nd.execute_model(
+        model_output = nd.nasem(
             user_diet(), 
             animal_input_dict().copy(), 
             modified_equation_selection, 
