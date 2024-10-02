@@ -89,9 +89,9 @@ knowledge of Python and VSCode is required.
 
 > [!IMPORTANT]
 >
-> This step uses the environment.yml file to create the conda
+> This step uses the `environment.yml` file to create the conda
 > environment. There is also a file called `requirements.txt` that is
-> used for deploying the app to [](shinyapps.io).
+> used for deploying the app to [shinyapps.io](https://shinyapps.io).
 
 3.  Activate the newly created environment:
 
