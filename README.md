@@ -22,9 +22,7 @@ be used for on-farm or commercial decisions.
 The current version of NASEM Shiny is hosted at:
 <https://dave-innes-uog.shinyapps.io/nasem_shiny/>
 
-> [!TIP]
->
-> ### Acknowledgements:
+> ## Acknowledgements:
 >
 > The Shiny App and associated python implementation of the NASEM model
 > was developed by Dave Innes, Braeden Fieguth and John Cant, University
@@ -93,16 +91,16 @@ knowledge of Python and VSCode is required.
     conda env create --file environment.yml --name NASEM_env 
     ```
 
+    > [!IMPORTANT]
+    >
+    > There is an additional file called `requirements.txt` that is used
+    > for deploying to \<shinyapps.io\>.
+
 3.  Activate the newly created environment:
 
     ``` bash
     conda activate NASEM_env
     ```
-
-> [!NOTE]
->
-> There is an additional file called `requirements.txt` that is used for
-> deploying to \<shinyapps.io\>.
 
 ### Step 4: Install VSCode Shiny Extension
 
