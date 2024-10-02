@@ -114,5 +114,5 @@ knowledge of Python and VSCode is required.
     application.
 2.  Open `app.py`
 3.  Open a new terminal and ensure your conda environment is activated.
-4.  Press the play {{< fa play >}} button at the top right corner of
-    app.py to run the shiny app
+4.  Press the play button at the top right corner of app.py to run the
+    shiny app
