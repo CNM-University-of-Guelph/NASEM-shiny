@@ -28,12 +28,10 @@ The current version of NASEM Shiny is hosted at: [https://dave-innes-uog.shinyap
 
 
 
-## Running locally
+## How to Setup and Run the Shiny App Locally
 
 The shiny app can also be executed on a user's computer. However, some knowledge of Python and VSCode is required. 
-<details>
 
-<summary><strong>How to Setup and Run the Shiny App Locally</strong></summary>
 
 ### Step 1: Install Git
 
@@ -107,4 +105,3 @@ The shiny app can also be executed on a user's computer. However, some knowledge
 3.  Open a new terminal and ensure your conda environment is activated.
 4.  Press the play {{< fa play >}} button at the top right corner of app.py to run the shiny app
 
-</details>

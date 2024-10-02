@@ -36,14 +36,10 @@ The current version of NASEM Shiny is hosted at:
 >
 > <img src="./docs/media/absc_logo.png" width="240" />
 
-## Running locally
+## How to Setup and Run the Shiny App Locally
 
 The shiny app can also be executed on a user’s computer. However, some
 knowledge of Python and VSCode is required.
-<details>
-<summary>
-<strong>How to Setup and Run the Shiny App Locally</strong>
-</summary>
 
 ### Step 1: Install Git
 
@@ -119,5 +115,3 @@ knowledge of Python and VSCode is required.
 3.  Open a new terminal and ensure your conda environment is activated.
 4.  Press the play {{< fa play >}} button at the top right corner of
     app.py to run the shiny app
-
-</details>
