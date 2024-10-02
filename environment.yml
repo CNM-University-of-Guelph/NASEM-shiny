@@ -1,0 +1,15 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.8
+  - pandas>=2.0.3
+  - pytz>=2023.3
+  - faicons>=0.2.2
+  - htmltools>=0.5.1
+  - importlib_resources>=6.1.1
+  - shiny=0.10.2
+  - pip
+  - pip:
+      - nasem_dairy
+      - shinyswatch==0.6.1
