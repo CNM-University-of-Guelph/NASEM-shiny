@@ -7,9 +7,10 @@ import io
 import pickle
 from datetime import datetime
 
-from utils import display_diet_values, get_vars_as_df, get_clean_vars, prepare_df_render
-from generate_report import generate_report
-
+from version import __version__
+from utils import display_diet_values, get_vars_as_df, get_clean_vars, prepare_df_render, coerce_non_text_to_numeric
+from generate_report import generate_summary_report, generate_full_report
+import nasem_dairy as nd
 
 @module.ui
 def outputs_ui():
@@ -17,9 +18,11 @@ def outputs_ui():
         ui.panel_title("NASEM Model Outputs"),
         ui.row(
             ui.column(3, ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes."))),
-            ui.column(2, ui.download_button("btn_download_report", "Download Report", class_='btn-warning'), offset=1),
-            ui.column(3, ui.download_button("btn_pkl_download", "Download .NDsession file", class_='btn-warning'))
+            ui.column(2, ui.download_button("btn_download_report", "Download Summary Report", class_='btn-warning'), offset=1),
+            ui.column(2, ui.download_button("btn_download_full_report_tables", "Download Full Report", class_='btn-warning')),
+            ui.column(3, ui.download_button("btn_pkl_download", "Download .NDsession file", class_='btn-info'))
         ),
+        ui.br(),
         ui.navset_card_tab(
             ui.nav_panel(
                 'Model Evaluation',
@@ -217,19 +220,20 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
      
     @render.data_frame
     def macro_minerals():
-        df = NASEM_out().report_minerals()['macro_minerals'].round(3)
+        # df = NASEM_out().report_minerals()['macro_minerals'].round(3)
+        df = coerce_non_text_to_numeric(NASEM_out().get_report('table7_1'), 2)
         return prepare_df_render(df, cols_longer=None, use_DataTable=False)
-
 
      
     @render.data_frame
     def micro_minerals():
-        df = NASEM_out().report_minerals()['micro_minerals'].round(3)
+        # df = NASEM_out().report_minerals()['micro_minerals'].round(3)
+        df = coerce_non_text_to_numeric(NASEM_out().get_report('table7_2'), 2)
         return prepare_df_render(df, cols_longer=None, use_DataTable=False)
 
     @render.download(filename=lambda: f"NASEM_report-{date.today().isoformat()}.html")
     def btn_download_report():
-        html_out = generate_report(
+        html_out = generate_summary_report(
             df_milk=df_key_model_data_milk(),
             df_allowable_milk=df_key_model_data_allowable_milk(),
             df_ME=df_key_model_data_ME(),
@@ -239,7 +243,7 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
             df_NEL=df_key_model_data_NEL(),
             df_ration_ingredients=NASEM_out().get_value('user_diet'),
             df_energy_teaching=df_key_model_data_energy_teaching(),
-            df_full_model=pd.DataFrame(),
+            df_animal_input_comparison=df_user_input_compare(),
             dict_equation_selections=NASEM_out().get_value('equation_selection'),
             df_snapshot=df_model_snapshot()
             # df_snapshot=df_model_snapshot() if animal_input_reactives()['An_StatePhys']() == 'Lactating Cow' else df_model_snapshot_drycow()
@@ -248,6 +252,24 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
         with io.StringIO() as buf:
             buf.write(html_out)
             yield buf.getvalue()
+
+
+    @render.download(filename=lambda: f"NASEM-report-all-tables-{date.today().isoformat()}.html")
+    def btn_download_full_report_tables():
+        table_names = [
+            "table1_1", "table1_2", "table1_3b", "table2_1", "table2_2", 
+            "table3_1", "table4_1", "table4_2", "table4_3", "table5_1", 
+            "table6_1", "table6_2", "table6_3", "table6_4", "table6_5", 
+            "table7_1", "table7_2", "table7_3", "table8_1", "table8_2"
+        ]
+
+        # Assuming `model_output` is an instance of `nd.ModelOutput`
+        html_report = generate_full_report(NASEM_out(), table_names)
+        
+        with io.StringIO() as buf:
+            buf.write(html_report)
+            yield buf.getvalue()
+
 
     #######################
     # Save Session file 
@@ -264,7 +286,9 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
         output_dict = {
             'ModelOutput' : NASEM_out(),
             'FeedLibrary' : user_selected_feed_library(),
-            'SaveTime': formatted_datetime
+            'SaveTime': formatted_datetime,
+            "AppVersion": __version__,
+            "ndVersion": nd.__version__
         }
         with io.BytesIO() as buf:
             pickle.dump(output_dict, buf)

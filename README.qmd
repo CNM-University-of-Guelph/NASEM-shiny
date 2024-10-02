@@ -16,24 +16,22 @@ The current version of this app supports Lactating and Dry Cows and is being dev
 
 The current version of NASEM Shiny is hosted at: [https://dave-innes-uog.shinyapps.io/nasem_shiny/](https://dave-innes-uog.shinyapps.io/nasem_shiny/)
 
-::: {.callout-tip}
-## Acknowledgements:
 
-The Shiny App and associated python implementation of the NASEM model was developed by Dave Innes, Braeden Fieguth and John Cant, University of Guelph. The model was based on the original R code that is included with the book [and online](https://nap.nationalacademies.org/resource/25806/Installation_Instructions_NASEM_Dairy8.pdf).
-
-The source code for the latest Python implementation of the model can be viewed [on GitHub](https://github.com/CNM-University-of-Guelph/NASEM-Model-Python).
-
-![](./docs/media/absc_logo.png){width=240px}
-
-:::
+> ## Acknowledgements:
+> 
+> The Shiny App and associated python implementation of the NASEM model was developed by Dave Innes, Braeden Fieguth and John Cant, University of Guelph. The model was based on the original R code that is included with the book [and online](https://nap.nationalacademies.org/resource/25806/Installation_Instructions_NASEM_Dairy8.pdf).
+> 
+> The source code for the latest Python implementation of the model can be viewed [on GitHub](https://github.com/CNM-University-of-Guelph/NASEM-Model-Python).
+> 
+> ![](./docs/media/absc_logo.png){width=240px}
 
 
-## Running locally
+
+
+## How to Setup and Run the Shiny App Locally
 
 The shiny app can also be executed on a user's computer. However, some knowledge of Python and VSCode is required. 
-<details>
 
-<summary><strong>How to Setup and Run the Shiny App Locally</strong></summary>
 
 ### Step 1: Install Git
 
@@ -77,14 +75,21 @@ The shiny app can also be executed on a user's computer. However, some knowledge
 2.  Create a new conda environment and install the required packages:
 
     ``` bash
-    conda create --name NASEM_env --file requirements.txt
+    conda env create --file environment.yml --name NASEM_env 
     ```
+
+::: {.callout-important}
+
+This step uses the `environment.yml` file to create the conda environment. There is also a file called `requirements.txt` that is used for deploying the app to [shinyapps.io](https://shinyapps.io).
+
+:::
 
 3.  Activate the newly created environment:
 
     ``` bash
     conda activate NASEM_env
     ```
+
 
 ### Step 4: Install VSCode Shiny Extension
 
@@ -98,6 +103,5 @@ The shiny app can also be executed on a user's computer. However, some knowledge
 1.  In VSCode, open the folder containing the cloned Shiny for Python application.
 2.  Open `app.py`
 3.  Open a new terminal and ensure your conda environment is activated.
-4.  Press the play {{< fa play >}} button at the top right corner of app.py to run the shiny app
+4.  Press the play button at the top right corner of app.py to run the shiny app
 
-</details>

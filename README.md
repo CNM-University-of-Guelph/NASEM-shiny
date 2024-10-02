@@ -1,5 +1,6 @@
 # NASEM 2021 Dairy Model - Shiny App
 
+
 This is the source code for a shiny app (using Shiny for Python) that
 imports the `nasem_dairy` package from
 https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
@@ -21,9 +22,7 @@ be used for on-farm or commercial decisions.
 The current version of NASEM Shiny is hosted at:
 <https://dave-innes-uog.shinyapps.io/nasem_shiny/>
 
-<div>
-
-> **Acknowledgements:**
+> ## Acknowledgements:
 >
 > The Shiny App and associated python implementation of the NASEM model
 > was developed by Dave Innes, Braeden Fieguth and John Cant, University
@@ -37,16 +36,10 @@ The current version of NASEM Shiny is hosted at:
 >
 > <img src="./docs/media/absc_logo.png" width="240" />
 
-</div>
-
-## Running locally
+## How to Setup and Run the Shiny App Locally
 
 The shiny app can also be executed on a user’s computer. However, some
 knowledge of Python and VSCode is required.
-<details>
-<summary>
-<strong>How to Setup and Run the Shiny App Locally</strong>
-</summary>
 
 ### Step 1: Install Git
 
@@ -91,8 +84,14 @@ knowledge of Python and VSCode is required.
 2.  Create a new conda environment and install the required packages:
 
     ``` bash
-    conda create --name NASEM_env --file requirements.txt
+    conda env create --file environment.yml --name NASEM_env 
     ```
+
+> [!IMPORTANT]
+>
+> This step uses the `environment.yml` file to create the conda
+> environment. There is also a file called `requirements.txt` that is
+> used for deploying the app to [shinyapps.io](https://shinyapps.io).
 
 3.  Activate the newly created environment:
 
@@ -115,7 +114,5 @@ knowledge of Python and VSCode is required.
     application.
 2.  Open `app.py`
 3.  Open a new terminal and ensure your conda environment is activated.
-4.  Press the play {{< fa play >}} button at the top right corner of
-    app.py to run the shiny app
-
-</details>
+4.  Press the play button at the top right corner of app.py to run the
+    shiny app

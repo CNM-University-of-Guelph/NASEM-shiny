@@ -209,7 +209,9 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
     
     @reactive.effect
     def _():
-        ui.update_selectize('item_1', choices=unique_fd_list())
+        with reactive.isolate():
+            print('update item_1 - initial line 212')
+            ui.update_selectize('item_1', choices=unique_fd_list())
 
 
 
@@ -543,15 +545,15 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
             ui.update_selectize(id='item_1', choices=unique_fd_list(), selected=first_entry['Feedstuff'])
             ui.update_numeric(id='kg_1', value=first_entry['kg_user'], min=0)
 
-            print(f'test: {user_feeds()}')
+            # print(f'test: {user_feeds()}')
             # Iterate over the remaining entries
             for index, row in user_diet.iloc[1:].iterrows():
-                print(user_feeds())
+                # print(user_feeds())
                 feed_selected.set(row['Feedstuff'])
                 kg_selected.set(row['kg_user'])
                 perc_selected.set(0)
                 iterate_new_ingredient()
-            print('done')
+            # print('done')
 
             # reset helpers before finishing
             feed_selected.set(None)
