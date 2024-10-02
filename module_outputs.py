@@ -7,9 +7,10 @@ import io
 import pickle
 from datetime import datetime
 
+from version import __version__
 from utils import display_diet_values, get_vars_as_df, get_clean_vars, prepare_df_render, coerce_non_text_to_numeric
 from generate_report import generate_report
-
+import nasem_dairy as nd
 
 @module.ui
 def outputs_ui():
@@ -265,7 +266,9 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
         output_dict = {
             'ModelOutput' : NASEM_out(),
             'FeedLibrary' : user_selected_feed_library(),
-            'SaveTime': formatted_datetime
+            'SaveTime': formatted_datetime,
+            "AppVersion": __version__,
+            "ndVersion": nd.__version__
         }
         with io.BytesIO() as buf:
             pickle.dump(output_dict, buf)

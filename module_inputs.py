@@ -409,13 +409,19 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
     @render.ui
     def display_usr_session_modified_time():
         ''' This has the added function of instant dependency on pkl upload, leading to immediate modal warnings if something wrong.'''
-        pkl_session_upload()
+        session_data = pkl_session_upload()
+        
+        save_time = session_data.get('SaveTime', '*datetime data missing*')
+        app_version = session_data.get('AppVersion', '*version data missing*')
+        nd_version = session_data.get('ndVersion', '*version data missing*')
+
         return ui.div(
             {"class": "callout callout-tip", "role": "alert" },
             ui.div("Session Restored", class_ = "callout-title"),
             ui.markdown(
                 f"""
-                - .NDsession loaded from:  {pkl_session_upload()['SaveTime']}
+                - .NDsession loaded from:  {save_time}
+                - Using {app_version} version of this app and {nd_version}
                 """
             )
         )
