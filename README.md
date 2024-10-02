@@ -93,16 +93,16 @@ knowledge of Python and VSCode is required.
     conda env create --file environment.yml --name NASEM_env 
     ```
 
-    > [!NOTE]
-    >
-    > There is an additional file called `requirements.txt` that is used
-    > for deploying to \<shinyapps.io\>.
-
 3.  Activate the newly created environment:
 
     ``` bash
     conda activate NASEM_env
     ```
+
+> [!NOTE]
+>
+> There is an additional file called `requirements.txt` that is used for
+> deploying to \<shinyapps.io\>.
 
 ### Step 4: Install VSCode Shiny Extension
 
