@@ -183,83 +183,151 @@ def animal_inputs_ui():
                 ),
 
 
-            ui.nav_panel(
-                'Advanced',
+            # ui.nav_panel(
+            #     'Advanced',
                 
-               # ui.panel_title("Equation selections"),
-                ui.input_numeric("An_BW_mature", "Animal mature bodyweight (kg):", 700, min=0),
+            #    # ui.panel_title("Equation selections"),
+            #     ui.input_numeric("An_BW_mature", "Animal mature bodyweight (kg):", 700, min=0),
                
                 
-                ui.input_numeric("An_GestLength", "Gestation length (d)", 280, min=0),
-                ui.input_numeric("Fet_BWbrth", "Calf birth weight (kg)", 44.1, min=0),
+            #     ui.input_numeric("An_GestLength", "Gestation length (d)", 280, min=0),
+            #     ui.input_numeric("Fet_BWbrth", "Calf birth weight (kg)", 44.1, min=0),
 
-                ui.input_numeric("An_305RHA_MlkTP", "Milk True Protein rolling heard average (kg/305 d)", 396, min = 0),
+            #     ui.input_numeric("An_305RHA_MlkTP", "Milk True Protein rolling heard average (kg/305 d)", 396, min = 0),
 
-                ui.input_numeric("An_AgeDryFdStart", "Day starter feed is first offered to calves", 14, min=0),
-                ui.input_numeric("Env_TempCurr", "Current mean daily temperature (°C)", 22, min=-50, max=50),
-                ui.input_numeric("Env_DistParlor", "Distance from the barn or paddock to the parlor (meters)", 0, min=0),
-                ui.input_numeric("Env_TripsParlor", "Number of daily trips to and from the parlor", 0, min=0),
-                ui.input_numeric("Env_Topo", "Positive elevation change per day (meters)", 0, min=0),
+            #     ui.input_numeric("An_AgeDryFdStart", "Day starter feed is first offered to calves", 14, min=0),
+            #     ui.input_numeric("Env_TempCurr", "Current mean daily temperature (°C)", 22, min=-50, max=50),
+            #     ui.input_numeric("Env_DistParlor", "Distance from the barn or paddock to the parlor (meters)", 0, min=0),
+            #     ui.input_numeric("Env_TripsParlor", "Number of daily trips to and from the parlor", 0, min=0),
+            #     ui.input_numeric("Env_Topo", "Positive elevation change per day (meters)", 0, min=0),
 
-                ui.accordion(
-                    ui.accordion_panel(
-                        'Equation selections',
-                        # ui.input_selectize(
-                        #     "DMIn_eqn",
-                        #     label = "Select DM Intake equation to use for predicting intake on Diet page (default is 'lactating, cow factors only'). Does not change model, user input DMI is always used in this app.",
-                        #     choices = DM_intake_equation_strings(),
-                        #     selected = 8, # type: ignore
-                        #     multiple = False,
-                        #     width='500px'
-                        #     ),                        
-                        ui.input_radio_buttons(
-                            "mProd_eqn", 
-                            "Milk production equation to use for calcs (currently hard-coded to use Trg_MilkProd):",
-                            choices = {0: 'Trg_MilkProd', 1: 'component based predicted', 
-                                       2: 'NE Allowable', 3: 'MP Allowable', 4: 'min(NE,MPAllow)'},  # type: ignore
-                            selected = 1 # type: ignore
-                            ), 
+            #     ui.accordion(
+            #         ui.accordion_panel(
+            #             'Equation selections',                  
+            #             ui.input_radio_buttons(
+            #                 "mProd_eqn", 
+            #                 "Milk production equation to use for calcs (currently hard-coded to use Trg_MilkProd):",
+            #                 choices = {0: 'Trg_MilkProd', 1: 'component based predicted', 
+            #                            2: 'NE Allowable', 3: 'MP Allowable', 4: 'min(NE,MPAllow)'},  # type: ignore
+            #                 selected = 1 # type: ignore
+            #                 ), 
 
-                        ui.input_radio_buttons(
-                            "mPrt_eqn", 
-                            ("Milk Protein equations and AA coefficients to use."
-                             "Target TP will use target TP for protein equations and NRC coefficients in AA equations.",
-                             "Predict TP with NRC equations and coefficients (NRC 2021)", 
-                             "VT1 coefficients from Dec. 20, 2020 - Virginia Tech (no Phe, Thr, Trp, or Val)",
-                             "VT2 coefficients from April, 2022 solutions after further data cleaning - Virginia Tech (no Arg, Phe, Trp, or Val)"
-                             ), 
-                            choices = {0: "Target TP", 1: "Predicted: NRC", 2: "Predicted: VT1", 3: "Predicted: VT2"},
-                            selected = 1),
+            #             ui.input_radio_buttons(
+            #                 "mPrt_eqn", 
+            #                 ("Milk Protein equations and AA coefficients to use."
+            #                  "Target TP will use target TP for protein equations and NRC coefficients in AA equations.",
+            #                  "Predict TP with NRC equations and coefficients (NRC 2021)", 
+            #                  "VT1 coefficients from Dec. 20, 2020 - Virginia Tech (no Phe, Thr, Trp, or Val)",
+            #                  "VT2 coefficients from April, 2022 solutions after further data cleaning - Virginia Tech (no Arg, Phe, Trp, or Val)"
+            #                  ), 
+            #                 choices = {0: "Target TP", 1: "Predicted: NRC", 2: "Predicted: VT1", 3: "Predicted: VT2"},
+            #                 selected = 1),
 
-                        ui.input_radio_buttons("mFat_eqn", "Milk Fat prediction equation", 
-                                               choices = {0: "Trg_MilkFatp", 1: "Predicted milk fat production"}, 
-                                               selected = 1),
+            #             ui.input_radio_buttons("mFat_eqn", "Milk Fat prediction equation", 
+            #                                    choices = {0: "Trg_MilkFatp", 1: "Predicted milk fat production"}, 
+            #                                    selected = 1),
 
-                        ui.input_radio_buttons("MiN_eqn", "Microbial Nitrogen (MiN) equation to use.", 
-                                               choices={1: "NRC (2021)", 2: "Hanigan (2021)", 3: "White (2017)"}, selected=1),
+            #             ui.input_radio_buttons("MiN_eqn", "Microbial Nitrogen (MiN) equation to use.", 
+            #                                    choices={1: "NRC (2021)", 2: "Hanigan (2021)", 3: "White (2017)"}, selected=1),
                      
-                        ui.input_radio_buttons(
-                            "Use_DNDF_IV", 
-                            "Use_DNDF_IV (NASEM default is Lg based)",
-                            choices = {0:"Lg based", 1:"DNDF48 for forages", 2:"DNDF48 for all"}, # type: ignore
-                            ), 
+            #             ui.input_radio_buttons(
+            #                 "Use_DNDF_IV", 
+            #                 "Use_DNDF_IV (NASEM default is Lg based)",
+            #                 choices = {0:"Lg based", 1:"DNDF48 for forages", 2:"DNDF48 for all"}, # type: ignore
+            #                 ), 
 
-                        ui.input_radio_buttons(
-                            "Monensin_eqn", 
-                            "Use Monensin equations?",
-                            choices = {0:"No", 1:"Yes"}, # type: ignore
-                            ),     
+            #             ui.input_radio_buttons(
+            #                 "Monensin_eqn", 
+            #                 "Use Monensin equations?",
+            #                 choices = {0:"No", 1:"Yes"}, # type: ignore
+            #                 ),     
                       
-                        ui.input_radio_buttons("NonMilkCP_ClfLiq", "Calves: Non-milk protein source in calf liquid feeds?", choices={0: "No", 1: "Yes"}),
+            #             ui.input_radio_buttons("NonMilkCP_ClfLiq", "Calves: Non-milk protein source in calf liquid feeds?", choices={0: "No", 1: "Yes"}),
             
-                        ui.input_radio_buttons("RumDevDisc_Clf", 
-                                               "Calves: Rumen development discount", 
-                                               choices={0: "No dry feed discount for ME due to undeveloped rumen.", 
-                                                        1: "Use a 10% discount on dry feed if Liq>1.5% of BW"})
-                    ) 
-                )
+            #             ui.input_radio_buttons("RumDevDisc_Clf", 
+            #                                    "Calves: Rumen development discount", 
+            #                                    choices={0: "No dry feed discount for ME due to undeveloped rumen.", 
+            #                                             1: "Use a 10% discount on dry feed if Liq>1.5% of BW"})
+            #         ) 
+            #     )
                 
-                )
+            #     )
+           ui.nav_panel(
+            'Advanced',
+            
+            # Single Accordion with multiple panels
+            ui.accordion(
+                # Calf-related inputs panel
+                ui.accordion_panel(
+                    'Calf',
+                    ui.input_numeric("Fet_BWbrth", "Calf birth weight (kg)", 44.1, min=0),
+                    ui.input_numeric("An_AgeDryFdStart", "Day starter feed is first offered to calves", 14, min=0),
+                    ui.input_radio_buttons("NonMilkCP_ClfLiq", "Calves: Non-milk protein source in calf liquid feeds?", choices={0: "No", 1: "Yes"}),
+                    ui.input_radio_buttons("RumDevDisc_Clf", 
+                                        "Calves: Rumen development discount", 
+                                        choices={0: "No dry feed discount for ME due to undeveloped rumen.", 
+                                                    1: "Use a 10% discount on dry feed if Liq>1.5% of BW"})
+                ),
+                
+                # Environmental & Grazing inputs panel
+                ui.accordion_panel(
+                    'Environmental & Grazing',
+                    ui.input_numeric("Env_TempCurr", "Current mean daily temperature (°C)", 22, min=-50, max=50),
+                    ui.input_numeric("Env_DistParlor", "Distance from the barn or paddock to the parlor (meters)", 0, min=0),
+                    ui.input_numeric("Env_TripsParlor", "Number of daily trips to and from the parlor", 0, min=0),
+                    ui.input_numeric("Env_Topo", "Positive elevation change per day (meters)", 0, min=0)
+                ),
+                
+                # Equation Selections panel
+                ui.accordion_panel(
+                    'Equation Selections',
+                    ui.input_radio_buttons(
+                        "mProd_eqn", 
+                        "Milk production equation to use for calcs (currently hard-coded to use Trg_MilkProd):",
+                        choices = {0: 'Trg_MilkProd', 1: 'component based predicted', 
+                                2: 'NE Allowable', 3: 'MP Allowable', 4: 'min(NE,MPAllow)'},  # type: ignore
+                        selected = 1 # type: ignore
+                    ), 
+                    ui.input_radio_buttons(
+                        "mPrt_eqn", 
+                        ("Milk Protein equations and AA coefficients to use."
+                        "Target TP will use target TP for protein equations and NRC coefficients in AA equations.",
+                        "Predict TP with NRC equations and coefficients (NRC 2021)", 
+                        "VT1 coefficients from Dec. 20, 2020 - Virginia Tech (no Phe, Thr, Trp, or Val)",
+                        "VT2 coefficients from April, 2022 solutions after further data cleaning - Virginia Tech (no Arg, Phe, Trp, or Val)"
+                        ), 
+                        choices = {0: "Target TP", 1: "Predicted: NRC", 2: "Predicted: VT1", 3: "Predicted: VT2"},
+                        selected = 1
+                    ),
+                    ui.input_radio_buttons("mFat_eqn", "Milk Fat prediction equation", 
+                                        choices = {0: "Trg_MilkFatp", 1: "Predicted milk fat production"}, 
+                                        selected = 1),
+                    ui.input_radio_buttons("MiN_eqn", "Microbial Nitrogen (MiN) equation to use.", 
+                                        choices={1: "NRC (2021)", 2: "Hanigan (2021)", 3: "White (2017)"}, selected=1),
+                    ui.input_radio_buttons(
+                        "Use_DNDF_IV", 
+                        "Use_DNDF_IV (NASEM default is Lg based)",
+                        choices = {0:"Lg based", 1:"DNDF48 for forages", 2:"DNDF48 for all"}, # type: ignore
+                    ),
+                    ui.input_radio_buttons(
+                        "Monensin_eqn", 
+                        "Use Monensin equations?",
+                        choices = {0:"No", 1:"Yes"}, # type: ignore
+                    )
+                ),
+                
+                # Other inputs panel
+                ui.accordion_panel(
+                    'Other',
+                    ui.input_numeric("An_BW_mature", "Animal mature bodyweight (kg):", 700, min=0),
+                    ui.input_numeric("An_GestLength", "Gestation length (d)", 280, min=0),
+                    ui.input_numeric("An_305RHA_MlkTP", "Milk True Protein rolling heard average (kg/305 d)", 396, min = 0)
+                ),
+                open=False
+            )
+        )
+
+
             )
     ])
 
