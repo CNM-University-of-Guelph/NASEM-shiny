@@ -7,7 +7,7 @@ import io
 import pickle
 from datetime import datetime
 
-from utils import display_diet_values, get_vars_as_df, get_clean_vars, prepare_df_render
+from utils import display_diet_values, get_vars_as_df, get_clean_vars, prepare_df_render, coerce_non_text_to_numeric
 from generate_report import generate_report
 
 
@@ -218,15 +218,14 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
     @render.data_frame
     def macro_minerals():
         # df = NASEM_out().report_minerals()['macro_minerals'].round(3)
-        df = NASEM_out().get_report('table7_1').round(3)
+        df = coerce_non_text_to_numeric(NASEM_out().get_report('table7_1'), 2)
         return prepare_df_render(df, cols_longer=None, use_DataTable=False)
-
 
      
     @render.data_frame
     def micro_minerals():
         # df = NASEM_out().report_minerals()['micro_minerals'].round(3)
-        df = NASEM_out().get_report('table7_2').round(3)
+        df = coerce_non_text_to_numeric(NASEM_out().get_report('table7_2'), 2)
         return prepare_df_render(df, cols_longer=None, use_DataTable=False)
 
     @render.download(filename=lambda: f"NASEM_report-{date.today().isoformat()}.html")

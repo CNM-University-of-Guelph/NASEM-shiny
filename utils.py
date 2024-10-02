@@ -397,3 +397,21 @@ def get_vars_as_df(vars_return: list,
 
 
 
+
+
+def contains_text(series):
+    '''
+    Check a series to see if it only contains text. If any values have text it will return False.
+    Used by `coerce_non_text_to_numeric()`
+    '''
+    return series.astype(str).str.contains(r'[a-zA-Z]').any()
+
+def coerce_non_text_to_numeric(df, dp:int = 2):
+    '''
+    Used for formatting tables from get_report() which have some columns storing numbers as text.
+    First checks if column contains letters, then converts to numeric and rounds to dp (decimal places.)
+    '''
+    for column in df.columns:
+        if not contains_text(df[column]):
+            df[column] = pd.to_numeric(df[column], errors='coerce').round(dp)
+    return df
