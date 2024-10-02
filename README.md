@@ -87,10 +87,11 @@ knowledge of Python and VSCode is required.
     conda env create --file environment.yml --name NASEM_env 
     ```
 
-    > [!IMPORTANT]
-    >
-    > There is an additional file called `requirements.txt` that is used
-    > for deploying to \<shinyapps.io\>.
+> [!IMPORTANT]
+>
+> This step uses the environment.yml file to create the conda
+> environment. There is also a file called `requirements.txt` that is
+> used for deploying the app to [](shinyapps.io).
 
 3.  Activate the newly created environment:
 
