@@ -1,5 +1,6 @@
 # NASEM 2021 Dairy Model - Shiny App
 
+
 This is the source code for a shiny app (using Shiny for Python) that
 imports the `nasem_dairy` package from
 https://github.com/CNM-University-of-Guelph/NASEM-Model-Python
@@ -21,9 +22,9 @@ be used for on-farm or commercial decisions.
 The current version of NASEM Shiny is hosted at:
 <https://dave-innes-uog.shinyapps.io/nasem_shiny/>
 
-<div>
-
-> **Acknowledgements:**
+> [!TIP]
+>
+> ### Acknowledgements:
 >
 > The Shiny App and associated python implementation of the NASEM model
 > was developed by Dave Innes, Braeden Fieguth and John Cant, University
@@ -36,8 +37,6 @@ The current version of NASEM Shiny is hosted at:
 > GitHub](https://github.com/CNM-University-of-Guelph/NASEM-Model-Python).
 >
 > <img src="./docs/media/absc_logo.png" width="240" />
-
-</div>
 
 ## Running locally
 
@@ -91,8 +90,13 @@ knowledge of Python and VSCode is required.
 2.  Create a new conda environment and install the required packages:
 
     ``` bash
-    conda create --name NASEM_env --file requirements.txt
+    conda env create --file environment.yml --name NASEM_env 
     ```
+
+    > [!NOTE]
+    >
+    > There is an additional file called `requirements.txt` that is used
+    > for deploying to \<shinyapps.io\>.
 
 3.  Activate the newly created environment:
 
