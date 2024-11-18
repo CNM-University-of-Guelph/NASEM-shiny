@@ -489,7 +489,7 @@ def animal_inputs_server(input: Inputs, output: Outputs, session: Session, user_
             ui.markdown(
                 f"""
                 - .NDsession loaded from:  {save_time}
-                - Using {app_version} version of this app and {nd_version}
+                - Using version {app_version} of this app and version {nd_version} of `nasem_dairy` python package.
                 """
             )
         )
