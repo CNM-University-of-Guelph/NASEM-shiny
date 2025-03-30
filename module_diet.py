@@ -533,7 +533,9 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
 
             # # disable demo diet:
 
-
+            # Set target DMI
+            target_DMI = session_upload_ModOut().get_value('Trg_Dt_DMIn')
+            ui.update_numeric(id = "DMI", value = target_DMI, min = 0)
 
             # # re-populate diet
             user_diet = session_upload_ModOut().get_value('user_diet')
