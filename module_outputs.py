@@ -18,9 +18,10 @@ def outputs_ui():
         ui.panel_title("NASEM Model Outputs"),
         ui.row(
             ui.column(3, ui.p(ui.em("The model is executed each time an ingredient selection or kg DM value changes."))),
-            ui.column(2, ui.download_button("btn_download_report", "Download Summary Report", class_='btn-warning'), offset=1),
+            ui.column(2, ui.input_text("file_prefix", "Enter filename prefix", placeholder="MyProjectName_"),offset=1),
+            ui.column(2, ui.download_button("btn_download_report", "Download Summary Report", class_='btn-warning')),
             ui.column(2, ui.download_button("btn_download_full_report_tables", "Download Full Report", class_='btn-warning')),
-            ui.column(3, ui.download_button("btn_pkl_download", "Download .NDsession file", class_='btn-info'))
+            ui.column(2, ui.download_button("btn_pkl_download", "Download .NDsession file", class_='btn-info')),
         ),
         ui.br(),
         ui.navset_card_tab(
@@ -231,7 +232,7 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
         df = coerce_non_text_to_numeric(NASEM_out().get_report('table7_2'), 2)
         return prepare_df_render(df, cols_longer=None, use_DataTable=False)
 
-    @render.download(filename=lambda: f"NASEM_report-{date.today().isoformat()}.html")
+    @render.download(filename=lambda: f"{input.file_prefix() or ''}NASEM_report-{datetime.now().strftime('%Y-%m-%d_%H-%M')}.html")
     def btn_download_report():
         html_out = generate_summary_report(
             df_milk=df_key_model_data_milk(),
@@ -253,8 +254,7 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
             buf.write(html_out)
             yield buf.getvalue()
 
-
-    @render.download(filename=lambda: f"NASEM-report-all-tables-{date.today().isoformat()}.html")
+    @render.download(filename=lambda: f"{input.file_prefix() or ''}NASEM-report-all-tables-{datetime.now().strftime('%Y-%m-%d_%H-%M')}.html")
     def btn_download_full_report_tables():
         table_names = [
             "table1_1", "table1_2", "table1_3b", "table2_1", "table2_2", 
@@ -276,7 +276,7 @@ def outputs_server(input: Inputs, output: Outputs, session: Session,
     # a pickle file using the .NDsession extension
 
     # Download handler
-    @render.download(filename = lambda: f"NASEM_simulation-{date.today().isoformat()}.NDsession")
+    @render.download(filename=lambda: f"{input.file_prefix() or ''}NASEM_simulation-{datetime.now().strftime('%Y-%m-%d_%H-%M')}.NDsession") 
     def btn_pkl_download():
         req(NASEM_out())
         now = datetime.now()
