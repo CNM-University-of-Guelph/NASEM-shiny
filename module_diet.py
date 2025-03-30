@@ -425,7 +425,7 @@ def diet_server(input: Inputs, output: Outputs, session: Session,
         if animal_input_reactives()['An_StatePhys']() == 'Lactating Cow':
             vars_return = ['Mlk_Prod_comp','MlkFat_Milk_p', 'MlkNP_Milk_p', 
                            'Mlk_Prod_MPalow', 'Mlk_Prod_NEalow', 'An_RDPbal_g', 
-                           'Du_MiCP_g']
+                           'Du_MiCP_g', 'An_MEIn', 'Trg_MEuse']
 
             df_lac_snapshot = (
                 get_vars_as_df(vars_return, NASEM_out())
