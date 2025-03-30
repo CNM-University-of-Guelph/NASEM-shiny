@@ -104,7 +104,7 @@ def display_diet_values(model_output = nd.ModelOutput, is_snapshot = False):
 def get_unique_feed_list(df: pd.DataFrame) -> list:
     '''
     Takes the feed library and returns a list of unique feed names
-    Excepts the column to be called 'Fd_Name'
+    Expects the column to be called 'Fd_Name'
     '''
     return df.loc[:,'Fd_Name'].drop_duplicates().to_list()
 
